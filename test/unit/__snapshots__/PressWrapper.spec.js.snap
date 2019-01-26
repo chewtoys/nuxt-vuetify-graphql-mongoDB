@@ -1,0 +1,204 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PressBox makes two layouts 1`] = `
+<div
+  class="container fluid grey"
+>
+  <nav
+    class="v-toolbar theme--light"
+    style="margin-top: 0px; padding-right: 0px; padding-left: 0px; transform: translateY(0px);"
+  >
+    <div
+      class="v-toolbar__content"
+      style="height: 64px;"
+    >
+      <div
+        class="v-toolbar__title"
+      >
+        page
+      </div>
+      <div
+        class="spacer"
+      />
+      <button
+        class="v-btn v-btn--icon theme--light"
+        type="button"
+      >
+        <div
+          class="v-btn__content"
+        >
+          dk
+        </div>
+      </button>
+    </div>
+  </nav>
+  <div
+    class="layout row wrap xs12 align-center justify-center red"
+  >
+    <nav
+      class="v-toolbar theme--light"
+      style="margin-top: 0px; padding-right: 0px; padding-left: 0px; transform: translateY(0px);"
+    >
+      <div
+        class="v-toolbar__content"
+        style="height: 64px;"
+      >
+        <div
+          class="v-toolbar__title"
+        >
+          layout1
+        </div>
+        <div
+          class="spacer"
+        />
+        <button
+          class="v-btn v-btn--icon theme--light"
+          type="button"
+        >
+          <div
+            class="v-btn__content"
+          >
+            dk
+          </div>
+        </button>
+      </div>
+    </nav>
+    <div
+      class="flex xs12 sm6 md3 align-center justify-center yellow"
+    >
+      <nav
+        class="v-toolbar theme--light"
+        style="margin-top: 0px; padding-right: 0px; padding-left: 0px; transform: translateY(0px);"
+      >
+        <div
+          class="v-toolbar__content"
+          style="height: 64px;"
+        >
+          <div
+            class="v-toolbar__title"
+          >
+            flex1.1
+          </div>
+          <div
+            class="spacer"
+          />
+          <button
+            class="v-btn v-btn--icon theme--light"
+            type="button"
+          >
+            <div
+              class="v-btn__content"
+            >
+              dk
+            </div>
+          </button>
+        </div>
+      </nav>
+      flex - flex1.1
+    </div>
+    <div
+      class="flex xs12 sm6 md3 align-center justify-center yellow"
+    >
+      <nav
+        class="v-toolbar theme--light"
+        style="margin-top: 0px; padding-right: 0px; padding-left: 0px; transform: translateY(0px);"
+      >
+        <div
+          class="v-toolbar__content"
+          style="height: 64px;"
+        >
+          <div
+            class="v-toolbar__title"
+          >
+            flex1.2
+          </div>
+          <div
+            class="spacer"
+          />
+          <button
+            class="v-btn v-btn--icon theme--light"
+            type="button"
+          >
+            <div
+              class="v-btn__content"
+            >
+              dk
+            </div>
+          </button>
+        </div>
+      </nav>
+      <div>
+        <h1>
+          Hello World!
+        </h1>
+         
+        <ul>
+          <li>
+            1
+          </li>
+          <li>
+            2
+          </li>
+          <li>
+            3
+          </li>
+          <li>
+            4
+          </li>
+          <li>
+            5
+          </li>
+          <li>
+            6
+          </li>
+          <li>
+            7
+          </li>
+          <li>
+            8
+          </li>
+          <li>
+            9
+          </li>
+          <li>
+            10
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div
+    class="layout row wrap xs12 align-center justify-center red"
+  >
+    <nav
+      class="v-toolbar theme--light"
+      style="margin-top: 0px; padding-right: 0px; padding-left: 0px; transform: translateY(0px);"
+    >
+      <div
+        class="v-toolbar__content"
+        style="height: 64px;"
+      >
+        <div
+          class="v-toolbar__title"
+        >
+          layout2
+        </div>
+        <div
+          class="spacer"
+        />
+        <button
+          class="v-btn v-btn--icon theme--light"
+          type="button"
+        >
+          <div
+            class="v-btn__content"
+          >
+            dk
+          </div>
+        </button>
+      </div>
+    </nav>
+    layout - layout2
+  </div>
+</div>
+`;
