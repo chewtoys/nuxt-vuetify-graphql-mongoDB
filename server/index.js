@@ -1,10 +1,38 @@
+import schema, { context } from './graphql/schema/schema'
+import api from './api'
+
 const express = require('express')
+// const { graphqlExpress, graphiqlExpress, graphqlConnect } = require('graphql-server-express')
+const graphqlHTTP = require('express-graphql')
+const bodyParser = require('body-parser')
 const consola = require('consola')
 const { Nuxt, Builder } = require('nuxt')
+const config = require('../nuxt.config.js')
 const app = express()
 
+app.use(
+  '/graphql',
+  bodyParser.json(),
+  graphqlHTTP(function(req, res, params) {
+    return {
+      schema: schema,
+      graphiql: true,
+      rootValue: {},
+      context: context(req.headers, { JWT_SECRET: 'tokenis' }),
+      formatError: e => {
+        const query = params.query
+        const variables = params.variables
+        console.log('Error!', e, query, JSON.stringify(variables, null, 2))
+        return e
+      }
+    }
+  })
+)
+
+// Import API Routes
+app.use('/api', api)
+
 // Import and Set Nuxt.js options
-const config = require('../nuxt.config.js')
 config.dev = !(process.env.NODE_ENV === 'production')
 
 async function start() {

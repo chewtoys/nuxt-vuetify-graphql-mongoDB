@@ -42,8 +42,23 @@ module.exports = {
   /*
   ** Nuxt.js modules
   */
-  modules: ['@nuxtjs/pwa'],
+  modules: [
+    '@nuxtjs/pwa',
+    [
+      '@nuxtjs/apollo',
+      {
+        clientConfigs: {
+          default: '~/graphql/apollo/defaultClient.js'
+        }
+      }
+    ]
+  ],
 
+  router: {
+    middleware: 'check-auth'
+  },
+
+  vendor: ['apollo-link-context'],
   /*
   ** Build configuration
   */
