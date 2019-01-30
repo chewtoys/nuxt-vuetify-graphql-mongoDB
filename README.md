@@ -18,7 +18,7 @@
   <a href="https://otechie.com/nuxt?ref=badge"><img src="https://api.otechie.com/consultancy/nuxt/badge.svg" alt="Hire Nuxt"></a>
 </p>
 
-> *쉽고, 빠르게!* 인증(회원가입/로그인)과 사용자 권한 기능이 구현된 Nuxt.js 기반의 상용구 코드.
+> 인증과 사용자권한 기능이 구현된 Nuxt.js 기반의 상용구 코드.
 
 ## Nuxt Links
 
@@ -161,6 +161,7 @@ module.exports = {
 
 Learn more: https://nuxtjs.org/guide/configuration
 
+
 ## .babelrc
 
 You might want to use your own server with your configurations, your API and everything awesome your created with. That's why you can use nuxt.js as a middleware. It's recommended to use it at the end of your middleware since it will handle the rendering of your web application and won't call next().
@@ -189,20 +190,22 @@ You might want to use your own server with your configurations, your API and eve
 
 Learn more: https://babeljs.io/docs/en/config-files#root-babelconfigjs-files
 
-## Demo
+
+## 데모 사이트
 
  https://nuxtjs.org/examples
 
-## Production deployment
 
-To deploy, instead of running nuxt, you probably want to build ahead of time. Therefore, building and starting are separate commands:
+## 배포하기
+
+실행이 아닌 배포를 위해, 먼저 빌드를 실행해야 합니다. 따라서 빌드와 실행을 구분하여 스크립트를 작성하세요.
 
 ```bash
 nuxt build
 nuxt start
 ```
 
-For example, to deploy with [`now`](https://zeit.co/now) a `package.json` like follows is recommended:
+예를 들어,  [`now`](https://zeit.co/now)에 배포하기 위해서 `package.json`을 아래와 같이 사용하기를 권장합니다:
 ```json
 {
   "name": "my-app",
@@ -216,30 +219,16 @@ For example, to deploy with [`now`](https://zeit.co/now) a `package.json` like f
   }
 }
 ```
-Then run `now` and enjoy!
+그 다음 `now` 그리고 즐겁게 놀아보세요!
 
-Note: we recommend putting `.nuxt` in `.npmignore` or `.gitignore`.
+노트:  `.nuxt` 를 `.npmignore` or `.gitignore` 에 추가하기를 권장합니다.
 
 ## Core team
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore -->
 | [<img src="https://avatars2.githubusercontent.com/u/904724?v=4" width="120px;"/><br /><sub><b>Sébastien Chopin</b></sub>](https://github.com/atinux)<br />[📝](#blog-Atinux "Blogposts") [🐛](https://github.com/Atinux/Nuxt.js/issues?q=author%3AAtinux "Bug reports") [💻](https://github.com/Atinux/Nuxt.js/commits?author=Atinux "Code") [🎨](#design-Atinux "Design") [📖](https://github.com/Atinux/Nuxt.js/commits?author=Atinux "Documentation") [💬](#question-Atinux "Answering Questions") [👀](#review-Atinux "Reviewed Pull Requests") [📢](#talk-Atinux "Talks") |
-| :---: | :---: | :---: | :---: |
 <!-- ALL-CONTRIBUTORS-LIST:END -->
-
-## Contributors
-
-Thank you to all our [contributors](https://github.com/nuxt/nuxt.js/graphs/contributors)!
-
-<a href="https://github.com/nuxt/nuxt.js/graphs/contributors"><img src="https://opencollective.com/nuxtjs/contributors.svg?width=890&button=false" /></a>
-
-## Cross-browser testing
-
-Thanks to BrowserStack!
-
-<a href="http://browserstack.com"><img height="70" src="https://p3.zdusercontent.com/attachment/1015988/PWfFdN71Aung2evRkIVQuKJpE?token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..aUrNFb8clSXsFwgw5BUTcg.IJr5piuCen7PmSSBHSrOnqM9K5YZfxX3lvbp-5LCqoKOi4CjjgdA419iqjofs0nLtm26FMURvZ8JRTuKB4iHer6lGu5f8dXHtIkYAHjP5fXDWkl044Yg2mSdrhF6uPy62GdlBYoYxwvgkNrac8nN_In8GY-qOC7bYmlZyJT7tsTZUTYbNMQiXS86YA5LgdCEWzWreMvc3C6cvZtVXIrcVgpkroIhvsTQPm4vQA-Uq6iCbTPA4oX5cpEtMtrlg4jYBnnAE4BTw5UwU_dY83ep5g.7wpc1IKv0rSRGsvqCG_q3g" alt="BrowserStack"></a>
-
 
 ## License
 
