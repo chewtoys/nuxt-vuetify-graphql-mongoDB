@@ -64,73 +64,134 @@ $ npm test
 
 참 쉽죠!
 
-## Templates
-
-:point_right: We recommend to start directly with our cli [create-nuxt-app](https://github.com/nuxt-community/create-nuxt-app) for the latest updates.
-
-Or you can start by using one of our starter templates:
-- [vue-kindergarten](https://www.npmjs.com/package/vue-kindergarten): Basic Nuxt.js project template
-- [express](https://github.com/nuxt-community/express-template): Nuxt.js + Express
-- [koa](https://github.com/nuxt-community/koa-template): Nuxt.js + Koa
-- [adonuxt](https://github.com/nuxt-community/adonuxt-template): Nuxt.js + AdonisJS
-- [micro](https://github.com/nuxt-community/micro-template): Nuxt.js + Micro
-- [nuxtent](https://github.com/nuxt-community/nuxtent-template): Nuxt.js + Nuxtent module for content heavy sites
-
-## Using nuxt.js programmatically
+## nuxt.config.js 설정
 
 ```js
-const { Nuxt, Builder } = require('nuxt')
+const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin')
+const pkg = require('./package')
 
-// Import and set nuxt.js options
-let config = require('./nuxt.config.js')
-config.dev = (process.env.NODE_ENV !== 'production')
+module.exports = {
+  mode: 'universal',
 
-let nuxt = new Nuxt(config)
+  /*
+  ** Headers of the page
+  */
+  head: {
+    title: pkg.name,
+    meta: [
+      { charset: 'utf-8' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+      { hid: 'description', name: 'description', content: pkg.description }
+    ],
+    link: [
+      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      {
+        rel: 'stylesheet',
+        href:
+          'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons'
+      }
+    ]
+  },
 
-// Start build process (only in development)
-if (config.dev) {
-  new Builder(nuxt).build()
+  /*
+  ** Customize the progress-bar color
+  */
+  loading: { color: '#fff' },
+
+  /*
+  ** Global CSS
+  */
+  css: ['~/assets/style/app.styl'],
+
+  /*
+  ** Plugins to load before mounting the App
+  */
+  plugins: ['@plugins/vuetify'],
+
+  /*
+  ** Nuxt.js modules
+  */
+  modules: [
+    '@nuxtjs/pwa',
+    [
+      '@nuxtjs/apollo',
+      {
+        clientConfigs: {
+          default: '~/graphql/apollo/defaultClient.js'
+        }
+      }
+    ]
+  ],
+
+  router: {
+    middleware: 'check-auth'
+  },
+
+  vendor: ['apollo-link-context'],
+  /*
+  ** Build configuration
+  */
+  build: {
+    transpile: ['vuetify/lib'],
+    plugins: [new VuetifyLoaderPlugin()],
+    loaders: {
+      stylus: {
+        import: ['~assets/style/variables.styl']
+      }
+    },
+
+    /*
+    ** You can extend webpack config here
+    */
+    extend(config, ctx) {
+      // Run ESLint on save
+      if (ctx.isDev && ctx.isClient) {
+        config.module.rules.push({
+          enforce: 'pre',
+          test: /\.(js|vue)$/,
+          loader: 'eslint-loader',
+          exclude: /(node_modules)/
+        })
+      }
+    }
+  }
 }
 
-// You can use nuxt.render(req, res) or nuxt.renderRoute(route, context)
 ```
 
-Learn more: https://nuxtjs.org/api/nuxt
+Learn more: https://nuxtjs.org/guide/configuration
 
-## Using nuxt.js as a middleware
+## .babelrc
 
 You might want to use your own server with your configurations, your API and everything awesome your created with. That's why you can use nuxt.js as a middleware. It's recommended to use it at the end of your middleware since it will handle the rendering of your web application and won't call next().
 
-```js
-app.use(nuxt.render)
+```json
+{
+  "env": {
+    "test": {
+      "presets": [
+        [
+          "@babel/preset-env",
+          {
+            "targets": {
+              "node": "current"
+            }
+          }
+        ],
+        "@nuxt/babel-preset-app"
+      ]
+    }
+  },
+  "plugins": ["babel-plugin-transform-runtime", "transform-async-to-generator"]
+}
+
 ```
 
-Learn more: https://nuxtjs.org/api/nuxt-render
+Learn more: https://babeljs.io/docs/en/config-files#root-babelconfigjs-files
 
-## Render a specific route
+## Demo
 
-This is mostly used for `nuxt generate` and test purposes but you might find another utility!
-
-```js
-nuxt.renderRoute('/about', context)
-.then(function ({ html, error }) {
-  // You can check error to know if your app displayed the error page for this route
-  // Useful to set the correct status code if an error appended:
-  if (error) {
-    return res.status(error.statusCode || 500).send(html)
-  }
-  res.send(html)
-})
-.catch(function (error) {
-  // And error appended while rendering the route
-})
-```
-
-Learn more: https://nuxtjs.org/api/nuxt-render-route
-
-## Examples
-
-Please take a look at https://nuxtjs.org/examples or directly in https://github.com/nuxt/nuxt.js/tree/dev/examples.
+ https://nuxtjs.org/examples
 
 ## Production deployment
 
@@ -163,9 +224,8 @@ Note: we recommend putting `.nuxt` in `.npmignore` or `.gitignore`.
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore -->
-| [<img src="https://avatars2.githubusercontent.com/u/904724?v=4" width="120px;"/><br /><sub><b>Sébastien Chopin</b></sub>](https://github.com/atinux)<br />[📝](#blog-Atinux "Blogposts") [🐛](https://github.com/Atinux/Nuxt.js/issues?q=author%3AAtinux "Bug reports") [💻](https://github.com/Atinux/Nuxt.js/commits?author=Atinux "Code") [🎨](#design-Atinux "Design") [📖](https://github.com/Atinux/Nuxt.js/commits?author=Atinux "Documentation") [💬](#question-Atinux "Answering Questions") [👀](#review-Atinux "Reviewed Pull Requests") [📢](#talk-Atinux "Talks") | [<img src="https://avatars2.githubusercontent.com/u/4084277?v=4" width="120px;"/><br /><sub><b>Alexandre Chopin</b></sub>](https://github.com/alexchopin)<br />[🎨](#design-alexchopin "Design") [📖](https://github.com/Atinux/Nuxt.js/commits?author=alexchopin "Documentation") [📋](#eventOrganizing-alexchopin "Event Organizing") [📦](#platform-alexchopin "Packaging/porting to new platform") [💬](#question-alexchopin "Answering Questions") [📢](#talk-alexchopin "Talks") | [<img src="https://avatars0.githubusercontent.com/u/5158436?v=4" width="120px;"/><br /><sub><b>Pooya Parsa</b></sub>](https://github.com/pi0)<br />[🐛](https://github.com/Atinux/Nuxt.js/issues?q=author%3Api0 "Bug reports") [💻](https://github.com/Atinux/Nuxt.js/commits?author=pi0 "Code") [🔌](#plugin-pi0 "Plugin/utility libraries") [💬](#question-pi0 "Answering Questions") [👀](#review-pi0 "Reviewed Pull Requests") [🔧](#tool-pi0 "Tools") | [<img src="https://avatars3.githubusercontent.com/u/4312154?v=4" width="120px;"/><br /><sub><b>Clark Du</b></sub>](https://github.com/clarkdo)<br />[🐛](https://github.com/Atinux/Nuxt.js/issues?q=author%3Aclarkdo "Bug reports") [💻](https://github.com/Atinux/Nuxt.js/commits?author=clarkdo "Code") [💡](#example-clarkdo "Examples") [👀](#review-clarkdo "Reviewed Pull Requests") [⚠️](https://github.com/Atinux/Nuxt.js/commits?author=clarkdo "Tests") [🔧](#tool-clarkdo "Tools") |
+| [<img src="https://avatars2.githubusercontent.com/u/904724?v=4" width="120px;"/><br /><sub><b>Sébastien Chopin</b></sub>](https://github.com/atinux)<br />[📝](#blog-Atinux "Blogposts") [🐛](https://github.com/Atinux/Nuxt.js/issues?q=author%3AAtinux "Bug reports") [💻](https://github.com/Atinux/Nuxt.js/commits?author=Atinux "Code") [🎨](#design-Atinux "Design") [📖](https://github.com/Atinux/Nuxt.js/commits?author=Atinux "Documentation") [💬](#question-Atinux "Answering Questions") [👀](#review-Atinux "Reviewed Pull Requests") [📢](#talk-Atinux "Talks") |
 | :---: | :---: | :---: | :---: |
-| [<img src="https://avatars0.githubusercontent.com/u/640208?s=460&v=4" width="120px;"/><br /><sub><b>Alexander Lichter</b></sub>](https://github.com/manniL)<br />[💬](#question-manniL "Answering Questions") [🐛](https://github.com/Atinux/Nuxt.js/issues?q=author%3AmanniL "Bug reports") [💻](https://github.com/Atinux/Nuxt.js/commits?author=manniL "Code") [💡](#example-manniL "Examples") [👀](#review-manniL "Reviewed Pull Requests") [⚠️](https://github.com/Atinux/Nuxt.js/commits?author=manniL "Tests") | [<img src="https://avatars1.githubusercontent.com/u/12291?s=460&v=4" width="120px;"/><br /><sub><b>Jonas Galvez</b></sub>](https://github.com/galvez)<br />[💬](#question-galvez "Answering Questions") [🐛](https://github.com/Atinux/Nuxt.js/issues?q=author%3Agalvez "Bug reports") [💻](https://github.com/Atinux/Nuxt.js/commits?author=galvez "Code") [💡](#example-galvez "Examples") [👀](#review-galvez "Reviewed Pull Requests") [⚠️](https://github.com/Atinux/Nuxt.js/commits?author=galvez "Tests") | [<img src="https://avatars2.githubusercontent.com/u/571159?v=4" width="120px;"/><br /><sub><b>Dmitry Molotkov</b></sub>](https://github.com/aldarund)<br />[💬](#question-aldarund "Answering Questions") [🐛](https://github.com/Atinux/Nuxt.js/issues?q=author%3Aaldarund "Bug reports") [💻](https://github.com/Atinux/Nuxt.js/commits?author=aldarund "Code") [🤔](#ideas-aldarund "Ideas, Planning, & Feedback") [👀](#review-aldarund "Reviewed Pull Requests") | [<img src="https://avatars2.githubusercontent.com/u/25272043?v=4" width="120px;"/><br /><sub><b>Kevin Marrec</b></sub>](https://github.com/kevinmarrec)<br />[💻](https://github.com/Atinux/Nuxt.js/commits?author=kevinmarrec "Code") [🤔](#ideas-kevinmarrec "Ideas, Planning, & Feedback") [📦](#platform-kevinmarrec "Packaging/porting to new platform") [👀](#review-kevinmarrec "Reviewed Pull Requests") |
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 ## Contributors
@@ -174,20 +234,12 @@ Thank you to all our [contributors](https://github.com/nuxt/nuxt.js/graphs/contr
 
 <a href="https://github.com/nuxt/nuxt.js/graphs/contributors"><img src="https://opencollective.com/nuxtjs/contributors.svg?width=890&button=false" /></a>
 
-## Contributing
-
-Please refer to our [Contribution Guide](https://nuxtjs.org/guide/contribution-guide#codefund_ad)
-
 ## Cross-browser testing
 
 Thanks to BrowserStack!
 
 <a href="http://browserstack.com"><img height="70" src="https://p3.zdusercontent.com/attachment/1015988/PWfFdN71Aung2evRkIVQuKJpE?token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..aUrNFb8clSXsFwgw5BUTcg.IJr5piuCen7PmSSBHSrOnqM9K5YZfxX3lvbp-5LCqoKOi4CjjgdA419iqjofs0nLtm26FMURvZ8JRTuKB4iHer6lGu5f8dXHtIkYAHjP5fXDWkl044Yg2mSdrhF6uPy62GdlBYoYxwvgkNrac8nN_In8GY-qOC7bYmlZyJT7tsTZUTYbNMQiXS86YA5LgdCEWzWreMvc3C6cvZtVXIrcVgpkroIhvsTQPm4vQA-Uq6iCbTPA4oX5cpEtMtrlg4jYBnnAE4BTw5UwU_dY83ep5g.7wpc1IKv0rSRGsvqCG_q3g" alt="BrowserStack"></a>
 
-
-## Security
-
-If you discover a security vulnerability regarding Nuxt.js, please send an e-mail to the team via security@nuxtjs.org! All security vulnerabilities will be promptly addressed.
 
 ## License
 
