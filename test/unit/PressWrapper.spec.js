@@ -47,7 +47,7 @@ describe('PressBox', () => {
 
     expect(wrapper.element).toMatchSnapshot()
 
-    const layoutArray = wrapper.findAll('.layout')
-    expect(layoutArray.length).toBe(2)
+    const layoutArray = wrapper.findAll('.flex')
+    expect(layoutArray.length).toBe(1)
   })
 })
