@@ -40,17 +40,29 @@
 - 토큰 기반 사용자 인증([Jwt](https://jwt.io/))
 - 사용자/그룹 권한 관리([vue-kindergarten](https://www.npmjs.com/package/vue-kindergarten))
 - 소셜 인증([Passport](http://www.passportjs.org/))
+- 화면: 홈, 회원가입/로그인, 프로필, 어드민
 
-Learn more at [nuxtjs.org](https://nuxtjs.org).
-
-
-## Getting started
+## 설치
 
 ```
-$ npx create-nuxt-app <project-name>
+$ git clone https://github.com/she110ff/nuxt-vuetify-graphql-mongoDB.git
+$ cd nuxt-vuetify-graphql-mongoDB
+$ npm install
 ```
 
-It's as simple as that!
+## 시작하기
+
+```
+$ npm run dev(or start)
+```
+
+## 테스트
+
+```
+$ npm test
+```
+
+참 쉽죠!
 
 ## Templates
 
