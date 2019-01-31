@@ -4,13 +4,13 @@ import bcrypt from 'bcrypt'
 
 const posts = [
   {
-    id: '123',
+    author: '123',
     title: 'Bài 1',
     slug: 'bai-1',
     content: '<strong>Nội dung bài 1</strong>'
   },
   {
-    id: '345',
+    author: '345',
     title: 'Bài 2',
     slug: 'bai-2',
     content: '<strong>Nội dung bài 2</strong>'
@@ -29,7 +29,7 @@ const resolvers = {
     },
     post: (obj, args) => {
       console.log(args)
-      const result = _.find(posts, { id: args.id })
+      const result = _.find(posts, { author: args.author })
       console.log(result)
       return result
     }

@@ -18,7 +18,7 @@ const typeDefs = `
     }
     type Query {
       currentUser: User,
-      post(id: String): Post
+      post(author: String): Post
     }
     type Mutation {
         addPost(
