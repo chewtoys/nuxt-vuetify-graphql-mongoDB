@@ -11,7 +11,6 @@ export default ctx => {
   const loggerLink =
     process.env.NODE_ENV !== 'production' ? [new ApolloLogger()] : []
 
-  console.log('GRAPHQL_API:', cf.GRAPHQL_API)
   const httpLink = new HttpLink({
     uri: cf.GRAPHQL_API,
     credentials: 'same-origin'
@@ -32,6 +31,7 @@ export default ctx => {
   return {
     httpEndpoint: 'http://localhost:3000/graphql',
     link: ApolloLink.from([...loggerLink, authLink, httpLink]),
+    defaultHttpLink: false,
     cache: new InMemoryCache()
   }
 }

@@ -40,7 +40,6 @@ const resolvers = {
       const author = await user
       const email = author.email
       if (user) {
-        console.log('addPost > author', author)
         const Posts = mongo.collection('posts')
         await Posts.insertOne(
           { authur: email, title: args.title, content: args.content },
@@ -70,7 +69,7 @@ const resolvers = {
         throw new Error('Password is incorrect')
       }
 
-      user.token = jwt.sign({ _id: user._id }, secrets.JWT_SECRET)
+      user.accessToken = jwt.sign({ _id: user._id }, secrets.JWT_SECRET)
       return user
     },
     createUser: async (root, { email, password }, { mongo, secrets }) => {

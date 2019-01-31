@@ -17,7 +17,6 @@
 </template>
 
 <script>
-import list from '../graphql/query/postList.gql'
 import post from '../graphql/mutation/post.gql'
 export default {
   name: 'post',
@@ -57,16 +56,10 @@ export default {
           console.log(JSON.stringify(error))
         }
       } else return false
-    },
-    async loadPosts() {
-      const result = await this.$apollo.mutate({
-        query: list
-      })
-      console.log('loadPosts > result :', result)
     }
   },
   mounted() {
-    this.loadPosts()
+    // this.loadPosts()
   }
 }
 </script>

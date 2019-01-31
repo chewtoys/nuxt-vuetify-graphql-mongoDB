@@ -1,5 +1,5 @@
 import { makeExecutableSchema } from 'graphql-tools'
-import { MongoClient, ObjectId } from 'mongodb'
+import { ObjectId } from 'mongodb'
 import jwt from 'jsonwebtoken'
 import resolvers from './resolvers'
 
@@ -7,7 +7,7 @@ const typeDefs = `
     type User {
       _id: String
       email: String
-      token: String
+      accessToken: String
     }
     type Post {
         _id: String!
@@ -56,8 +56,6 @@ const getUser = async (authorization, secrets, mongo) => {
         }
       })
     )
-    console.log('ok :', ok)
-    console.log('result :', result)
 
     if (ok) {
       const user = await mongo
@@ -72,29 +70,9 @@ const getUser = async (authorization, secrets, mongo) => {
 
   return null
 }
-let mongo
-export function context(headers, secrets) {
+
+export async function context(headers, secrets, mongo) {
   // Optional: Export a function to get context from the request.
-  const CONNECTION_URL =
-    'mongodb+srv://nuxt-user-1:' +
-    encodeURIComponent('nuxt1234') +
-    '@cluster0-gjlob.mongodb.net/graphql-auth-demo-1?retryWrites=true'
-  const DATABASE_NAME = 'graphql-auth-demo-1'
-
-  if (!mongo) {
-    MongoClient.connect(
-      CONNECTION_URL,
-      { useNewUrlParser: true },
-      (error, client) => {
-        if (error) {
-          throw error
-        }
-        mongo = client.db(DATABASE_NAME)
-        console.log('Connected to `' + DATABASE_NAME + '`!')
-      }
-    )
-  }
-
-  const user = getUser(headers.authorization, secrets, mongo)
+  const user = await getUser(headers.authorization, secrets, mongo)
   return { headers, secrets, mongo, user }
 }

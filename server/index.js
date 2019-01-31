@@ -1,3 +1,4 @@
+import { MongoClient } from 'mongodb'
 import schema, { context } from './graphql/schema/schema'
 import api from './api'
 
@@ -9,16 +10,17 @@ const consola = require('consola')
 const { Nuxt, Builder } = require('nuxt')
 const config = require('../nuxt.config.js')
 const app = express()
+let mongo = null
 
 app.use(
   '/graphql',
   bodyParser.json(),
-  graphqlHTTP(function(req, res, params) {
+  graphqlHTTP(async function(req, res, params) {
     return {
       schema: schema,
       graphiql: true,
       rootValue: {},
-      context: context(req.headers, { JWT_SECRET: 'tokenis' }),
+      context: await context(req.headers, { JWT_SECRET: 'tokenis' }, mongo),
       formatError: e => {
         const query = params.query
         const variables = params.variables
@@ -53,11 +55,30 @@ async function start() {
   // Give nuxt middleware to express
   app.use(nuxt.render)
 
-  // Listen the server
-  app.listen(port, host)
-  consola.ready({
-    message: `Server listening on http://${host}:${port}`,
-    badge: true
-  })
+  const CONNECTION_URL =
+    'mongodb+srv://nuxt-user-1:' +
+    encodeURIComponent('nuxt1234') +
+    '@cluster0-gjlob.mongodb.net/graphql-auth-demo-1?retryWrites=true'
+  const DATABASE_NAME = 'graphql-auth-demo-1'
+
+  if (!mongo) {
+    MongoClient.connect(
+      CONNECTION_URL,
+      { useNewUrlParser: true },
+      (error, client) => {
+        if (error) {
+          throw error
+        }
+        mongo = client.db(DATABASE_NAME)
+        console.log('Connected to `' + DATABASE_NAME + '`!')
+        // Listen the server
+        app.listen(port, host)
+        consola.ready({
+          message: `Server listening on http://${host}:${port}`,
+          badge: true
+        })
+      }
+    )
+  }
 }
 start()

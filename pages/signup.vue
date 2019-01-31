@@ -266,9 +266,7 @@ export default {
           })
           this.$store.commit('SET_ACCESS_TOKEN', result.data.login.accessToken)
           // https://github.com/apollographql/apollo-client/issues/2919
-          // this.$apollo.provider.defaultClient.resetStore()
-          this.$router.push('/post')
-
+          this.$apollo.provider.defaultClient.resetStore()
           this.$router.push('/post')
         } catch (error) {
           console.log('error :', error)

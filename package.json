@@ -9,9 +9,9 @@
     "build": "nuxt build",
     "start": "cross-env NODE_ENV=production node server/start.js",
     "generate": "nuxt generate",
-    "lint": "eslint --ext .js,.vue --ignore-path .gitignore .",
+    "lint": "eslint --quiet --ext .js,.vue --ignore-path .gitignore .",
     "precommit": "npm run lint",
-    "test": "jest --coverage --silent"
+    "test": "jest --coverage"
   },
   "dependencies": {
     "@nuxtjs/apollo": "^4.0.0-rc2.3",
@@ -37,7 +37,7 @@
     "lodash": "^4.17.11",
     "mongodb": "^3.1.13",
     "nuxt": "^2.3.4",
-    "vue-apollo": "^3.0.0-beta.27",
+    "vue-apollo": "^3.0.0-beta.20",
     "vuetify": "^1.3.14",
     "vuetify-loader": "^1.0.8"
   },
