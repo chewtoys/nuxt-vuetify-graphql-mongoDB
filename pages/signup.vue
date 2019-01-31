@@ -173,16 +173,12 @@ export default {
       this.valid = true
       console.log('valid:', this.valid)
       if (this.valid) {
-        // alert('HURRAAYYY!! :-)\n\n' + JSON.stringify(this.user))
-
         try {
           const { email, password } = this.user
           const result = await this.$apollo.mutate({
             mutation: register,
             variables: { email, password }
           })
-          console.log('result :', result)
-          console.log('process.server is :', process.server)
           Cookies.set('accessToken', result.data.login.accessToken, {
             expires: 365
           })
@@ -191,10 +187,7 @@ export default {
           // this.$apollo.provider.defaultClient.resetStore()
           this.$router.push('/post')
         } catch (error) {
-          console.log('error :', error)
           this.loading--
-          this.errors.push(error.message)
-          console.log(JSON.stringify(error))
         }
       } else return false
     },
@@ -260,7 +253,6 @@ export default {
             mutation: login,
             variables: { email, password }
           })
-          console.log('result :', result)
           Cookies.set('accessToken', result.data.login.accessToken, {
             expires: 365
           })
@@ -269,10 +261,7 @@ export default {
           this.$apollo.provider.defaultClient.resetStore()
           this.$router.push('/post')
         } catch (error) {
-          console.log('error :', error)
           this.loading--
-          this.errors.push(error.message)
-          console.log(JSON.stringify(error))
         }
       } else return false
     }

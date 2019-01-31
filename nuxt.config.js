@@ -45,7 +45,7 @@ module.exports = {
   modules: [
     '@nuxtjs/pwa',
     [
-      '@nuxtjs/apollo',
+      '~/custom/apollo',
       {
         clientConfigs: {
           default: '~/graphql/apollo/defaultClient.js'
