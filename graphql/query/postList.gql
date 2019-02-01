@@ -1,9 +1,0 @@
-query getPosts($page: Number!) {
-  getPosts: getPostsByAuthor(page: $page) {
-    author
-    posts {
-      title
-      content
-    }
-  }
-}

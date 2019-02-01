@@ -1,0 +1,10 @@
+query mypost() {
+  posts: post() {
+    posts {
+      post {
+        title
+        content
+      }
+    }
+  }
+}

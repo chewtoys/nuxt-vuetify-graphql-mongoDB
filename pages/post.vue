@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import post from '../graphql/mutation/post.gql'
+import addPost from '../graphql/mutation/addPost.gql'
 export default {
   name: 'post',
   layout: 'post',
@@ -45,7 +45,7 @@ export default {
         try {
           const { title, content } = this.post
           const result = await this.$apollo.mutate({
-            mutation: post,
+            mutation: addPost,
             variables: { title, content }
           })
           console.log('result :', result)

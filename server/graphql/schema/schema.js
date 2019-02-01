@@ -5,20 +5,19 @@ import resolvers from './resolvers'
 
 const typeDefs = `
     type User {
-      _id: String
-      email: String
+      email: String!
       accessToken: String
+      posts: [Post] # the list of Posts by this author
     }
     type Post {
-        _id: String!
-        author: String!
+        author: User!
         title: String!
         slug: String
         content: String
     }
     type Query {
-      currentUser: User,
-      post(author: String): Post
+      posts: [Post],
+      me: User  
     }
     type Mutation {
         addPost(

@@ -1,0 +1,10 @@
+query posts($title: String) {
+  posts: post(title: $title) {
+    posts {
+      post {
+        title
+        content
+      }
+    }
+  }
+}
