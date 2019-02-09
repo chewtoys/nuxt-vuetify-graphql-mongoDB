@@ -57,9 +57,7 @@ export default {
       } else return false
     }
   },
-  mounted() {
-    // this.loadPosts()
-  }
+  mounted() {}
 }
 </script>
 

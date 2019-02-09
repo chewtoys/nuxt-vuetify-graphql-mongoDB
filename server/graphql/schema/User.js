@@ -3,16 +3,17 @@ import bcrypt from 'bcrypt'
 
 export const typeDef = `
   extend type Query {
-    user(email: String!): User
+    user(email: String!): User!
   }
 
   extend type Mutation {
-    signin(email:String!, password:String!):AuthPayload
-    signup(email:String!, password:String!):AuthPayload
+    signin(email:String!, password:String!):AuthPayload!
+    signup(email:String!, password:String!, name:String!):AuthPayload!
   }
 
   type User {
     admin: Boolean
+    name: String!
     email: String!
     posts: [Post] # the list of Posts by this author
   } 
@@ -42,17 +43,16 @@ export const resolvers = {
       if (!validPassword) {
         throw new Error('Password is incorrect')
       }
-      const AuthPayload = {}
-      AuthPayload.accessToken = jwt.sign({ _id: user._id }, secrets.JWT_SECRET)
-      return AuthPayload
+      const accessToken = jwt.sign({ _id: user._id }, secrets.JWT_SECRET)
+      return { accessToken }
     },
-    signup: async (root, { email, password }, { mongo, secrets }) => {
+    signup: async (root, { email, password, name }, { mongo, secrets }) => {
       const Users = mongo.collection('users')
       const existingUser = await Users.findOne({ email })
       if (existingUser) {
         throw new Error('Email already used')
       }
-      await Users.insertOne({ email })
+      await Users.insertOne({ admin: false, email, name })
       const Auths = mongo.collection('auths')
       const hash = await bcrypt.hash(password, 10)
       await Auths.insertOne({ email, password: hash })

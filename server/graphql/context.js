@@ -26,6 +26,7 @@ const getUser = async (authorization, secrets, mongo) => {
       const user = await mongo
         .collection('users')
         .findOne({ _id: ObjectId(result._id) })
+
       return user
     } else {
       console.error(result)

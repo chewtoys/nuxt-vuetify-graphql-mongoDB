@@ -4,10 +4,6 @@
       <app-logo/>
       <h1 class="title">{{ name }}</h1>
       <h2 class="subtitle">{{ description }}</h2>
-      <div class="links">
-        <nuxt-link class="button--green" to="/signup">Login</nuxt-link>
-        <nuxt-link class="button--grey" to="/post">Post</nuxt-link>
-      </div>
     </div>
   </section>
 </template>
@@ -21,7 +17,7 @@ export default {
   data() {
     return {
       name: 'NewPress',
-      description: 'nuxt + vuetify + graphql + express + mongodb'
+      description: 'nuxt + graphql + express + mongodb + vuetify'
     }
   }
 }

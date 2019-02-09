@@ -34,7 +34,6 @@ export const resolvers = {
           title: args.title,
           content: args.content
         })
-        console.log('post :', post.ops[0])
         return post.ops[0]
       } else throw new Error('User is not authenticated!')
     }
