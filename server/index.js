@@ -1,5 +1,6 @@
 import { MongoClient } from 'mongodb'
-import schema, { context } from './graphql/schema/schema'
+import schema from './graphql/schema'
+import { context } from './graphql/context'
 import api from './api'
 
 const express = require('express')

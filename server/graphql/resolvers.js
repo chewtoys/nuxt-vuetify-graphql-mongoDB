@@ -4,12 +4,12 @@ import bcrypt from 'bcrypt'
 
 const resolvers = {
   Query: {
-    me: (root, args, { mongo, user }) => {
+    user: (root, args, { user }) => {
       return user
     },
-    posts: (root, args, { mongo, user }) => {
+    post: (root, args, { mongo, user }) => {
       const Posts = mongo.collection('posts')
-      const result = Posts.find({ author: user.email }, function(err, r) {
+      const result = Posts.findOne({ author: user.email }, function(err, r) {
         if (err) throw new Error('Failed add post!')
       })
       return result
@@ -20,13 +20,13 @@ const resolvers = {
     addPost: async (root, args, { mongo, user }) => {
       if (user) {
         const Posts = mongo.collection('posts')
-        const post = await Posts.insertOne(
-          { authur: user.email, title: args.title, content: args.content },
-          function(err, r) {
-            if (err) throw new Error('Failed add post!')
-          }
-        )
-        return post
+        const post = await Posts.insertOne({
+          authur: user.email,
+          title: args.title,
+          content: args.content
+        })
+        console.log('post :', post.ops[0])
+        return post.ops[0]
       } else throw new Error('User is not authenticated!')
     },
     signinUser: async (root, { email, password }, { mongo, secrets }) => {
@@ -60,13 +60,19 @@ const resolvers = {
   }, // Mutation
 
   User: {
-    posts: (root, args, { mongo, user }) =>
-      mongo.collection('posts').find({ author: { email: user.email } })
+    posts: async (user, args, { mongo }) => {
+      const posts = await mongo
+        .collection('posts')
+        .find({ author: user.email })
+        .toArray()
+      return posts
+    }
   },
 
   Post: {
-    author: (root, args, { mongo, user }) =>
-      mongo.collection('users').find({ email: user.email })
+    author: (author, args, { mongo }) => {
+      return mongo.collection('users').findOne({ email: author.author })
+    }
   }
 }
 

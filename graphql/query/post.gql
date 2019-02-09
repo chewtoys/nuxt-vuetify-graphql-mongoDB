@@ -1,0 +1,9 @@
+
+query post() {
+  post: post(id:String!) {
+    post {
+      title
+      content
+    }
+  }
+}

@@ -1,5 +1,13 @@
 query posts($title: String) {
-  posts: post(title: $title) {
+  postsByTitle: postsByTitle(title: $title) {
+    posts {
+      post {
+        title
+        content
+      }
+    }
+  }
+  postsByAuthor: postsByAuthor(title: $title) {
     posts {
       post {
         title

@@ -44,11 +44,10 @@ export default {
       if (this.valid) {
         try {
           const { title, content } = this.post
-          const result = await this.$apollo.mutate({
+          await this.$apollo.mutate({
             mutation: addPost,
             variables: { title, content }
           })
-          console.log('result :', result)
         } catch (error) {
           console.log('error :', error)
           this.loading--

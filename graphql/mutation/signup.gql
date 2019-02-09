@@ -1,5 +1,11 @@
-mutation register($email: String!, $password: String!) {
-  register: createUser(email: $email, password: $password) {
-    email
+mutation signup($email: String!, $password: String!) {
+  signup: signup(email: $email, password: $password) {
+    accessToken
+    user {
+      email
+      posts {
+        title
+      }
+    }
   }
 }

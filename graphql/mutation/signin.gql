@@ -1,0 +1,13 @@
+mutation signin($email: String!, $password: String!) {
+  signin: signin(email: $email, password: $password) {
+    accessToken
+    user {
+      email
+      posts {
+        _id
+        title
+        content
+      }
+    }
+  }
+}

@@ -1,5 +1,5 @@
-/*eslint no-inner-declarations: 2*/
 /*eslint-env es6*/
+/*eslint no-inner-declarations: 2*/
 <template>
   <!-- <el-card class="register-card">
     <div slot="header">
@@ -67,8 +67,8 @@
       required
     ></v-text-field>
     <v-layout justify-space-between>
-      <v-btn @click="register" class="blue darken-4 white--text">SignUp</v-btn>
-      <v-btn @click="login" class="blue darken-4 white--text">Login</v-btn>
+      <v-btn @click="signup" class="blue darken-4 white--text">SignUp</v-btn>
+      <v-btn @click="signin" class="blue darken-4 white--text">Login</v-btn>
       <nuxt-link to="/">Home</nuxt-link>
     </v-layout>
   </v-form>
@@ -76,8 +76,8 @@
 
 <script>
 import Cookies from 'js-cookie'
-import register from '../graphql/mutation/signup.gql'
-import login from '../graphql/mutation/login.gql'
+import signup from '../graphql/mutation/signup.gql'
+import signin from '../graphql/mutation/signin.gql'
 export default {
   name: 'signup',
   layout: 'card',
@@ -119,8 +119,7 @@ export default {
     }
   },
   methods: {
-    async register() {
-      console.log(' this.user', this.user)
+    async signup() {
       const validateName = name => {
         if (!name.length) {
           return { valid: false, error: 'This field is required' }
@@ -176,7 +175,7 @@ export default {
         try {
           const { email, password } = this.user
           const result = await this.$apollo.mutate({
-            mutation: register,
+            mutation: signup,
             variables: { email, password }
           })
           Cookies.set('accessToken', result.data.login.accessToken, {
@@ -191,7 +190,7 @@ export default {
         }
       } else return false
     },
-    async login() {
+    async signin() {
       console.log(' this.user', this.user)
       const validateName = name => {
         if (!name.length) {
@@ -250,7 +249,7 @@ export default {
         try {
           const { email, password } = this.user
           const result = await this.$apollo.mutate({
-            mutation: login,
+            mutation: signin,
             variables: { email, password }
           })
           Cookies.set('accessToken', result.data.login.accessToken, {

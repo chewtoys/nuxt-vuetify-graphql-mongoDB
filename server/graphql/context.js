@@ -1,39 +1,5 @@
-import { makeExecutableSchema } from 'graphql-tools'
 import { ObjectId } from 'mongodb'
 import jwt from 'jsonwebtoken'
-import resolvers from './resolvers'
-
-const typeDefs = `
-    type User {
-      email: String!
-      accessToken: String
-      posts: [Post] # the list of Posts by this author
-    }
-    type Post {
-        author: User!
-        title: String!
-        slug: String
-        content: String
-    }
-    type Query {
-      posts: [Post],
-      me: User  
-    }
-    type Mutation {
-        addPost(
-            title: String,
-            slug: String,
-            content: String
-        ): Post
-        signinUser(email: String!, password: String!): User
-        createUser(email: String!, password: String!): User
-    }
-`
-
-export default makeExecutableSchema({
-  typeDefs,
-  resolvers
-})
 
 const getUser = async (authorization, secrets, mongo) => {
   const bearerLength = 'Bearer '.length
