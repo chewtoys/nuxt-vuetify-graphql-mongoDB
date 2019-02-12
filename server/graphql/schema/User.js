@@ -12,7 +12,7 @@ export const typeDef = `
   }
 
   type User {
-    admin: Boolean
+    role: String!
     name: String!
     email: String!
     posts: [Post] # the list of Posts by this author
@@ -44,7 +44,9 @@ export const resolvers = {
         throw new Error('Password is incorrect')
       }
       const accessToken = jwt.sign({ _id: user._id }, secrets.JWT_SECRET)
-      return { accessToken }
+      const authPayload = { accessToken }
+      authPayload.user = user
+      return authPayload
     },
     signup: async (root, { email, password, name }, { mongo, secrets }) => {
       const Users = mongo.collection('users')
@@ -52,13 +54,15 @@ export const resolvers = {
       if (existingUser) {
         throw new Error('Email already used')
       }
-      await Users.insertOne({ admin: false, email, name })
+      await Users.insertOne({ role: 'user', email, name })
       const Auths = mongo.collection('auths')
       const hash = await bcrypt.hash(password, 10)
       await Auths.insertOne({ email, password: hash })
       const user = await Users.findOne({ email })
       const accessToken = jwt.sign({ _id: user._id }, secrets.JWT_SECRET)
-      return { accessToken }
+      const authPayload = { accessToken }
+      authPayload.user = user
+      return authPayload
     }
   },
   User: {
@@ -68,12 +72,6 @@ export const resolvers = {
         .find({ authorId: user.email })
         .toArray()
       return posts
-    }
-  },
-  AuthPayload: {
-    user: (auth, args, { mongo, user }) => {
-      if (user) return user
-      else return null
     }
   }
 }

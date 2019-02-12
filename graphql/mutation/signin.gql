@@ -4,11 +4,7 @@ mutation signin($email: String!, $password: String!) {
     user {
       name
       email
-      posts {
-        _id
-        title
-        content
-      }
+      role
     }
   }
 }

@@ -3,7 +3,7 @@
 <template>
   <div>
     <ul id="example-1">
-      <li v-for="item in items" :key="item.id">{{ item.message }}</li>
+      <li v-for="post in posts" :key="post._id">{{ post.title }}</li>
     </ul>
     <v-form>
       <v-text-field v-model="post.title" placeholder="Title" required/>
@@ -17,49 +17,39 @@
 </template>
 
 <script>
-import addPost from '../graphql/mutation/addPost.gql'
+import postsByTitle from '../graphql/query/posts.gql'
 import articlesPerimeter from '~/kindergarten/perimeters/articles'
 import RouteGoverness from '~/kindergarten/governesses/RouteGoverness'
 export default {
-  name: 'post',
-  layout: 'post',
+  name: 'posts',
   // middleware: 'authenticated',
   components: {},
   routePerimeter: articlesPerimeter,
-  routePerimeterAction: 'update',
+  routePerimeterAction: 'read',
   routeGoverness: RouteGoverness,
   data() {
     return {
-      items: [{ id: '1', message: 'Foo' }, { id: '2', message: 'Bar' }],
       loading: 0,
       errors: [],
-      valid: true,
-      post: {
-        title: 'Hello, World!',
-        content: 'Welcome to Vue World!'
-      }
+      posts: []
     }
   },
-  methods: {
-    async register() {
-      console.log(' this.title', this.title)
-
-      this.valid = true
-      console.log('valid:', this.valid)
-      if (this.valid) {
-        try {
-          const { title, content } = this.post
-          await this.$apollo.mutate({
-            mutation: addPost,
-            variables: { title, content }
-          })
-        } catch (error) {
-          console.log('error :', error)
-          this.loading--
-          this.errors.push(error.message)
-          console.log(JSON.stringify(error))
-        }
-      } else return false
+  methods: {},
+  async asyncData({ app, params, error }) {
+    try {
+      const title = 'this.post'
+      const posts = await app.apolloProvider.defaultClient.query({
+        query: postsByTitle,
+        variables: { title }
+      })
+      console.log('posts.postsByTitle :', posts.data.postsByTitle)
+      return { posts: posts.data.postsByTitle }
+    } catch (error) {
+      console.log('error :', error)
+      // this.loading--
+      this.errors.push(error.message)
+      console.log(JSON.stringify(error))
+      return null
     }
   },
   mounted() {}

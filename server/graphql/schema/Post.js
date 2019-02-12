@@ -3,6 +3,7 @@ import { ObjectId } from 'mongodb'
 export const typeDef = `
   extend type Query {
     post(id: String!): Post
+    postsByTitle(title:String): [Post]
   }
   
   extend type Mutation {
@@ -22,6 +23,11 @@ export const resolvers = {
     post: async (root, args, { mongo, user }) => {
       const Posts = mongo.collection('posts')
       const result = await Posts.findOne({ _id: ObjectId(args.id) })
+      return result
+    },
+    postsByTitle: async (root, args, { mongo, user }) => {
+      const Posts = mongo.collection('posts')
+      const result = await Posts.find({}).toArray()
       return result
     }
   },

@@ -1,18 +1,6 @@
-query posts($title: String) {
+query postsByTitle($title: String) {
   postsByTitle: postsByTitle(title: $title) {
-    posts {
-      post {
-        title
-        content
-      }
-    }
-  }
-  postsByAuthor: postsByAuthor(title: $title) {
-    posts {
-      post {
-        title
-        content
-      }
-    }
+    title
+    content
   }
 }

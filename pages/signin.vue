@@ -28,14 +28,15 @@
 </template>
 
 <script>
-import Cookies from 'js-cookie'
 import signin from '../graphql/mutation/signin.gql'
+import articlesPerimeter from '~/kindergarten/perimeters/articles'
 
 export default {
   name: 'signin',
   layout: 'card',
-  middleware: 'authenticated',
   components: {},
+  routePerimeter: articlesPerimeter,
+  routePerimeterAction: 'read',
   data: function() {
     return {
       valid: true,
@@ -60,10 +61,7 @@ export default {
               password: this.password
             }
           })
-          Cookies.set('accessToken', result.data.signin.accessToken, {
-            expires: 1
-          })
-          this.$store.commit('SET_ACCESS_TOKEN', result.data.signin.accessToken)
+          this.$store.dispatch('signin', result.data.signin)
           this.$router.push('/')
         } catch (error) {
           this.loading--

@@ -1,6 +1,6 @@
 
 query post() {
-  post: post(id:String!) {
+  getPosts: post(id:String!) {
     post {
       title
       content

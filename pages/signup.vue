@@ -126,6 +126,7 @@ export default {
             expires: 1
           })
           this.$store.commit('SET_ACCESS_TOKEN', result.data.signup.accessToken)
+          this.$store.commit('SET_USER', result.data.signin.user)
           this.$router.push('/post')
         } catch (error) {
           this.loading--

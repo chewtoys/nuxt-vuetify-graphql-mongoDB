@@ -37,7 +37,7 @@ module.exports = {
   /*
   ** Plugins to load before mounting the App
   */
-  plugins: ['@plugins/vuetify'],
+  plugins: ['@plugins/vuetify', '@plugins/vue-kindergarten'],
 
   /*
   ** Nuxt.js modules
@@ -55,7 +55,7 @@ module.exports = {
   ],
 
   router: {
-    middleware: 'check-auth'
+    middleware: ['check-auth', 'vue-kindergarten']
   },
 
   vendor: ['apollo-link-context'],
