@@ -6,7 +6,7 @@ import child from '~/kindergarten/child'
 export default context => {
   const { route, redirect, store } = context
   route.matched.some(routeRecord => {
-    console.log('routeRecord :', routeRecord)
+    // console.log('routeRecord :', routeRecord)
     const options = routeRecord.components.default.options
     const perimeter = options.routePerimeter
     const Governess = options.routeGoverness || RouteGoverness

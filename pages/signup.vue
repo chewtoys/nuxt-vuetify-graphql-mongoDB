@@ -75,9 +75,8 @@ import signup from '../graphql/mutation/signup.gql'
 export default {
   name: 'signup',
   layout: 'card',
-  middleware: 'authenticated',
   components: {},
-  data: function() {
+  data() {
     return {
       valid: true,
       name: '',

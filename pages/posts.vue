@@ -31,10 +31,18 @@ export default {
     return {
       loading: 0,
       errors: [],
-      posts: []
+      posts: [],
+      post: {
+        title: null,
+        content: null
+      }
     }
   },
-  methods: {},
+  methods: {
+    register: () => {
+      return null
+    }
+  },
   async asyncData({ app, params, error }) {
     try {
       const title = 'this.post'

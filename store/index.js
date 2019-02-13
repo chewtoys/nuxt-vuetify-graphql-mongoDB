@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie'
 import Vuex from 'vuex'
-
+// import user from '../graphql/query/user.gql'
 import pages from './pages'
 
 export const state = () => ({
@@ -12,6 +12,9 @@ export const state = () => ({
 export const getters = {
   isAuthenticated(state) {
     return Boolean(state.accessToken)
+  },
+  isUser(state) {
+    return Boolean(state.accessToken) && Boolean(state.user)
   },
   isGuest(state) {
     return !state.accessToken
@@ -32,6 +35,7 @@ export const mutations = {
     state.accessToken = null
     state.user = null
     Cookies.remove('accessToken')
+    Cookies.remove('user')
   }
 }
 
@@ -42,9 +46,13 @@ const actions = {
     Cookies.set('accessToken', signin.accessToken, {
       expires: 1
     })
+    Cookies.set('user', signin.user, { expires: 1 })
   },
   logout(context) {
     context.commit('LOGOUT')
+  },
+  nuxtServerInit(context, { req }) {
+    console.log('nuxtServerInit')
   }
 }
 

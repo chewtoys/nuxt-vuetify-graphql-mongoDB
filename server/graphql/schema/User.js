@@ -25,8 +25,10 @@ export const typeDef = `
 `
 export const resolvers = {
   Query: {
-    user: (root, args, { user }) => {
-      return user
+    user: async (root, args, { mongo }) => {
+      const Users = mongo.collection('users')
+      const existingUser = await Users.findOne({ email: args.email })
+      return existingUser
     }
   },
   Mutation: {

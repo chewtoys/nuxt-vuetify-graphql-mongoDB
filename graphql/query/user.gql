@@ -1,0 +1,7 @@
+query user($email: String!) {
+  user: user(email: $email) {
+    email
+    name
+    role
+  }
+}

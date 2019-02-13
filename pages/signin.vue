@@ -29,14 +29,11 @@
 
 <script>
 import signin from '../graphql/mutation/signin.gql'
-import articlesPerimeter from '~/kindergarten/perimeters/articles'
 
 export default {
   name: 'signin',
   layout: 'card',
   components: {},
-  routePerimeter: articlesPerimeter,
-  routePerimeterAction: 'read',
   data: function() {
     return {
       valid: true,
