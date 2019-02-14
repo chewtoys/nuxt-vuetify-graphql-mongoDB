@@ -2,6 +2,7 @@
 query post() {
   getPosts: post(id:String!) {
     post {
+      _id
       title
       content
     }

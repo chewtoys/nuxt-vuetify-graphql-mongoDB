@@ -2,9 +2,6 @@
 /*eslint-env es6*/
 <template>
   <div>
-    <ul id="example-1">
-      <li v-for="post in posts" :key="post._id">{{ post.title }}</li>
-    </ul>
     <v-form>
       <v-text-field v-model="post.title" placeholder="Title" required/>
       <v-text-field label="Write contents here!" v-model="post.content" required></v-text-field>
@@ -17,21 +14,19 @@
 </template>
 
 <script>
-import postsByTitle from '../graphql/query/posts.gql'
+// import postsByTitle from '../graphql/query/posts.gql'
+import { mapActions } from 'vuex'
 import articlesPerimeter from '~/kindergarten/perimeters/articles'
-import RouteGoverness from '~/kindergarten/governesses/RouteGoverness'
 export default {
-  name: 'posts',
+  name: 'post',
   // middleware: 'authenticated',
   components: {},
+  perimeters: [articlesPerimeter],
   routePerimeter: articlesPerimeter,
-  routePerimeterAction: 'read',
-  routeGoverness: RouteGoverness,
   data() {
     return {
       loading: 0,
       errors: [],
-      posts: [],
       post: {
         title: null,
         content: null
@@ -39,28 +34,15 @@ export default {
     }
   },
   methods: {
-    register: () => {
-      return null
-    }
-  },
-  async asyncData({ app, params, error }) {
-    try {
-      const title = 'this.post'
-      const posts = await app.apolloProvider.defaultClient.query({
-        query: postsByTitle,
-        variables: { title }
+    async register() {
+      await this.$store.dispatch('addPost', {
+        title: this.post.title,
+        content: this.post.content
       })
-      console.log('posts.postsByTitle :', posts.data.postsByTitle)
-      return { posts: posts.data.postsByTitle }
-    } catch (error) {
-      console.log('error :', error)
-      // this.loading--
-      this.errors.push(error.message)
-      console.log(JSON.stringify(error))
-      return null
-    }
-  },
-  mounted() {}
+      this.$router.push('/post')
+    },
+    ...mapActions(['addPost'])
+  }
 }
 </script>
 

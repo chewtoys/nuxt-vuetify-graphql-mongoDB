@@ -23,11 +23,14 @@
           <v-list>
             <v-list-tile avatar>
               <v-list-tile-avatar>
-                <img src="https://cdn.vuetifyjs.com/images/john.jpg" alt="John">
+                <img
+                  src="https://lh3.googleusercontent.com/-5uDR810w1dY/AAAAAAAAAAI/AAAAAAAAAAA/ACevoQPcSH9_4taB-SR80e0GGxxhrT4Oaw/mo/photo.jpg?sz=46"
+                  alt="John"
+                >
               </v-list-tile-avatar>
 
               <v-list-tile-content>
-                <v-list-tile-title>{{ loggedInUser }}</v-list-tile-title>
+                <v-list-tile-title>{{ loggedInUser.name }}</v-list-tile-title>
                 <v-list-tile-sub-title>Founder of Vuetify.js</v-list-tile-sub-title>
               </v-list-tile-content>
 
@@ -94,7 +97,7 @@ export default {
       this.$store.dispatch('logout')
     },
     goPost() {
-      this.$router.push('/posts')
+      this.$router.push('/post')
     }
   }
 }

@@ -1,6 +1,10 @@
 query postsByTitle($title: String) {
   postsByTitle: postsByTitle(title: $title) {
+    _id
     title
     content
+    author {
+      email
+    }
   }
 }

@@ -1,26 +1,30 @@
-import { createPerimeter } from 'vue-kindergarten'
+import { createPerimeter, AccessDenied } from 'vue-kindergarten'
 
 export default createPerimeter({
   purpose: 'article',
 
   can: {
+    route: () => true,
     read: () => true,
-
-    // only admin or moderator can update articles
     update(article) {
-      return this.isAdmin() || (this.isCreator(article) && this.isModerator())
+      return this.isAdmin() || this.isCreator(article) || this.isModerator()
     },
-
-    // if user can update articles then she can also destroy them
     destroy(article) {
       return this.isAllowed('update', article)
     }
   },
 
   secretNotes(article) {
-    this.guard('update', article)
-
-    return article.secretNotes
+    try {
+      this.guard('update', article)
+    } catch (e) {
+      if (e instanceof AccessDenied) {
+        return ''
+      } else {
+        return ''
+      }
+    }
+    return article.content
   },
 
   isAdmin() {
@@ -32,7 +36,7 @@ export default createPerimeter({
   },
 
   isCreator(article) {
-    return this.child && this.child.id === article.author.id
+    return this.child && this.child.email === article.author.email
   },
 
   expose: ['secretNotes']

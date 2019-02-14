@@ -27,9 +27,9 @@ export default ctx => {
       }
     }
   })
-
+  // const au = `${ctx.req.protocol}://${ctx.req.get('Host')}/graphql`
   return {
-    httpEndpoint: 'http://localhost:3000/graphql',
+    httpEndpoint: 'http://localhost:3000/graphql', // httpEndpoint: ctx.req ? au : 'http://localhost:3000/graphql',
     link: ApolloLink.from([...loggerLink, authLink, httpLink]),
     defaultHttpLink: false,
     cache: new InMemoryCache()
