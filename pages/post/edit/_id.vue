@@ -4,8 +4,8 @@
   <div>
     <post-form
       :_id="post._id"
-      :title="post.title"
-      :content="post.content"
+      :title.sync="post.title"
+      :content.sync="post.content"
       v-on:update="register($event, post)"
     ></post-form>
   </div>

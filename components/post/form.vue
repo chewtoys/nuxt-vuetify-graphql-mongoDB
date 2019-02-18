@@ -2,8 +2,8 @@
 <template>
   <div>
     <v-form>
-      <v-text-field value="{{title}}" placeholder="Title" required/>
-      <v-text-field label="Write contents here!" v-model="content" required></v-text-field>
+      <v-text-field v-model="stitle" placeholder="Title" required/>
+      <v-text-field label="Write contents here!" v-model="scontent" required></v-text-field>
       <v-layout justify-space-between>
         <v-btn @click="register" class="blue darken-4 white--text">Save</v-btn>
         <nuxt-link to="/">Home</nuxt-link>
@@ -23,12 +23,18 @@ export default {
     created: String,
     isPublished: Boolean
   },
+  data() {
+    return {
+      stitle: this.title,
+      scontent: this.content
+    }
+  },
   methods: {
     register() {
       this.$emit('update', {
         _id: this._id,
-        title: this.title,
-        content: this.content
+        title: this.stitle,
+        content: this.scontent
       })
     }
   }
