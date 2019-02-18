@@ -37,7 +37,7 @@ module.exports = {
   /*
   ** Plugins to load before mounting the App
   */
-  plugins: ['@plugins/vuetify', '@plugins/vue-kindergarten'],
+  plugins: ['@plugins/vuetify', '@plugins/vue-kindergarten', '@plugins/moment'],
 
   /*
   ** Nuxt.js modules
@@ -51,8 +51,7 @@ module.exports = {
           default: '~/graphql/apollo/defaultClient.js'
         }
       }
-    ],
-    '@nuxtjs/moment'
+    ]
   ],
 
   router: {

@@ -5,10 +5,10 @@
       <template slot="items" slot-scope="props">
         <td>{{ props.item.name }}</td>
         <td class="text-xs-right">{{ props.item.email }}</td>
+        <td class="text-xs-right">{{ props.item.created | moment('timezone', 'Asia/Seoul', 'LLLL')}}</td>
         <td
           class="text-xs-right"
-        >{{ this.$nuxt.$moment(String(props.item.created)).format('MM/DD/YYYY hh:mm') }}</td>
-        <td class="text-xs-right">{{ props.item.loggedIn }}</td>
+        >{{ props.item.loggedIn | moment('timezone', 'Asia/Seoul', 'LLLL')}}</td>
         <td class="text-xs-right">{{ props.item.role }}</td>
       </template>
     </v-data-table>
@@ -42,7 +42,7 @@ export default {
   },
   created() {
     this.$store.dispatch('userList')
-    console.log('kk:', this.$store)
+    console.log('kk:', this.$moment)
   }
 }
 </script>
