@@ -9,6 +9,7 @@ export const typeDef = `
   
   extend type Mutation {
     addPost(title:String!, content:String!, slug:String):Post
+    updatePost(_id:String!, title:String!, content:String!, slug:String):Post
     deletePost(id:String!): Boolean
   }
 
@@ -24,7 +25,11 @@ export const resolvers = {
   Query: {
     post: async (root, args, { mongo, user }) => {
       const Posts = mongo.collection('posts')
-      return prepare(await Posts.findOne({ _id: ObjectId(args.id) }))
+      return prepare(
+        await Posts.findOne({
+          _id: ObjectId(args.id)
+        })
+      )
     },
     postsByTitle: async (root, args, { mongo, user }) => {
       const Posts = mongo.collection('posts')
@@ -42,9 +47,19 @@ export const resolvers = {
         })
         return prepare(
           await Posts.findOne({
-            _id: post.insertedIds[1]
+            _id: post.insertedId
           })
         )
+      } else throw new Error('User is not authenticated!')
+    },
+    updatePost: async (root, args, { mongo, user }) => {
+      if (user) {
+        const Posts = mongo.collection('posts')
+        await Posts.updateOne(
+          { _id: ObjectId(args._id) },
+          { $set: { title: args.title, content: args.content } }
+        )
+        return prepare(await Posts.findOne({ _id: ObjectId(args._id) }))
       } else throw new Error('User is not authenticated!')
     },
     deletePost: async (root, args, { mongo, user }) => {

@@ -1,5 +1,6 @@
 mutation addPost($title: String!, $content: String!, $slug: String) {
   addPost: addPost(title: $title, content: $content, slug: $slug) {
+    _id
     title
     content
     author {

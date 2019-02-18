@@ -1,7 +1,9 @@
 import Cookies from 'js-cookie'
 import Vuex from 'vuex'
+import checkAuth from '~/middleware/check-auth'
 import postsByTitle from '../graphql/query/posts.gql'
 import addPost from '../graphql/mutation/addPost.gql'
+import updatePost from '../graphql/mutation/updatePost.gql'
 import deletePost from '../graphql/mutation/deletePost.gql'
 import pages from './pages'
 
@@ -27,6 +29,9 @@ export const getters = {
   },
   postList(state) {
     return state.posts
+  },
+  post: state => id => {
+    return state.posts.find(post => post._id === id)
   }
 }
 
@@ -52,6 +57,12 @@ export const mutations = {
   DELETE_POST(state, id) {
     const index = state.posts.findIndex(post => post._id === id)
     state.posts.splice(index, 1)
+  },
+  UPDATE_POST(state, post) {
+    state.posts = [
+      ...state.posts.filter(element => element._id !== post._id),
+      post
+    ]
   }
 }
 
@@ -68,6 +79,7 @@ const actions = {
     context.commit('LOGOUT')
   },
   async postList(context) {
+    console.log('PostList')
     try {
       if (this.app.apolloProvider.defaultClient) {
         const title = 'this.post'
@@ -79,9 +91,6 @@ const actions = {
         context.commit('POST_LIST', posts.data.postsByTitle)
       }
     } catch (error) {
-      console.log('error :', error)
-      // this.loading--
-      this.errors.push(error.message)
       console.log(JSON.stringify(error))
       return null
     }
@@ -94,9 +103,18 @@ const actions = {
       })
       context.commit('ADD_POST', post.data.addPost)
     } catch (error) {
-      console.log('error :', error)
-      this.loading--
-      this.errors.push(error.message)
+      console.log(JSON.stringify(error))
+    }
+  },
+  async updatePost(context, { _id, title, content }) {
+    console.log('_id, title, content  :', _id, title, content)
+    try {
+      const post = await this.app.apolloProvider.defaultClient.mutate({
+        mutation: updatePost,
+        variables: { _id, title, content }
+      })
+      context.commit('UPDATE_POST', post.data.updatePost)
+    } catch (error) {
       console.log(JSON.stringify(error))
     }
   },
@@ -106,14 +124,14 @@ const actions = {
         mutation: deletePost,
         variables: { id }
       })
-      console.log('deletePost > result:', result)
       if (result.data.deletePost) context.commit('DELETE_POST', id)
     } catch (error) {
       console.log('error:', error)
     }
   },
-  nuxtServerInit(context, { req }) {
-    console.log('nuxtServerInit')
+  nuxtServerInit(store, context) {
+    context.store = store
+    checkAuth(context)
   }
 }
 

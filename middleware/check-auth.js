@@ -2,6 +2,7 @@ import { parse } from 'cookie'
 import Cookies from 'js-cookie'
 
 export default function({ store, app, req }) {
+  console.log('check-auth')
   if (!store.getters.isAuthenticated) {
     const accessToken = process.server
       ? parse(req.headers.cookie || '').accessToken
