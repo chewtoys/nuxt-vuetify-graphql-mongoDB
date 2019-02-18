@@ -2,7 +2,7 @@ import { MongoClient } from 'mongodb'
 import schema from './graphql/schema'
 import { context } from './graphql/context'
 import api from './api'
-
+const dotenv = require('dotenv')
 const express = require('express')
 // const { graphqlExpress, graphiqlExpress, graphqlConnect } = require('graphql-server-express')
 const graphqlHTTP = require('express-graphql')
@@ -12,6 +12,8 @@ const { Nuxt, Builder } = require('nuxt')
 const config = require('../nuxt.config.js')
 const app = express()
 let mongo = null
+
+dotenv.config()
 
 app.use(
   '/graphql',
@@ -56,12 +58,19 @@ async function start() {
   // Give nuxt middleware to express
   app.use(nuxt.render)
 
+  const MONGO_USER = process.env.MONGO_USER
+  const MONGO_USER_PW = process.env.MONGO_USER_PW
+  const MONGO_DB = process.env.MONGO_DB
+  const MONGO_CLUSTER = process.env.MONGO_CLUSTER
   const CONNECTION_URL =
-    'mongodb+srv://nuxt-user-1:' +
-    encodeURIComponent('nuxt1234') +
-    '@cluster0-gjlob.mongodb.net/graphql-auth-demo-1?retryWrites=true'
-  const DATABASE_NAME = 'graphql-auth-demo-1'
+    'mongodb+srv://' +
+    MONGO_USER +
+    ':' +
+    encodeURIComponent(MONGO_USER_PW) +
+    MONGO_CLUSTER
+  const DATABASE_NAME = MONGO_DB
 
+  console.log('CONNECTION_URL', CONNECTION_URL)
   if (!mongo) {
     MongoClient.connect(
       CONNECTION_URL,

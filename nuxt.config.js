@@ -51,7 +51,8 @@ module.exports = {
           default: '~/graphql/apollo/defaultClient.js'
         }
       }
-    ]
+    ],
+    '@nuxtjs/moment'
   ],
 
   router: {

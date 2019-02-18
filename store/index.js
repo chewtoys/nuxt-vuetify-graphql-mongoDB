@@ -2,6 +2,7 @@ import Cookies from 'js-cookie'
 import Vuex from 'vuex'
 import checkAuth from '~/middleware/check-auth'
 import postsByTitle from '../graphql/query/posts.gql'
+import users from '../graphql/query/users.gql'
 import addPost from '../graphql/mutation/addPost.gql'
 import updatePost from '../graphql/mutation/updatePost.gql'
 import deletePost from '../graphql/mutation/deletePost.gql'
@@ -11,6 +12,7 @@ export const state = () => ({
   viewer: null,
   accessToken: null,
   user: null,
+  users: [],
   posts: []
 })
 
@@ -32,6 +34,9 @@ export const getters = {
   },
   post: state => id => {
     return state.posts.find(post => post._id === id)
+  },
+  users(state) {
+    return state.users
   }
 }
 
@@ -63,6 +68,9 @@ export const mutations = {
       ...state.posts.filter(element => element._id !== post._id),
       post
     ]
+  },
+  USER_LIST(state, users) {
+    state.users = users
   }
 }
 
@@ -127,6 +135,23 @@ const actions = {
       if (result.data.deletePost) context.commit('DELETE_POST', id)
     } catch (error) {
       console.log('error:', error)
+    }
+  },
+  async userList(context) {
+    console.log('userList')
+    try {
+      if (this.app.apolloProvider.defaultClient) {
+        const title = 'this.post'
+        const userList = await this.app.apolloProvider.defaultClient.query({
+          query: users,
+          variables: { title }
+        })
+        console.log('userList.data.users :', userList.data.users)
+        context.commit('USER_LIST', userList.data.users)
+      }
+    } catch (error) {
+      console.log(JSON.stringify(error))
+      return null
     }
   },
   nuxtServerInit(store, context) {

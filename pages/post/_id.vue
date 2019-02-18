@@ -6,10 +6,10 @@
       <p>{{ post.title }}</p>
       <p>{{ post.content }}</p>
       <v-layout justify-space-between>
-        <v-btn class="blue darken-4 white--text">
+        <v-btn class="blue darken-4 white--text" v-if="$article.isAllowed('update', post)">
           <nuxt-link :to="{name: 'post-edit-id', params: {id: this.$route.params.id}}">수정</nuxt-link>
         </v-btn>
-        <nuxt-link to="/">Home</nuxt-link>
+        <nuxt-link to="/post">List</nuxt-link>
       </v-layout>
     </div>
   </div>
@@ -23,13 +23,6 @@ export default {
   routePerimeter: articlesPerimeter,
   data() {
     return {}
-  },
-  methods: {
-    deletePost(id) {
-      this.$store.dispatch('deletePost', {
-        id
-      })
-    }
   },
   computed: {
     post() {

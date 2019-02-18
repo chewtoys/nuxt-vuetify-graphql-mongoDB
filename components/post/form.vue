@@ -1,7 +1,7 @@
 
 <template>
   <div>
-    <v-form>
+    <v-form ref="form">
       <v-text-field v-model="stitle" placeholder="Title" required/>
       <v-text-field label="Write contents here!" v-model="scontent" required></v-text-field>
       <v-layout justify-space-between>

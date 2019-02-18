@@ -7,7 +7,7 @@
             <v-icon>{{ item.icon }}</v-icon>
           </v-list-tile-action>
           <v-list-tile-content>
-            <v-list-tile-title v-text="item.title"/>>
+            <v-list-tile-title v-text="item.title"/>
           </v-list-tile-content>
         </v-list-tile>
       </v-list>
@@ -59,13 +59,13 @@ export default {
       items: [
         {
           icon: 'apps',
-          title: 'Welcome',
-          to: '/'
+          title: 'Home',
+          to: '/admin'
         },
         {
-          icon: 'bubble_chart',
-          title: 'Inspire',
-          to: '/inspire'
+          icon: 'people',
+          title: 'Users',
+          to: '/admin/users'
         }
       ],
       miniVariant: false,

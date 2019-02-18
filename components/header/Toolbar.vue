@@ -6,10 +6,11 @@
       <v-spacer></v-spacer>
 
       <v-toolbar-items class="hidden-sm-and-down">
-        <v-btn flat @click="goPost">Post</v-btn>
-        <v-btn flat>Two</v-btn>
+        <v-btn flat to="post">Post</v-btn>
+        <v-btn flat to="admin">Admin</v-btn>
         <v-btn flat>Three</v-btn>
       </v-toolbar-items>
+
       <v-menu
         v-if="isAuthenticated"
         v-model="menu"
@@ -95,9 +96,6 @@ export default {
   methods: {
     logout() {
       this.$store.dispatch('logout')
-    },
-    goPost() {
-      this.$router.push('/post')
     }
   }
 }

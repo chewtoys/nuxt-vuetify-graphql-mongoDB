@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@nuxtjs/apollo": "^4.0.0-rc2.3",
+    "@nuxtjs/moment": "^1.2.0",
     "@nuxtjs/pwa": "^2.6.0",
     "apollo-cache-inmemory": "^1.4.2",
     "apollo-client": "^2.4.12",
@@ -27,6 +28,7 @@
     "context-middleware": "^1.0.0",
     "cookie": "^0.3.1",
     "cross-env": "^5.2.0",
+    "dotenv": "^6.2.0",
     "express": "^4.16.4",
     "express-graphql": "^0.7.1",
     "graphql": "^14.1.1",
@@ -35,6 +37,7 @@
     "js-cookie": "^2.2.0",
     "jsonwebtoken": "^8.4.0",
     "lodash": "^4.17.11",
+    "moment": "^2.24.0",
     "mongodb": "^3.1.13",
     "nuxt": "^2.3.4",
     "vue-apollo": "^3.0.0-beta.20",
