@@ -1,0 +1,7 @@
+mutation updateUser($email: String!, $name: String, $role: String) {
+  updateUser: updateUser(email: $email, name: $name, role: $role) {
+    email
+    name
+    role
+  }
+}

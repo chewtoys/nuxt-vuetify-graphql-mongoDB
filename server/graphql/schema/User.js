@@ -12,6 +12,7 @@ export const typeDef = `
   extend type Mutation {
     signin(email:String!, password:String!):AuthPayload!
     signup(email:String!, password:String!, name:String!):AuthPayload!
+    updateUser(email:String!, name:String, role:String): User!
   }
 
   type User {
@@ -87,6 +88,16 @@ export const resolvers = {
       const authPayload = { accessToken }
       authPayload.user = user
       return authPayload
+    },
+    updateUser: async (root, args, { mongo, user }) => {
+      if (user) {
+        const Users = mongo.collection('users')
+        const payload = Object.assign({}, args)
+        delete payload.email
+        console.log('payload:', payload)
+        await Users.updateOne({ email: args.email }, { $set: payload })
+        return prepare(await Users.findOne({ email: args.email }))
+      } else throw new Error('User is not authenticated!')
     }
   },
   User: {

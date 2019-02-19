@@ -6,9 +6,8 @@
       <v-spacer></v-spacer>
 
       <v-toolbar-items class="hidden-sm-and-down">
-        <v-btn flat to="post">Post</v-btn>
-        <v-btn flat to="admin">Admin</v-btn>
-        <v-btn flat>Three</v-btn>
+        <v-btn flat to="/post">Post</v-btn>
+        <v-btn flat to="/admin">Admin</v-btn>
       </v-toolbar-items>
 
       <v-menu

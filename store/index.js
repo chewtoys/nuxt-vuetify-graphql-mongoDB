@@ -6,6 +6,7 @@ import users from '../graphql/query/users.gql'
 import addPost from '../graphql/mutation/addPost.gql'
 import updatePost from '../graphql/mutation/updatePost.gql'
 import deletePost from '../graphql/mutation/deletePost.gql'
+import updateUser from '../graphql/mutation/updateUser.gql'
 import pages from './pages'
 
 export const state = () => ({
@@ -71,6 +72,12 @@ export const mutations = {
   },
   USER_LIST(state, users) {
     state.users = users
+  },
+  UPDATE_USER(state, user) {
+    state.users = [
+      ...state.users.filter(element => element.email !== user.email),
+      user
+    ]
   }
 }
 
@@ -154,6 +161,21 @@ const actions = {
       return null
     }
   },
+
+  async updateUser(context, payload) {
+    console.log('updateUser  :', { ...payload })
+    try {
+      const user = await this.app.apolloProvider.defaultClient.mutate({
+        mutation: updateUser,
+        variables: { ...payload }
+      })
+      const nuser = Object.assign(payload, user.data.updateUser)
+      context.commit('UPDATE_USER', nuser)
+    } catch (error) {
+      console.log(JSON.stringify(error))
+    }
+  },
+
   nuxtServerInit(store, context) {
     context.store = store
     checkAuth(context)

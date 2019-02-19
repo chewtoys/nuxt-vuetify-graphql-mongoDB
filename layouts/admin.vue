@@ -1,6 +1,13 @@
 <template>
   <v-app dark>
-    <v-navigation-drawer v-model="drawer" :mini-variant="miniVariant" :clipped="clipped" fixed app>
+    <v-navigation-drawer
+      width="200"
+      v-model="drawer"
+      :mini-variant="miniVariant"
+      :clipped="clipped"
+      fixed
+      app
+    >
       <v-list>
         <v-list-tile v-for="(item, i) in items" :key="i" :to="item.to" router exact>
           <v-list-tile-action>
@@ -29,9 +36,7 @@
       </v-btn>
     </v-toolbar>
     <v-content>
-      <v-container>
-        <nuxt/>
-      </v-container>
+      <nuxt/>
     </v-content>
     <v-navigation-drawer v-model="rightDrawer" :right="right" temporary fixed>
       <v-list>
@@ -54,7 +59,7 @@ export default {
   data() {
     return {
       clipped: false,
-      drawer: false,
+      drawer: true,
       fixed: false,
       items: [
         {
@@ -76,3 +81,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+v-navigation-drawer {
+  width: 100px;
+}
+</style>

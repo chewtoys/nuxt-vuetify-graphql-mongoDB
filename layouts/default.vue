@@ -1,9 +1,9 @@
 <template>
-  <div>
+  <v-app>
     <v-card color="grey lighten-4" flat></v-card>
     <Toolbar></Toolbar>
     <nuxt/>
-  </div>
+  </v-app>
 </template>
 
 <script>
