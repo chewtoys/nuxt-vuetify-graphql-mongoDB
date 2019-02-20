@@ -26,7 +26,7 @@ export default {
   },
   computed: {
     post() {
-      return this.$store.getters.post(this.$route.params.id)
+      return this.$store.getters['post/post'](this.$route.params.id)
     }
   }
 }

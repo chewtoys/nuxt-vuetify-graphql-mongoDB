@@ -69,9 +69,6 @@
 </template>
 
 <script>
-import Cookies from 'js-cookie'
-import signup from '../graphql/mutation/signup.gql'
-
 export default {
   name: 'signup',
   layout: 'card',
@@ -113,20 +110,12 @@ export default {
     async signup() {
       if (this.validate()) {
         try {
-          const result = await this.$apollo.mutate({
-            mutation: signup,
-            variables: {
-              email: this.email,
-              password: this.password,
-              name: this.name
-            }
+          await this.$store.dispatch('user/signup', {
+            name: this.name,
+            email: this.email,
+            password: this.password
           })
-          Cookies.set('accessToken', result.data.signup.accessToken, {
-            expires: 1
-          })
-          this.$store.commit('SET_ACCESS_TOKEN', result.data.signup.accessToken)
-          this.$store.commit('SET_USER', result.data.signup.user)
-          this.$router.push('/post')
+          this.$router.push('/')
         } catch (error) {
           this.loading--
         }

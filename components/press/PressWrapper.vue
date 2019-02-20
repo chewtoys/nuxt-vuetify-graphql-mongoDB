@@ -1,7 +1,7 @@
 <template>
   <press-box :nodes="nodes" :label="label" :type="type">
-    <template slot-scope="{ nodes, label, type }">
-      <press-box :nodes="nodes" :label="label" :type="type"/>
+    <template slot-scope="{ cnodes, clabel, ctype }">
+      <press-box :nodes="cnodes" :label="clabel" :type="ctype"/>
     </template>
   </press-box>
 </template>

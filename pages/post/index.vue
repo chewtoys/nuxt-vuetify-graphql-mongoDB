@@ -26,32 +26,23 @@ export default {
   perimeters: [articlesPerimeter],
   routePerimeter: articlesPerimeter,
   data() {
-    return {
-      post: {
-        title: null,
-        content: null
-      }
-    }
-  },
-  methods: {
-    deletePost(id) {
-      this.$store.dispatch('deletePost', {
-        id
-      })
-    },
-    ...mapActions(['postList', 'addPost'])
+    return {}
   },
   computed: {
-    ...mapGetters({
+    ...mapGetters('post', {
       posts: 'postList'
     })
   },
-  // absolute url must be sopported: Network Error: GraphQL
-  // async fetch({ store, params }) {
-  //   await store.dispatch('postList')
-  // }
   mounted() {
     this.postList()
+  },
+  methods: {
+    deletePost(id) {
+      this.$store.dispatch('post/deletePost', {
+        id
+      })
+    },
+    ...mapActions('post', ['postList', 'addPost'])
   }
 }
 </script>

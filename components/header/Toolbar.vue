@@ -8,6 +8,7 @@
       <v-toolbar-items class="hidden-sm-and-down">
         <v-btn flat to="/post">Post</v-btn>
         <v-btn flat to="/admin">Admin</v-btn>
+        <v-btn flat>Three</v-btn>
       </v-toolbar-items>
 
       <v-menu
@@ -90,12 +91,19 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['isAuthenticated', 'loggedInUser'])
+    ...mapGetters('user', ['isAuthenticated', 'loggedInUser'])
   },
   methods: {
     logout() {
-      this.$store.dispatch('logout')
+      this.$store.dispatch('user/logout')
     }
   }
 }
 </script>
+
+<style lang="stylus" scoped>
+
+.v-toolbar 
+  box-shadow none
+
+</style>

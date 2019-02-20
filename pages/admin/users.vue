@@ -60,9 +60,11 @@
 </template>
 
 <script>
+import adminPerimeter from '~/kindergarten/perimeters/admin'
 export default {
   name: 'admin-users',
   layout: 'admin',
+  routePerimeter: adminPerimeter,
   data() {
     return {
       dialog: false,

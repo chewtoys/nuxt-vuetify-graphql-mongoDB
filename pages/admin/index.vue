@@ -14,7 +14,9 @@
 </template>
 
 <script>
+import adminPerimeter from '~/kindergarten/perimeters/admin'
 export default {
-  layout: 'admin'
+  layout: 'admin',
+  routePerimeter: adminPerimeter
 }
 </script>

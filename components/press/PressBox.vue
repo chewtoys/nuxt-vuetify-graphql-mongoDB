@@ -7,15 +7,19 @@ export default {
   props: {
     type: {
       type: String,
-      require: true
+      require: true,
+      default: ''
     },
     label: {
       type: String,
-      require: true
+      require: true,
+      default: ''
     },
     nodes: {
       type: Array,
-      require: true
+      require: true,
+      default: null,
+      useDefaultForNull: true
     }
   },
   render(h, { props, listeners, slots, data }) {

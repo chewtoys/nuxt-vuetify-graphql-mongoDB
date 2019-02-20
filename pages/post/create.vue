@@ -35,13 +35,13 @@ export default {
   },
   methods: {
     async register() {
-      await this.$store.dispatch('addPost', {
+      await this.$store.dispatch('post/addPost', {
         title: this.post.title,
         content: this.post.content
       })
       this.$router.push('/post')
     },
-    ...mapActions(['addPost'])
+    ...mapActions('post', ['addPost'])
   }
 }
 </script>

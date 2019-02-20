@@ -8,7 +8,7 @@ export default context => {
   route.matched.some(routeRecord => {
     const options = routeRecord.components.default.options
     const perimeter = options.routePerimeter
-
+    // console.log('vue-kindergarten > ', options)
     if (perimeter) {
       const Governess = options.routeGoverness || RouteGoverness
       const action = options.routePerimeterAction || 'route'

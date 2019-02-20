@@ -15,7 +15,6 @@
   },
   "dependencies": {
     "@nuxtjs/apollo": "^4.0.0-rc2.3",
-    "@nuxtjs/moment": "^1.2.0",
     "@nuxtjs/pwa": "^2.6.0",
     "apollo-cache-inmemory": "^1.4.2",
     "apollo-client": "^2.4.12",

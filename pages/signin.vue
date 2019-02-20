@@ -28,8 +28,6 @@
 </template>
 
 <script>
-import signin from '../graphql/mutation/signin.gql'
-
 export default {
   name: 'signin',
   layout: 'card',
@@ -51,14 +49,10 @@ export default {
     async signin() {
       if (this.validate()) {
         try {
-          const result = await this.$apollo.mutate({
-            mutation: signin,
-            variables: {
-              email: this.email,
-              password: this.password
-            }
+          await this.$store.dispatch('user/signin', {
+            email: this.email,
+            password: this.password
           })
-          this.$store.dispatch('signin', result.data.signin)
           this.$router.push('/')
         } catch (error) {
           this.loading--

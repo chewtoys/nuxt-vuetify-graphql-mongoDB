@@ -31,20 +31,20 @@ export default {
   computed: {
     post() {
       console.log(' post :', this.$store.getters.post(this.$route.params.id))
-      return this.$store.getters.post(this.$route.params.id)
+      return this.$store.getters['post/post'](this.$route.params.id)
     }
   },
   methods: {
     async register({ _id, title, content }) {
       console.log('register  :', _id, title, content)
-      await this.$store.dispatch('updatePost', {
+      await this.$store.dispatch('post/updatePost', {
         _id: _id,
         title: title,
         content: content
       })
       this.$router.push('/post/' + this.$route.params.id)
     },
-    ...mapActions(['addPost'])
+    ...mapActions('post', ['addPost'])
   }
 }
 </script>

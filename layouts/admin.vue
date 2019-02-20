@@ -1,12 +1,12 @@
 <template>
-  <v-app dark>
+  <v-app>
     <v-navigation-drawer
-      width="200"
       v-model="drawer"
       :mini-variant="miniVariant"
       :clipped="clipped"
       fixed
       app
+      id="test"
     >
       <v-list>
         <v-list-tile v-for="(item, i) in items" :key="i" :to="item.to" router exact>
@@ -55,6 +55,7 @@
 </template>
 
 <script>
+// import adminPerimeter from '~/kindergarten/perimeters/admin'
 export default {
   data() {
     return {
@@ -82,8 +83,10 @@ export default {
 }
 </script>
 
-<style scoped>
-v-navigation-drawer {
-  width: 100px;
-}
+<style lang="stylus" scoped>
+w = 100px
+
+.v-content 
+  margin w
+
 </style>
