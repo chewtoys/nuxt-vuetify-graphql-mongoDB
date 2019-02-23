@@ -17,6 +17,7 @@ export default ctx => {
   })
 
   const authLink = setContext((_, { headers }) => {
+    console.log('headers', headers)
     const token = process.server
       ? parse(ctx.req.headers.cookie || '').accessToken
       : window.__NUXT__.state.accessToken
@@ -27,9 +28,11 @@ export default ctx => {
       }
     }
   })
-  // const au = `${ctx.req.protocol}://${ctx.req.get('Host')}/graphql`
+
   return {
-    httpEndpoint: 'http://localhost:3000/graphql', // httpEndpoint: ctx.req ? au : 'http://localhost:3000/graphql',
+    httpEndpoint: ctx.req
+      ? `${ctx.req.headers.host}/graphql`
+      : 'http://localhost:3000/graphql',
     link: ApolloLink.from([...loggerLink, authLink, httpLink]),
     defaultHttpLink: false,
     cache: new InMemoryCache()

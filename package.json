@@ -44,7 +44,7 @@
     "vue-apollo": "^3.0.0-beta.20",
     "vue-kindergarten": "^0.3.0",
     "vue-moment": "^4.0.0",
-    "vue2-medium-editor": "git+https://github.com/heshanfu/vue2-medium-editor.git",
+    "vue2-medium-editor": "file:custom/vue2-medium-editor",
     "vuetify": "^1.3.14",
     "vuetify-loader": "^1.0.8"
   },

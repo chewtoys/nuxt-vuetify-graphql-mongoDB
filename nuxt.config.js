@@ -34,7 +34,7 @@ module.exports = {
   */
   css: [
     '~/assets/style/app.styl',
-    'vue2-medium-editor/src/themes/default.css',
+    '~/custom/vue2-medium-editor/src/themes/default.css',
     'medium-editor/dist/css/medium-editor.css'
   ],
 

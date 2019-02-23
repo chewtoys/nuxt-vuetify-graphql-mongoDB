@@ -1,0 +1,83 @@
+{
+  "_from": "git+https://github.com/heshanfu/vue2-medium-editor.git",
+  "_id": "vue2-medium-editor@0.1.0",
+  "_inBundle": false,
+  "_integrity": "",
+  "_location": "/vue2-medium-editor",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "git",
+    "raw": "git+https://github.com/heshanfu/vue2-medium-editor.git",
+    "rawSpec": "git+https://github.com/heshanfu/vue2-medium-editor.git",
+    "saveSpec": "git+https://github.com/heshanfu/vue2-medium-editor.git",
+    "fetchSpec": "https://github.com/heshanfu/vue2-medium-editor.git",
+    "gitCommittish": null
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "git+https://github.com/heshanfu/vue2-medium-editor.git#7ebd9621c4ec2b5d165da299a5189c84a2b346d2",
+  "_spec": "git+https://github.com/heshanfu/vue2-medium-editor.git",
+  "_where": "/Users/youngsoo.j/Documents/boilerplate/nuxt-graphql-mongodb-vuetify",
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not ie <= 8"
+  ],
+  "bundleDependencies": false,
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.0",
+    "@fortawesome/free-regular-svg-icons": "^5.1.0",
+    "@fortawesome/free-solid-svg-icons": "^5.1.0",
+    "@fortawesome/vue-fontawesome": "^0.1.0",
+    "bulma": "^0.7.1",
+    "embed-js": "4.2.3",
+    "embed-plugin-github": "^5.0.3",
+    "embed-plugin-noembed": "^5.0.3",
+    "embed-plugin-url": "^5.0.3",
+    "embed-plugin-youtube": "^5.0.3",
+    "embed-preset-basic": "^5.0.3",
+    "medium-editor": "^5.23.3",
+    "underscore": "^1.9.1",
+    "vue": "^2.5.16",
+    "vue-upload-component": "^2.8.9"
+  },
+  "deprecated": false,
+  "description": "Vue2 component for Medium Editor wrapper with https://github.com/yabwe/medium-editor But all plugins are re-writing in Vue.js",
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^3.0.0-rc.3",
+    "@vue/cli-plugin-eslint": "^3.0.0-rc.3",
+    "@vue/cli-service": "^3.0.0-rc.3",
+    "vue-template-compiler": "^2.5.16"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "rules": {},
+    "parserOptions": {
+      "parser": "babel-eslint"
+    }
+  },
+  "main": "./src/Editor.vue",
+  "name": "vue2-medium-editor",
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
+  },
+  "private": true,
+  "scripts": {
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint",
+    "publish-demo": "git subtree push --prefix dist origin gh-pages",
+    "serve": "vue-cli-service serve"
+  },
+  "version": "0.1.0"
+}
