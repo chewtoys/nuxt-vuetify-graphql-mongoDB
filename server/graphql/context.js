@@ -2,6 +2,7 @@ import { ObjectId } from 'mongodb'
 import jwt from 'jsonwebtoken'
 
 const getUser = async (authorization, secrets, mongo) => {
+  console.log('getUser 1 : authorization : ', authorization)
   const bearerLength = 'Bearer '.length
   if (authorization && authorization.length > bearerLength) {
     const token = authorization.slice(bearerLength)
@@ -26,7 +27,7 @@ const getUser = async (authorization, secrets, mongo) => {
       const user = await mongo
         .collection('users')
         .findOne({ _id: ObjectId(result._id) })
-
+      console.log('getUser > user :', user)
       return user
     } else {
       console.error(result)

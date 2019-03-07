@@ -1,7 +1,6 @@
 import { MongoClient } from 'mongodb'
 import schema from './graphql/schema'
 import { context } from './graphql/context'
-import api from './api'
 const dotenv = require('dotenv')
 const express = require('express')
 // const { graphqlExpress, graphiqlExpress, graphqlConnect } = require('graphql-server-express')
@@ -35,7 +34,7 @@ app.use(
 )
 
 // Import API Routes
-app.use('/api', api)
+// app.use('/api', api)
 
 // Import and Set Nuxt.js options
 config.dev = !(process.env.NODE_ENV === 'production')

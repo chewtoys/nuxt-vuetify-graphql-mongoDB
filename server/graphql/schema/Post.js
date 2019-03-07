@@ -53,6 +53,7 @@ export const resolvers = {
       } else throw new Error('User is not authenticated!')
     },
     updatePost: async (root, args, { mongo, user }) => {
+      console.log('updatePost > user:', user)
       if (user) {
         const Posts = mongo.collection('posts')
         await Posts.updateOne(
@@ -60,7 +61,7 @@ export const resolvers = {
           { $set: { title: args.title, content: args.content } }
         )
         return prepare(await Posts.findOne({ _id: ObjectId(args._id) }))
-      } else throw new Error('User is not authenticated!')
+      } else throw new Error('Failed updatePost!')
     },
     deletePost: async (root, args, { mongo, user }) => {
       if (user) {

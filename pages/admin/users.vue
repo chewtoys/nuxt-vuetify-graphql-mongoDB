@@ -113,7 +113,7 @@ export default {
   },
   methods: {
     initialize() {
-      this.$store.dispatch('userList')
+      this.$store.dispatch('user/userList')
     },
     editItem(item) {
       this.editedIndex = this.users.indexOf(item)
@@ -135,7 +135,7 @@ export default {
     save() {
       if (this.editedIndex > -1) {
         // Object.assign(this.users[this.editedIndex], this.editedItem)
-        this.$store.dispatch('updateUser', this.editedItem)
+        this.$store.dispatch('user/updateUser', this.editedItem)
       } else {
         this.users.push(this.editedItem)
       }

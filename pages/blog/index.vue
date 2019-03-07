@@ -4,7 +4,7 @@
   <div>
     <ul id="example-1">
       <li v-for="post in posts" :key="post._id" v-show="$isAllowed('read')">
-        <nuxt-link :to="`/post/${post._id}`">{{ post.title }}</nuxt-link>
+        <nuxt-link :to="`/blog/${post._id}`">{{ post.title }}</nuxt-link>
         <v-btn v-if="$article.isAllowed('update', post)" @click="deletePost(post._id)">삭제</v-btn>
       </li>
     </ul>

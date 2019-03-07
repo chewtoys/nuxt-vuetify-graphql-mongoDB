@@ -2,12 +2,14 @@
 /*eslint-env es6*/
 <template>
   <div>
-    <post-form
-      :_id="post._id"
-      :title.sync="post.title"
-      :content.sync="post.content"
-      v-on:update="register($event, post)"
-    ></post-form>
+    <v-form>
+      <v-text-field v-model="post.title" placeholder="Title" required/>
+      <v-text-field label="Write contents here!" v-model="post.content" required></v-text-field>
+      <v-layout justify-space-between>
+        <v-btn @click="register" class="blue darken-4 white--text">Save</v-btn>
+        <nuxt-link to="/">Home</nuxt-link>
+      </v-layout>
+    </v-form>
   </div>
 </template>
 
@@ -15,37 +17,29 @@
 // import postsByTitle from '../graphql/query/posts.gql'
 import { mapActions } from 'vuex'
 import articlesPerimeter from '~/kindergarten/perimeters/articles'
-import postForm from '@/components/post/form'
 export default {
   name: 'post',
   // middleware: 'authenticated',
-  components: { postForm },
+  components: {},
   perimeters: [articlesPerimeter],
   routePerimeter: articlesPerimeter,
   data() {
     return {
       loading: 0,
-      errors: []
-    }
-  },
-  computed: {
-    post() {
-      console.log(
-        ' post :',
-        this.$store.getters['post/post'](this.$route.params.id)
-      )
-      return this.$store.getters['post/post'](this.$route.params.id)
+      errors: [],
+      post: {
+        title: null,
+        content: null
+      }
     }
   },
   methods: {
-    async register({ _id, title, content }) {
-      console.log('register  :', _id, title, content)
-      await this.$store.dispatch('post/updatePost', {
-        _id: _id,
-        title: title,
-        content: content
+    async register() {
+      await this.$store.dispatch('post/addPost', {
+        title: this.post.title,
+        content: this.post.content
       })
-      this.$router.push('/post/' + this.$route.params.id)
+      this.$router.push('/post')
     },
     ...mapActions('post', ['addPost'])
   }

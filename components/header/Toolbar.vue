@@ -1,13 +1,14 @@
 <template>
   <v-card color="teal lighten-4" flat>
     <v-toolbar color="teal darken-1" dark>
-      <v-toolbar-title>NGEMV</v-toolbar-title>
+      <v-toolbar-title to="/">NGEMV</v-toolbar-title>
 
       <v-spacer></v-spacer>
 
       <v-toolbar-items class="hidden-sm-and-down">
         <v-btn flat to="/post">Post</v-btn>
         <v-btn flat to="/admin">Admin</v-btn>
+        <v-btn flat to="/blog">Blog</v-btn>
         <v-btn flat to="/editor">Editor</v-btn>
       </v-toolbar-items>
 
