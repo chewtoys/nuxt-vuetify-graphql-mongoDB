@@ -60,6 +60,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import adminPerimeter from '~/kindergarten/perimeters/admin'
 export default {
   name: 'admin-users',
@@ -99,12 +100,12 @@ export default {
     }
   },
   computed: {
-    users() {
-      return this.$store.getters.users
-    },
     formTitle() {
       return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
-    }
+    },
+    ...mapGetters('user', {
+      users: 'users'
+    })
   },
   watch: {
     dialog(val) {
