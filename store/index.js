@@ -1,8 +1,9 @@
 import Vuex from 'vuex'
 import checkAuth from '~/middleware/check-auth'
-import pages from './pages'
-import user from './user'
-import post from './post'
+// import pages from './modules/pages'
+// import user from './modules/user'
+// import post from './modules/post'
+import modules from './modules'
 
 export const state = () => ({
   viewer: null
@@ -21,17 +22,12 @@ const actions = {
 }
 
 const createStore = () => {
-  return new Vuex.Store({
-    state,
-    mutations,
-    getters,
-    actions,
-    modules: {
-      pages,
-      user,
-      post
-    }
-  })
+  return new Vuex.Store({ state, mutations, getters, actions, modules })
+  // modules: {
+  //   pages,
+  //   user,
+  //   post
+  // }
 }
 
 export default createStore

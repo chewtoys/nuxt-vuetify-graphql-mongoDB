@@ -32,21 +32,12 @@ module.exports = {
   /*
   ** Global CSS
   */
-  css: [
-    '~/assets/style/app.styl',
-    '~/custom/vue2-medium-editor/src/themes/default.css',
-    'medium-editor/dist/css/medium-editor.css'
-  ],
+  css: ['~/assets/style/app.styl'],
 
   /*
   ** Plugins to load before mounting the App
   */
-  plugins: [
-    '@plugins/vuetify',
-    '@plugins/vue-kindergarten',
-    '@plugins/moment',
-    { src: '~/plugins/medium-editor', ssr: false }
-  ],
+  plugins: ['@plugins/vuetify', '@plugins/vue-kindergarten', '@plugins/moment'],
 
   /*
   ** Nuxt.js modules

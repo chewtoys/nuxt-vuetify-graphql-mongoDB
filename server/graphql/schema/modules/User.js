@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 import { ObjectId } from 'mongodb'
-import { prepare } from '../../utils'
+import { prepare } from '../../../utils'
 
 export const typeDef = `
   extend type Query {

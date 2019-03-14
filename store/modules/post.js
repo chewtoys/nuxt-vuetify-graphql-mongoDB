@@ -1,7 +1,7 @@
-import postsByTitle from '../graphql/query/posts.gql'
-import addPost from '../graphql/mutation/addPost.gql'
-import updatePost from '../graphql/mutation/updatePost.gql'
-import deletePost from '../graphql/mutation/deletePost.gql'
+import postsByTitle from '~/graphql/query/posts.gql'
+import addPost from '~/graphql/mutation/addPost.gql'
+import updatePost from '~/graphql/mutation/updatePost.gql'
+import deletePost from '~/graphql/mutation/deletePost.gql'
 
 const post = {
   namespaced: true,

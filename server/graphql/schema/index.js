@@ -1,8 +1,6 @@
 import { merge } from 'lodash'
 import { makeExecutableSchema } from 'graphql-tools'
-import { typeDef as Scalar, resolvers as scalarResolvers } from './Scalar.js'
-import { typeDef as User, resolvers as userResolvers } from './User.js'
-import { typeDef as Post, resolvers as postResolvers } from './Post.js'
+import modules from './modules'
 
 const Query = `
   type Query {
@@ -16,6 +14,6 @@ const Query = `
 const resolvers = {}
 
 export default makeExecutableSchema({
-  typeDefs: [Query, Scalar, User, Post],
-  resolvers: merge(resolvers, scalarResolvers, userResolvers, postResolvers)
+  typeDefs: [Query, ...modules.typeDefs],
+  resolvers: merge(resolvers, ...modules.resolvers)
 })

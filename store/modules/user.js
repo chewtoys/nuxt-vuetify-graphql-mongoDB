@@ -1,8 +1,8 @@
 import Cookies from 'js-cookie'
-import updateUser from '../graphql/mutation/updateUser.gql'
-import users from '../graphql/query/users.gql'
-import signin from '../graphql/mutation/signin.gql'
-import signup from '../graphql/mutation/signup.gql'
+import updateUser from '~/graphql/mutation/updateUser.gql'
+import users from '~/graphql/query/users.gql'
+import signin from '~/graphql/mutation/signin.gql'
+import signup from '~/graphql/mutation/signup.gql'
 
 const user = {
   namespaced: true,
