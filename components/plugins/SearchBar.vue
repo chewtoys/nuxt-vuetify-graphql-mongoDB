@@ -1,60 +1,70 @@
 <template>
-  <v-container style="padding:12px;" grid-list-md>
-    <v-layout row wrap>
-      <v-flex xs12 sm5 lg2 v-if="isUseForm('keywords')">
-        <v-select v-model="selectedKey" :items="selectKeys" label="Select"></v-select>
-      </v-flex>
-      <v-flex xs12 sm6 lg3 v-if="isUseForm('keywords')">
-        <v-text-field label="keywords" prepend-inner-icon="search" v-model="keywords"></v-text-field>
-      </v-flex>
-      <v-spacer v-if="isUseForm('keywords')"/>
-      <v-flex xs11 sm5 lg2 v-if="isUseForm('period')">
-        <v-menu
-          ref="menu1"
-          :close-on-content-click="false"
-          v-model="menu1"
-          lazy
-          transition="scale-transition"
-          offset-y
-        >
-          <v-text-field
-            slot="activator"
-            :value="formatDate(startDate)"
-            label="StartDate"
-            prepend-inner-icon="event"
-            readonly
-          ></v-text-field>
-          <v-date-picker v-model="startDate" no-title @input="menu1 = false"></v-date-picker>
-        </v-menu>
-      </v-flex>
-
-      <v-flex xs11 sm5 lg2 v-if="isUseForm('period')">
-        <v-menu
-          :close-on-content-click="false"
-          v-model="menu2"
-          lazy
-          transition="scale-transition"
-          offset-y
-        >
-          <v-text-field
-            slot="activator"
-            :value="formatDate(endDate)"
-            label="EndDate"
-            prepend-inner-icon="event"
-            readonly
-          ></v-text-field>
-          <v-date-picker v-model="endDate" no-title @input="menu2 = false"></v-date-picker>
-        </v-menu>
-        <!-- <p>Date in ISO format:
-          <strong>{{ date }}</strong>
-        </p>-->
-      </v-flex>
-      <v-flex>
-        <v-btn round color="indigo darken-4" dark @click="search">Search</v-btn>
-        <v-btn round color="indigo darken-2" dark @click="reset">Reset</v-btn>
-      </v-flex>
-    </v-layout>
-  </v-container>
+  <v-card class="mx-0 my-2">
+    <v-container grid-list-md outline>
+      <v-layout row wrap>
+        <v-flex xs12 sm5 lg2 v-if="isUseForm('keywords')">
+          <v-select v-model="selectedKey" :items="selectKeys" label="Select"></v-select>
+        </v-flex>
+        <v-flex xs12 sm6 lg3 v-if="isUseForm('keywords')">
+          <v-text-field label="keywords" prepend-inner-icon="search" v-model="keywords"></v-text-field>
+        </v-flex>
+        <v-spacer/>
+        <v-flex>
+          <v-btn round color="indigo darken-4" dark @click.stop="search">Search</v-btn>
+          <v-btn round color="indigo darken-2" dark @click.stop="reset">Reset</v-btn>
+        </v-flex>
+        <v-btn icon @click="show = !show">
+          <v-icon>{{ show ? 'keyboard_arrow_down' : 'keyboard_arrow_up' }}</v-icon>
+        </v-btn>
+      </v-layout>
+      <v-slide-y-transition>
+        <div v-show="show">
+          <v-layout row wrap>
+            <v-flex xs12 sm5 lg2 v-if="isUseForm('period')">
+              <v-select v-model="selectedDateFor" :items="dateKeys" label="Select"></v-select>
+            </v-flex>
+            <v-flex xs11 sm5 lg2 v-if="isUseForm('period')">
+              <v-menu
+                ref="menu1"
+                :close-on-content-click="false"
+                v-model="menu1"
+                lazy
+                transition="scale-transition"
+                offset-y
+              >
+                <v-text-field
+                  slot="activator"
+                  :value="formatDate(startDate)"
+                  label="StartDate"
+                  prepend-inner-icon="event"
+                  readonly
+                ></v-text-field>
+                <v-date-picker v-model="startDate" no-title @input="menu1 = false"></v-date-picker>
+              </v-menu>
+            </v-flex>
+            <v-flex xs11 sm5 lg2 v-if="isUseForm('period')">
+              <v-menu
+                :close-on-content-click="false"
+                v-model="menu2"
+                lazy
+                transition="scale-transition"
+                offset-y
+              >
+                <v-text-field
+                  slot="activator"
+                  :value="formatDate(endDate)"
+                  label="EndDate"
+                  prepend-inner-icon="event"
+                  readonly
+                ></v-text-field>
+                <v-date-picker v-model="endDate" no-title @input="menu2 = false"></v-date-picker>
+              </v-menu>
+            </v-flex>
+          </v-layout>
+        </div>
+      </v-slide-y-transition>
+    </v-container>
+  </v-card>
 </template>
 <script>
 export default {
@@ -65,7 +75,9 @@ export default {
     menu1: false,
     menu2: false,
     selectedKey: null,
-    keywords: null
+    selectedDateFor: null,
+    keywords: null,
+    show: false
   }),
 
   methods: {
@@ -76,7 +88,6 @@ export default {
     },
     parseDate(date) {
       if (!date) return null
-
       const [month, day, year] = date.split('/')
       return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
     },
@@ -94,11 +105,19 @@ export default {
         }
       }
       if (this.isUseForm('period')) {
+        const dates = {}
         if (this.startDate) {
-          payload.startDate = this.startDate
+          dates.startDate = this.startDate
         }
         if (this.endDate) {
-          payload.endDate = this.endDate
+          dates.endDate = this.endDate
+        }
+        if (Object.keys(dates).length > 0) {
+          if (!this.selectedDateFor) {
+            payload.period = { kind: 'created', ...dates }
+          } else {
+            payload.period = { kind: this.selectedDateFor, ...dates }
+          }
         }
       }
       this.$emit('search', payload)

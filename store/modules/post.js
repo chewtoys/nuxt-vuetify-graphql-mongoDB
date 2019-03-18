@@ -1,3 +1,4 @@
+import typeQuery from '~/graphql/type/type.gql'
 import retrievePosts from '~/graphql/post/retrievePosts.gql'
 import addPost from '~/graphql/post/addPost.gql'
 import updatePost from '~/graphql/post/updatePost.gql'
@@ -6,9 +7,13 @@ import deletePost from '~/graphql/post/deletePost.gql'
 const post = {
   namespaced: true,
   state: {
+    gqlTypes: null,
     posts: []
   },
   getters: {
+    types(state) {
+      return state.gqlTypes
+    },
     posts(state) {
       return state.posts
     },
@@ -17,6 +22,9 @@ const post = {
     }
   },
   mutations: {
+    SET_GQL_TYPES(state, gqlTypes) {
+      state.gqlTypes = gqlTypes
+    },
     SET_POSTS(state, posts) {
       state.posts = posts
     },
@@ -32,6 +40,20 @@ const post = {
     }
   },
   actions: {
+    async retrieveGqlTypes(context, { name }) {
+      try {
+        if (this.app.apolloProvider.defaultClient) {
+          const gqlTypes = await this.app.apolloProvider.defaultClient.query({
+            query: typeQuery,
+            variables: { name: name }
+          })
+          context.commit('SET_GQL_TYPES', gqlTypes.data)
+        }
+      } catch (error) {
+        console.log(JSON.stringify(error))
+        return null
+      }
+    },
     async retrievePosts(context, payload) {
       try {
         if (this.app.apolloProvider.defaultClient) {

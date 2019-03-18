@@ -7,6 +7,7 @@
       :useSearchForm="searchOption.useSearchForm"
       @search="search"
     />
+    <v-spacer/>
     <v-toolbar flat>
       <v-toolbar-title>Posts</v-toolbar-title>
       <v-divider class="mx-2" inset vertical></v-divider>
@@ -20,7 +21,7 @@
           <v-card-text>
             <v-container grid-list-md>
               <v-layout wrap>
-                <v-flex xs12 sm12 md12 v-for="key in keys" :key="key">
+                <v-flex xs12 sm12 md12 v-for="key in headerKeys" :key="key">
                   <v-textarea
                     v-if="key==='content'"
                     v-model="editedItem[key]"
@@ -48,11 +49,21 @@
     </v-toolbar>
     <v-data-table v-if="headers" :headers="headers" :items="posts" class="elevation-1">
       <template slot="items" slot-scope="props">
-        <td v-for="key in keys" :key="key">{{ handleItem(props.item, key, true) }}</td>
+        <td v-for="key in headerKeys" :key="key">{{ handleItem(props.item, key, true) }}</td>
         <td class="justify-center layout px-0">
           <v-icon small class="mr-2" @click="editItem(props.item)">edit</v-icon>
           <v-icon small @click="deleteItem(props.item)">delete</v-icon>
         </td>
+      </template>
+      <template slot="footer">
+        <tr>
+          <td :colspan="headers.length">
+            <strong>This is an extra footer</strong>
+          </td>
+        </tr>
+        <tr>
+          <td>total</td>
+        </tr>
       </template>
     </v-data-table>
   </div>
@@ -72,26 +83,18 @@ export default {
   data() {
     return {
       dialog: false,
-      keys: [],
-      headers: [
-        {
-          text: 'Name',
-          value: 'name'
-        }
-      ],
+      headerKeys: [],
+      headers: [{ text: 'Name', value: 'name' }],
       editedIndex: -1,
-      editedItem: {
-        name: ''
-      },
-      defaultItem: {
-        name: ''
-      },
+      editedItem: { name: '' },
+      defaultItem: { name: '' },
       showSearchBar: true,
       searchOption: {
         useSearchForm: ['keywords', 'period'],
         selectKeys: ['title', 'content'],
-        dateKeys: ['create']
-      }
+        dateKeys: ['created', 'updated']
+      },
+      sumKeys: ['like']
     }
   },
   computed: {
@@ -113,6 +116,9 @@ export default {
   },
   methods: {
     initialize() {
+      //retrieveGqlTypes
+      this.$store.dispatch('post/retrieveGqlTypes', { name: 'Post' })
+
       if (!this.posts || this.posts.length === 0) {
         this.$store.dispatch('post/retrievePosts')
       } else {
@@ -166,7 +172,7 @@ export default {
           }
           headers.push(item)
         })
-        this.keys = keys
+        this.headerKeys = keys
         const action = {
           text: 'ACTION',
           value: 'action',
@@ -224,3 +230,4 @@ export default {
   }
 }
 </script>
+

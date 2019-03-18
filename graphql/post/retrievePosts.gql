@@ -1,14 +1,8 @@
-query retrievePosts(
-  $title: String
-  $content: String
-  $startDate: String
-  $endDate: String
-) {
+query retrievePosts($title: String, $content: String, $period: periodInput) {
   retrievePosts: retrievePosts(
     title: $title
     content: $content
-    startDate: $startDate
-    endDate: $endDate
+    period: $period
   ) {
     _id
     title
@@ -16,6 +10,7 @@ query retrievePosts(
     author {
       email
     }
+    like
     updated
     created
   }

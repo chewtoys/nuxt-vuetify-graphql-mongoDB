@@ -1,0 +1,24 @@
+query IntrospectionQuery($name: String!) {
+  __type(name: $name) {
+    ...FullType
+  }
+}
+
+fragment FullType on __Type {
+  kind
+  name
+  description
+  fields(includeDeprecated: true) {
+    name
+    description
+    isDeprecated
+    deprecationReason
+  }
+
+  enumValues(includeDeprecated: true) {
+    name
+    description
+    isDeprecated
+    deprecationReason
+  }
+}

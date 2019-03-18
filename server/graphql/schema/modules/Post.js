@@ -4,9 +4,7 @@ const coleectionName = 'posts'
 export const typeDef = `
   extend type Query {
     post(id: String!): Post
-    retrievePosts(title:String, content: String
-    startDate: String
-    endDate: String): [Post]
+    retrievePosts(title:String, content: String, period: periodInput): [Post]
   }
   
   extend type Mutation {
@@ -15,12 +13,19 @@ export const typeDef = `
     deletePost(_id:String!): Boolean
   }
 
+  input periodInput {
+    kind: String!
+    startDate: String
+    endDate: String
+  }
+
   type Post {
     _id:ID!
     title: String!
     content: String
     created: Date
     updated: Date
+    like: Int
     slug: String
     author: User
   }
@@ -38,34 +43,36 @@ export const resolvers = {
     retrievePosts: async (root, args, { mongo, user }) => {
       const Posts = mongo.collection(coleectionName)
       const keywords = []
-      const created = {}
+      const datesBtw = {}
       let query = {}
-      console.log('args :', args)
       const keys = Object.keys(args)
       keys.forEach(key => {
-        if (key.toLocaleLowerCase().includes('date')) {
-          console.log(' date :', args[key])
-          if (key === 'startDate') {
-            created.$gt = new Date(args[key])
-          } else if (key === 'endDate') {
-            created.$lt = new Date(args[key])
+        if (key === 'period') {
+          const period = args[key]
+          datesBtw[period.kind] = {}
+          if (period.startDate) {
+            datesBtw[period.kind].$gt = new Date(period.startDate)
           }
-          // created_at: {
-          //   $gte: args[key],
-          //     $lt: args[key]
-          // }
+          if (period.endDate) {
+            datesBtw[period.kind].$lt = new Date(period.endDate)
+          }
         } else {
           const item = {}
           item[key] = { $regex: new RegExp(args[key]) }
           keywords.push(item)
         }
       })
-      if (keys.length > 0) {
-        query = { $and: [{ created: created }, { $or: keywords }] }
+
+      if (Object.keys(datesBtw).length > 0 && keywords.length > 0) {
+        query = { $and: [datesBtw, { $or: keywords }] }
+      } else if (Object.keys(datesBtw).length > 0) {
+        query = datesBtw
+      } else if (keywords.length > 0) {
+        query = { $or: keywords }
       }
-      console.log('created :', created)
-      console.log('keywords :', keywords)
-      console.log('query :', query)
+      // console.log('datesBtw :', datesBtw)
+      // console.log('keywords :', keywords)
+      // console.log('query :', query)
       return (await Posts.find(query)
         .sort({ updated: -1 })
         .toArray()).map(prepare)
@@ -79,6 +86,7 @@ export const resolvers = {
           authorId: user.email,
           title: args.title,
           content: args.content,
+          like: 0,
           created: new Date(),
           updated: new Date()
         })
