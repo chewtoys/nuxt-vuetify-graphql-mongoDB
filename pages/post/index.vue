@@ -9,7 +9,7 @@
       </li>
     </ul>
     <v-layout justify-space-between>
-      <v-btn class="blue darken-4 white--text">
+      <v-btn class="blue darken-4 white--text" v-show="$isAllowed('write')">
         <nuxt-link to="/post/create">Write Post</nuxt-link>
       </v-btn>
       <nuxt-link to="/">Home</nuxt-link>
@@ -29,11 +29,11 @@ export default {
   },
   computed: {
     ...mapGetters('post', {
-      posts: 'postList'
+      posts: 'posts'
     })
   },
   mounted() {
-    this.postList()
+    this.retrievePosts()
   },
   methods: {
     deletePost(id) {
@@ -41,7 +41,7 @@ export default {
         id
       })
     },
-    ...mapActions('post', ['postList', 'addPost'])
+    ...mapActions('post', ['retrievePosts'])
   }
 }
 </script>

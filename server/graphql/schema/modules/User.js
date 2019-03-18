@@ -38,7 +38,9 @@ export const resolvers = {
     },
     users: async (root, args, { mongo }) => {
       const Users = mongo.collection('users')
-      const users = await Users.find({}).toArray()
+      const users = await Users.find({})
+        .sort({ loggedIn: -1 })
+        .toArray()
       return users
     }
   },

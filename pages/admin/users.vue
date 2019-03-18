@@ -45,10 +45,8 @@
       <template slot="items" slot-scope="props">
         <td>{{ props.item.name }}</td>
         <td class="text-xs-right">{{ props.item.email }}</td>
-        <td class="text-xs-right">{{ props.item.created | moment('timezone', 'Asia/Seoul', 'LLLL')}}</td>
-        <td
-          class="text-xs-right"
-        >{{ props.item.loggedIn | moment('timezone', 'Asia/Seoul', 'LLLL')}}</td>
+        <td class="text-xs-right">{{ handleDate(props.item.created) }}</td>
+        <td class="text-xs-right">{{ handleDate(props.item.loggedIn ) }}</td>
         <td class="text-xs-right">{{ props.item.role }}</td>
         <td class="justify-center layout px-0">
           <v-icon small class="mr-2" @click="editItem(props.item)">edit</v-icon>
@@ -141,6 +139,13 @@ export default {
         this.users.push(this.editedItem)
       }
       this.close()
+    },
+    handleDate(date) {
+      return this.$moment.tz(date, 'Asia/Seoul').fromNow()
+      // const days = this.$moment().diff(date, 'days')
+      // if (days < 7) return this.$moment.tz(date, 'Asia/Seoul').fromNow()
+      // else
+      //   return this.$moment.tz(date, 'Asia/Seoul').format('YYYY-MM-DD HH:mm:ss')
     }
   },
   created() {

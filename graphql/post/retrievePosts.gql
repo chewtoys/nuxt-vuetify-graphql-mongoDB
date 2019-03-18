@@ -1,0 +1,22 @@
+query retrievePosts(
+  $title: String
+  $content: String
+  $startDate: String
+  $endDate: String
+) {
+  retrievePosts: retrievePosts(
+    title: $title
+    content: $content
+    startDate: $startDate
+    endDate: $endDate
+  ) {
+    _id
+    title
+    content
+    author {
+      email
+    }
+    updated
+    created
+  }
+}

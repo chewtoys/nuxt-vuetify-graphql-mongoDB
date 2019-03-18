@@ -6,8 +6,11 @@ export default createPerimeter({
   can: {
     route: () => true,
     read: () => true,
+    write(article) {
+      return this.isModerator()
+    },
     update(article) {
-      return this.isAdmin() || this.isCreator(article) || this.isModerator()
+      return this.isAdmin() || this.isCreator(article)
     },
     destroy(article) {
       return this.isAllowed('update', article)
@@ -32,7 +35,7 @@ export default createPerimeter({
   },
 
   isModerator() {
-    return this.child && this.child.role === 'moderator'
+    return this.child
   },
 
   isCreator(article) {

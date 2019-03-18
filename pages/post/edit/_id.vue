@@ -1,50 +1,26 @@
-/*eslint no-inner-declarations: 2*/
-/*eslint-env es6*/
 <template>
   <div>
-    <post-form
-      :_id="post._id"
-      :title.sync="post.title"
-      :content.sync="post.content"
-      v-on:update="register($event, post)"
-    ></post-form>
+    <post-form :post="post" @update="update($event)"></post-form>
   </div>
 </template>
 
 <script>
-// import postsByTitle from '../graphql/query/posts.gql'
 import { mapActions } from 'vuex'
 import articlesPerimeter from '~/kindergarten/perimeters/articles'
-import postForm from '@/components/post/form'
+import postForm from '@/components/form/post'
 export default {
   name: 'post',
-  // middleware: 'authenticated',
   components: { postForm },
   perimeters: [articlesPerimeter],
   routePerimeter: articlesPerimeter,
-  data() {
-    return {
-      loading: 0,
-      errors: []
-    }
-  },
   computed: {
     post() {
-      console.log(
-        ' post :',
-        this.$store.getters['post/post'](this.$route.params.id)
-      )
       return this.$store.getters['post/post'](this.$route.params.id)
     }
   },
   methods: {
-    async register({ _id, title, content }) {
-      console.log('register  :', _id, title, content)
-      await this.$store.dispatch('post/updatePost', {
-        _id: _id,
-        title: title,
-        content: content
-      })
+    async update(payload) {
+      await this.$store.dispatch('post/updatePost', payload)
       this.$router.push('/post/' + this.$route.params.id)
     },
     ...mapActions('post', ['addPost'])

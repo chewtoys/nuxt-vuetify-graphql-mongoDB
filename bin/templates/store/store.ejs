@@ -1,0 +1,89 @@
+import <%= file.name %>sByTitle from '../graphql/query/<%= file.name %>s.gql'
+import add<%= _.capitalize( file.name , true ) %> from '../graphql/mutation/add<%= _.capitalize( file.name , true ) %>.gql'
+import update<%= _.capitalize( file.name , true ) %> from '../graphql/mutation/update<%= _.capitalize( file.name , true ) %>.gql'
+import delete<%= _.capitalize( file.name , true ) %> from '../graphql/mutation/delete<%= _.capitalize( file.name , true ) %>.gql'
+
+const <%= file.name %> = {
+  namespaced: true,
+  state: {
+    <%= file.name %>s: []
+  },
+  getters: {
+    <%= file.name %>s(state) {
+      return state.<%= file.name %>s
+    },
+    <%= file.name %>: state => id => {
+      return state.<%= file.name %>s.find(<%= file.name %> => <%= file.name %>._id === id)
+    }
+  },
+  mutations: {
+    <%= _.capitalize( file.name  ) %>_LIST(state, <%= file.name %>s) {
+      state.<%= file.name %>s = <%= file.name %>s
+    },
+    ADD_<%= _.capitalize( file.name  ) %>(state, <%= file.name %>) {
+      state.<%= file.name %>s.push(<%= file.name %>)
+    },
+    DELETE_<%= _.capitalize( file.name  ) %>(state, id) {
+      const index = state.<%= file.name %>s.findIndex(<%= file.name %> => <%= file.name %>._id === id)
+      state.<%= file.name %>s.splice(index, 1)
+    },
+    UPDATE_<%= _.capitalize( file.name  ) %>(state, <%= file.name %>) {
+      state.<%= file.name %>s = [
+        ...state.<%= file.name %>s.filter(element => element._id !== <%= file.name %>._id),
+        <%= file.name %>
+      ]
+    }
+  },
+  actions: {
+    async <%= file.name %>s(context) {
+      try {
+        if (this.app.apolloProvider.defaultClient) {
+          const title = 'this.<%= file.name %>'
+          const <%= file.name %>s = await this.app.apolloProvider.defaultClient.query({
+            query: <%= file.name %>sByTitle,
+            variables: { title }
+          })
+          context.commit('<%= _.capitalize( file.name  ) %>_LIST', <%= file.name %>s.data.<%= file.name %>sByTitle)
+        }
+      } catch (error) {
+        console.log(JSON.stringify(error))
+        return null
+      }
+    },
+    async add<%= _.capitalize( file.name , true ) %>(context, { title, content }) {
+      try {
+        const <%= file.name %> = await this.app.apolloProvider.defaultClient.mutate({
+          mutation: add<%= _.capitalize( file.name , true ) %>,
+          variables: { title, content }
+        })
+        context.commit('ADD_<%= _.capitalize( file.name  ) %>', <%= file.name %>.data.add<%= _.capitalize( file.name , true ) %>)
+      } catch (error) {
+        console.log(JSON.stringify(error))
+      }
+    },
+    async update<%= _.capitalize( file.name , true ) %>(context, { _id, title, content }) {
+      try {
+        const <%= file.name %> = await this.app.apolloProvider.defaultClient.mutate({
+          mutation: update<%= _.capitalize( file.name , true ) %>,
+          variables: { _id, title, content }
+        })
+        context.commit('UPDATE_<%= _.capitalize( file.name  ) %>', <%= file.name %>.data.update<%= _.capitalize( file.name , true ) %>)
+      } catch (error) {
+        console.log(JSON.stringify(error))
+      }
+    },
+    async delete<%= _.capitalize( file.name , true ) %>(context, { id }) {
+      try {
+        const result = await this.app.apolloProvider.defaultClient.mutate({
+          mutation: delete<%= _.capitalize( file.name , true ) %>,
+          variables: { id }
+        })
+        if (result.data.delete<%= _.capitalize( file.name , true ) %>) context.commit('DELETE_<%= _.capitalize( file.name  ) %>', id)
+      } catch (error) {
+        console.log('error:', error)
+      }
+    }
+  }
+}
+
+export default <%= file.name %>

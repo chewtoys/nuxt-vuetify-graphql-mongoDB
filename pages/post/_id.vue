@@ -4,6 +4,7 @@
   <div>
     <div v-if="post">
       <p>{{ post.title }}</p>
+      <p>{{ post.content }}</p>
       <v-layout justify-space-between>
         <v-btn class="blue darken-4 white--text" v-if="$article.isAllowed('update', post)">
           <nuxt-link :to="{name: 'post-edit-id', params: {id: this.$route.params.id}}">수정</nuxt-link>

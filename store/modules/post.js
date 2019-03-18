@@ -1,7 +1,7 @@
-import postsByTitle from '~/graphql/query/posts.gql'
-import addPost from '~/graphql/mutation/addPost.gql'
-import updatePost from '~/graphql/mutation/updatePost.gql'
-import deletePost from '~/graphql/mutation/deletePost.gql'
+import retrievePosts from '~/graphql/post/retrievePosts.gql'
+import addPost from '~/graphql/post/addPost.gql'
+import updatePost from '~/graphql/post/updatePost.gql'
+import deletePost from '~/graphql/post/deletePost.gql'
 
 const post = {
   namespaced: true,
@@ -9,78 +9,74 @@ const post = {
     posts: []
   },
   getters: {
-    postList(state) {
+    posts(state) {
       return state.posts
     },
-    post: state => id => {
-      return state.posts.find(post => post._id === id)
+    post: state => _id => {
+      return state.posts.find(p => p._id === _id)
     }
   },
   mutations: {
-    POST_LIST(state, posts) {
+    SET_POSTS(state, posts) {
       state.posts = posts
     },
     ADD_POST(state, post) {
       state.posts.push(post)
     },
-    DELETE_POST(state, id) {
-      const index = state.posts.findIndex(post => post._id === id)
+    DELETE_POST(state, post) {
+      const index = state.posts.findIndex(p => p._id === post._id)
       state.posts.splice(index, 1)
     },
     UPDATE_POST(state, post) {
-      state.posts = [
-        ...state.posts.filter(element => element._id !== post._id),
-        post
-      ]
+      state.posts = [...state.posts.filter(p => p._id !== post._id), post]
     }
   },
   actions: {
-    async postList(context) {
+    async retrievePosts(context, payload) {
       try {
         if (this.app.apolloProvider.defaultClient) {
-          const title = 'this.post'
           const posts = await this.app.apolloProvider.defaultClient.query({
-            query: postsByTitle,
-            variables: { title }
+            query: retrievePosts,
+            variables: payload
           })
-          context.commit('POST_LIST', posts.data.postsByTitle)
+          context.commit('SET_POSTS', posts.data.retrievePosts)
         }
       } catch (error) {
         console.log(JSON.stringify(error))
         return null
       }
     },
-    async addPost(context, { title, content }) {
+    async addPost(context, payload) {
       try {
         const post = await this.app.apolloProvider.defaultClient.mutate({
           mutation: addPost,
-          variables: { title, content }
+          variables: payload
         })
         context.commit('ADD_POST', post.data.addPost)
       } catch (error) {
         console.log(JSON.stringify(error))
       }
     },
-    async updatePost(context, { _id, title, content }) {
+    async updatePost(context, payload) {
       try {
         const post = await this.app.apolloProvider.defaultClient.mutate({
           mutation: updatePost,
-          variables: { _id, title, content }
+          variables: payload
         })
         context.commit('UPDATE_POST', post.data.updatePost)
       } catch (error) {
         console.log(JSON.stringify(error))
       }
     },
-    async deletePost(context, { id }) {
+    async deletePost(context, payload) {
       try {
         const result = await this.app.apolloProvider.defaultClient.mutate({
           mutation: deletePost,
-          variables: { id }
+          variables: payload
         })
-        if (result.data.deletePost) context.commit('DELETE_POST', id)
+        if (result.data.deletePost) context.commit('DELETE_POST', payload)
       } catch (error) {
-        console.log('error:', error)
+        console.log(JSON.stringify(error))
       }
     }
   }

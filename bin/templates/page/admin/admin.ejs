@@ -1,0 +1,178 @@
+<template>
+  <div>
+    <v-toolbar flat>
+      <v-toolbar-title>Posts</v-toolbar-title>
+      <v-divider class="mx-2" inset vertical></v-divider>
+      <v-spacer></v-spacer>
+      <v-dialog v-model="dialog" max-width="500px">
+        <v-btn slot="activator" color="primary" dark class="mb-2">Add Item</v-btn>
+        <v-card>
+          <v-card-title>
+            <span class="headline">{{ formTitle }}</span>
+          </v-card-title>
+          <v-card-text>
+            <v-container grid-list-md>
+              <v-layout wrap>
+                <v-flex xs12 sm12 md12 v-for="key in keys" :key="key">
+                  <v-textarea
+                    v-if="key==='content'"
+                    v-model="editedItem[key]"
+                    :label="key.toUpperCase()"
+                    box
+                    auto-grow
+                  ></v-textarea>
+                  <v-text-field
+                    v-else
+                    v-model="editedItem[key]"
+                    :label="key.toUpperCase()"
+                    :disabled="['id', 'author', 'user'].some( s => key.includes(s)) ? true : false"
+                  ></v-text-field>
+                </v-flex>
+              </v-layout>
+            </v-container>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="blue darken-1" flat @click="close">Cancel</v-btn>
+            <v-btn color="blue darken-1" flat @click="save">Save</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </v-toolbar>
+    <v-data-table v-if="headers" :headers="headers" :items="posts" class="elevation-1">
+      <template slot="items" slot-scope="props">
+        <td v-for="key in keys" :key="key">{{ handleItem(props.item, key) }}</td>
+        <td class="justify-center layout px-0">
+          <v-icon small class="mr-2" @click="editItem(props.item)">edit</v-icon>
+          <v-icon small @click="deleteItem(props.item)">delete</v-icon>
+        </td>
+      </template>
+    </v-data-table>
+  </div>
+</template>
+
+<script>
+import { mapGetters } from 'vuex'
+import adminPerimeter from '~/kindergarten/perimeters/admin'
+export default {
+  name: 'admin-post',
+  layout: 'admin',
+  routePerimeter: adminPerimeter,
+  data() {
+    return {
+      dialog: false,
+      keys: [],
+      headers: [
+        {
+          text: 'Name',
+          value: 'name'
+        }
+      ],
+      editedIndex: -1,
+      editedItem: {
+        name: ''
+      },
+      defaultItem: {
+        name: ''
+      }
+    }
+  },
+  computed: {
+    formTitle() {
+      return this.editedIndex === -1 ? 'Add Item' : 'Edit Item'
+    },
+    ...mapGetters('post', {
+      posts: 'posts'
+    })
+  },
+  watch: {
+    dialog(val) {
+      val || this.close()
+    },
+    posts() {
+      this.setHeaders()
+    }
+  },
+  methods: {
+    initialize() {
+      if (!this.posts || this.posts.length === 0) {
+        this.$store.dispatch('post/retrievePosts')
+      } else {
+        this.$store.dispatch('post/retrievePosts').then(this.setHeaders())
+      }
+    },
+    editItem(item) {
+      this.editedIndex = this.posts.indexOf(item)
+      this.setEditItem(item)
+      this.dialog = true
+    },
+    deleteItem(item) {
+      if (confirm('Are you sure you want to delete this item?')) {
+        this.$store.dispatch('post/deletePost', item)
+      }
+    },
+    close() {
+      this.dialog = false
+      setTimeout(() => {
+        this.editedItem = Object.assign({}, this.defaultItem)
+        this.editedIndex = -1
+      }, 300)
+    },
+    save() {
+      if (this.editedIndex > -1) {
+        this.$store.dispatch('post/updatePost', this.editedItem)
+      } else {
+        this.users.push(this.editedItem)
+      }
+      this.close()
+    },
+    setHeaders() {
+      const headers = []
+      if (this.posts) {
+        const post = this.posts[0]
+        const keys = Object.keys(post).filter(
+          key => !key.includes('__typename')
+        )
+        keys.forEach(key => {
+          const item = {
+            text: key.toUpperCase().replace('_', ''),
+            value: key,
+            align: 'center'
+          }
+          headers.push(item)
+        })
+        this.keys = keys
+        const action = {
+          text: 'ACTION',
+          value: 'action',
+          align: 'right',
+          sortable: false
+        }
+        headers.push(action)
+        this.headers = headers
+      }
+    },
+    setEditItem(item) {
+      const keys = Object.keys(item).filter(key => !key.includes('__typename'))
+      let editItem = {}
+      keys.forEach(key => {
+        editItem[key] = this.handleItem(item, key)
+      })
+      this.editedItem = editItem
+    },
+    handleItem(item, key) {
+      if (key === 'author' || key === 'user') {
+        return this.handleUser(item[key])
+      } else {
+        return item[key]
+      }
+    },
+    handleUser(user) {
+      return user.email
+    }
+  },
+  created() {
+    this.initialize()
+  }
+}
+</script>

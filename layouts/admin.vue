@@ -21,19 +21,8 @@
     </v-navigation-drawer>
     <v-toolbar :clipped-left="clipped" fixed app>
       <v-toolbar-side-icon @click="drawer = !drawer"/>
-      <v-btn icon @click.stop="miniVariant = !miniVariant">
-        <v-icon>{{ `chevron_${miniVariant ? 'right' : 'left'}` }}</v-icon>
-      </v-btn>
-      <v-btn icon @click.stop="clipped = !clipped">
-        <v-icon>web</v-icon>
-      </v-btn>
-      <v-btn icon to="/" @click.stop="fixed = !fixed">
-        <v-icon>remove</v-icon>
-      </v-btn>
+
       <v-toolbar-title v-text="title"/>
-      <v-btn icon @click.stop="rightDrawer = !rightDrawer">
-        <v-icon>menu</v-icon>
-      </v-btn>
     </v-toolbar>
     <v-content>
       <nuxt/>
@@ -64,6 +53,11 @@ export default {
       fixed: false,
       items: [
         {
+          icon: 'arrow_back',
+          title: 'Back',
+          to: '/'
+        },
+        {
           icon: 'apps',
           title: 'Home',
           to: '/admin'
@@ -72,19 +66,24 @@ export default {
           icon: 'people',
           title: 'Users',
           to: '/admin/users'
+        },
+        {
+          icon: 'toc',
+          title: 'Post',
+          to: '/admin/post'
         }
       ],
       miniVariant: false,
       right: true,
       rightDrawer: false,
-      title: 'Vuetify.js'
+      title: 'Admin'
     }
   }
 }
 </script>
 
 <style lang="stylus" scoped>
-w = 100px
+w = 50px
 
 .v-content 
   margin w
