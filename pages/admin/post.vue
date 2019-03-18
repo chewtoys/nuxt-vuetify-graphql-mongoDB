@@ -102,7 +102,8 @@ export default {
       return this.editedIndex === -1 ? 'Add Item' : 'Edit Item'
     },
     ...mapGetters('post', {
-      posts: 'posts'
+      posts: 'posts',
+      gqlTypes: 'gqlTypes'
     })
   },
   watch: {
@@ -110,20 +111,20 @@ export default {
       if (val) this.activeDialog()
       val || this.close()
     },
-    posts() {
+    gqlTypes() {
       this.setHeaders()
     }
   },
   methods: {
     initialize() {
       //retrieveGqlTypes
-      this.$store.dispatch('post/retrieveGqlTypes', { name: 'Post' })
+      this.gqlTypes = this.$store.dispatch('post/retrieveGqlTypes', { name: 'Post' })
 
-      if (!this.posts || this.posts.length === 0) {
-        this.$store.dispatch('post/retrievePosts')
-      } else {
-        this.$store.dispatch('post/retrievePosts').then(this.setHeaders())
-      }
+      // if (!this.posts || this.posts.length === 0) {
+      //   this.$store.dispatch('post/retrievePosts')
+      // } else {
+      //   this.$store.dispatch('post/retrievePosts').then(this.setHeaders())
+      // }
     },
     activeDialog() {
       console.log('activeDialog > this.editedIndex :', this.editedIndex)
@@ -158,6 +159,7 @@ export default {
       this.close()
     },
     setHeaders() {
+      this.gqlTypes.__type.fields
       const headers = []
       if (this.posts && this.posts.length) {
         const post = this.posts[0]

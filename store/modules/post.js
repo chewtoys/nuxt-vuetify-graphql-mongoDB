@@ -11,7 +11,7 @@ const post = {
     posts: []
   },
   getters: {
-    types(state) {
+    gqlTypes(state) {
       return state.gqlTypes
     },
     posts(state) {
