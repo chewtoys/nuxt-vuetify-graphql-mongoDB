@@ -14,28 +14,28 @@ export const typeDef = `
   }
 
   input paginationInput {
-    page: Int
-    rowsPerPage: Int
+    page: Int!
+    rowsPerPage: Int!
     sortBy: String
     descending: Boolean
     totalItems: Int
   }
 
   input keywordsInput {
-    kind: String
+    kind: [String]!
     keywords: [String]
   }
 
   input periodInput {
-    kind: String!
+    kind: [String]!
     startDate: String
     endDate: String
   }
 
   input rangeInput {
-    kind: String!
-    min: Int
-    max: Int
+    kind: [String]!
+    min: Int!
+    max: Int!
   }
 
   type Post {
@@ -72,34 +72,48 @@ export const resolvers = {
       const sortBy = {}
       const keywordArray = []
       const keywordOr = {}
-      const datesBtw = {}
-      const rangeBtw = {}
+      const datesBtwArray = []
+      const datesBtwOr = {}
+      const rangeBtwArray = []
+      const rangeBtwOr = {}
       const ands = []
       let query = {}
       const keys = Object.keys(args)
       keys.forEach(key => {
         if (key === 'period') {
           const period = args[key]
-          datesBtw[period.kind] = {}
-          if (period.startDate) {
-            datesBtw[period.kind].$gte = new Date(period.startDate)
-          }
-          if (period.endDate) {
-            datesBtw[period.kind].$lte = new Date(period.endDate)
-          }
-          ands.push(datesBtw)
+          period.kind.forEach(kind => {
+            const item = {}
+            item[kind] = {}
+            if (period.startDate) {
+              item[kind].$gte = new Date(period.startDate)
+            }
+            if (period.endDate) {
+              item[kind].$lte = new Date(period.endDate)
+            }
+            datesBtwArray.push(item)
+          })
+          datesBtwOr.$or = datesBtwArray
+          ands.push(datesBtwOr)
         } else if (key === 'range') {
           const range = args[key]
-          rangeBtw[range.kind] = {}
-          rangeBtw[range.kind].$gte = range.min
-          rangeBtw[range.kind].$lte = range.max
-          ands.push(rangeBtw)
+          range.kind.forEach(kind => {
+            const item = {}
+            item[kind] = {}
+            item[kind].$gte = range.min
+            item[kind].$lte = range.max
+            rangeBtwArray.push(item)
+          })
+          rangeBtwOr.$or = rangeBtwArray
+          ands.push(rangeBtwOr)
         } else if (key === 'keywords') {
           const keywords = args[key]
-          keywords.keywords.forEach(key => {
-            const item = {}
-            item[keywords.kind] = { $regex: new RegExp(key) }
-            keywordArray.push(item)
+          keywords.kind.forEach(kind => {
+            keywords.keywords.forEach(key => {
+              const item = {}
+              item[kind] = { $regex: new RegExp(key) }
+              keywordArray.push(item)
+            })
           })
           keywordOr.$or = keywordArray
           ands.push(keywordOr)
@@ -112,10 +126,10 @@ export const resolvers = {
 
       if (ands.length > 1) {
         query = { $and: ands }
-      } else if (Object.keys(datesBtw).length > 0) {
-        query = datesBtw
-      } else if (Object.keys(rangeBtw).length > 0) {
-        query = rangeBtw
+      } else if (datesBtwArray.length > 0) {
+        query = datesBtwOr
+      } else if (rangeBtwArray.length > 0) {
+        query = rangeBtwOr
       } else if (keywordArray.length > 0) {
         query = keywordOr
       }

@@ -2,8 +2,8 @@
   <v-card class="mx-0 my-2">
     <v-container grid-list-md outline>
       <v-layout row wrap>
-        <v-flex xs12 sm5 lg2 v-if="isUseForm('keywords')">
-          <v-select v-model="selectedKeywordsFor" :items="selectKeys" label="Keywords"></v-select>
+        <v-flex xs12 sm5 lg3 v-if="isUseForm('keywords')">
+          <v-select v-model="selectedKeywordsFor" :items="selectKeys" label="Keywords" multiple></v-select>
         </v-flex>
         <v-flex xs12 sm6 lg3 v-if="isUseForm('keywords')">
           <v-text-field label="search keywords" prepend-inner-icon="search" v-model="keywords"></v-text-field>
@@ -20,8 +20,8 @@
       <v-slide-y-transition>
         <div v-show="show">
           <v-layout row wrap>
-            <v-flex xs12 sm5 lg2 v-if="isUseForm('period')">
-              <v-select v-model="selectedDateFor" :items="dateKeys" label="Dates"></v-select>
+            <v-flex xs12 sm5 lg3 v-if="isUseForm('period')">
+              <v-select v-model="selectedDateFor" :items="dateKeys" label="Dates" multiple></v-select>
             </v-flex>
             <v-flex xs11 sm5 lg2 v-if="isUseForm('period')">
               <v-menu
@@ -62,8 +62,8 @@
             </v-flex>
           </v-layout>
           <v-layout row wrap>
-            <v-flex xs12 sm5 lg2 v-if="isUseForm('range')">
-              <v-select v-model="selectedRangeFor" :items="numericKeys" label="Range"></v-select>
+            <v-flex xs12 sm5 lg3 v-if="isUseForm('range')">
+              <v-select v-model="selectedRangeFor" :items="numericKeys" label="Range" multiple></v-select>
             </v-flex>
             <v-flex
               shrink
@@ -113,9 +113,9 @@ export default {
     endDate: null,
     menu1: false,
     menu2: false,
-    selectedKeywordsFor: null,
-    selectedDateFor: null,
-    selectedRangeFor: null,
+    selectedKeywordsFor: [],
+    selectedDateFor: [],
+    selectedRangeFor: [],
     keywords: null,
     show: false,
     range: [0, 100]
@@ -135,7 +135,7 @@ export default {
     search() {
       console.log('search :', this.selectKeys)
       const payload = {}
-      if (this.isUseForm('keywords') && this.keywords && this.selectedKeywordsFor) {
+      if (this.isUseForm('keywords') && this.keywords && this.selectedKeywordsFor.length > 0) {
             payload.keywords = {kind: this.selectedKeywordsFor, keywords: this.keywords.replace(" ", '').split(',')}
       }
       if (this.isUseForm('period')) {
@@ -147,20 +147,20 @@ export default {
           dates.endDate = this.endDate
         }
         if (Object.keys(dates).length > 0) {
-          if (this.selectedDateFor) {
+          if (this.selectedDateFor.length > 0) {
             payload.period = { kind: this.selectedDateFor, ...dates }
           }
         }
       }
-      if(this.selectedRangeFor ){
+      if(this.selectedRangeFor.length > 0){
         payload.range = {kind:this.selectedRangeFor, min: this.range[0], max: this.range[1]}
       }
       this.$emit('search', payload)
     },
     reset() {
-      this.selectedKeywordsFor = null
-      this.selectedDateFor = null
-      this.selectedRangeFor = null
+      this.selectedKeywordsFor = []
+      this.selectedDateFor = []
+      this.selectedRangeFor = []
       this.range = [0, 100]
       this.keywords = null
       this.startDate = null
