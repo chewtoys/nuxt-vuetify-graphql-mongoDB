@@ -4,7 +4,7 @@ const coleectionName = 'posts'
 export const typeDef = `
   extend type Query {
     post(id: String!): Post
-    retrievePosts(title:String, content: String, period: periodInput): [Post]
+    retrievePosts(keywords: keywordsInput, period: periodInput, range:rangeInput): [Post]
   }
   
   extend type Mutation {
@@ -13,10 +13,21 @@ export const typeDef = `
     deletePost(_id:String!): Boolean
   }
 
+  input keywordsInput {
+    kind: String
+    keywords: [String]
+  }
+
   input periodInput {
     kind: String!
     startDate: String
     endDate: String
+  }
+
+  input rangeInput {
+    kind: String!
+    min: Int
+    max: Int
   }
 
   type Post {
@@ -42,8 +53,11 @@ export const resolvers = {
     },
     retrievePosts: async (root, args, { mongo, user }) => {
       const Posts = mongo.collection(coleectionName)
-      const keywords = []
+      const keywordArray = []
+      const keywordOr = {}
       const datesBtw = {}
+      const rangeBtw = {}
+      const ands = []
       let query = {}
       const keys = Object.keys(args)
       keys.forEach(key => {
@@ -51,28 +65,41 @@ export const resolvers = {
           const period = args[key]
           datesBtw[period.kind] = {}
           if (period.startDate) {
-            datesBtw[period.kind].$gt = new Date(period.startDate)
+            datesBtw[period.kind].$gte = new Date(period.startDate)
           }
           if (period.endDate) {
-            datesBtw[period.kind].$lt = new Date(period.endDate)
+            datesBtw[period.kind].$lte = new Date(period.endDate)
           }
-        } else {
-          const item = {}
-          item[key] = { $regex: new RegExp(args[key]) }
-          keywords.push(item)
+          ands.push(datesBtw)
+        } else if (key === 'range') {
+          const range = args[key]
+          rangeBtw[range.kind] = {}
+          rangeBtw[range.kind].$gte = range.min
+          rangeBtw[range.kind].$lte = range.max
+          ands.push(rangeBtw)
+        } else if (key === 'keywords') {
+          const keywords = args[key]
+          keywords.keywords.forEach(key => {
+            const item = {}
+            item[keywords.kind] = { $regex: new RegExp(key) }
+            keywordArray.push(item)
+          })
+
+          keywordOr.$or = keywordArray
+          ands.push(keywordOr)
         }
       })
-
-      if (Object.keys(datesBtw).length > 0 && keywords.length > 0) {
-        query = { $and: [datesBtw, { $or: keywords }] }
+      console.log('keywordArray :', keywordArray)
+      console.log('keywordOr :', keywordOr)
+      if (ands.length > 1) {
+        query = { $and: ands }
       } else if (Object.keys(datesBtw).length > 0) {
         query = datesBtw
-      } else if (keywords.length > 0) {
-        query = { $or: keywords }
+      } else if (Object.keys(rangeBtw).length > 0) {
+        query = rangeBtw
+      } else if (keywordArray.length > 0) {
+        query = keywordOr
       }
-      // console.log('datesBtw :', datesBtw)
-      // console.log('keywords :', keywords)
-      // console.log('query :', query)
       return (await Posts.find(query)
         .sort({ updated: -1 })
         .toArray()).map(prepare)

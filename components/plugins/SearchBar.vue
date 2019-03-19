@@ -3,10 +3,10 @@
     <v-container grid-list-md outline>
       <v-layout row wrap>
         <v-flex xs12 sm5 lg2 v-if="isUseForm('keywords')">
-          <v-select v-model="selectedKey" :items="selectKeys" label="Select"></v-select>
+          <v-select v-model="selectedKeywordsFor" :items="selectKeys" label="Keywords"></v-select>
         </v-flex>
         <v-flex xs12 sm6 lg3 v-if="isUseForm('keywords')">
-          <v-text-field label="keywords" prepend-inner-icon="search" v-model="keywords"></v-text-field>
+          <v-text-field label="search keywords" prepend-inner-icon="search" v-model="keywords"></v-text-field>
         </v-flex>
         <v-spacer/>
         <v-flex>
@@ -21,7 +21,7 @@
         <div v-show="show">
           <v-layout row wrap>
             <v-flex xs12 sm5 lg2 v-if="isUseForm('period')">
-              <v-select v-model="selectedDateFor" :items="dateKeys" label="Select"></v-select>
+              <v-select v-model="selectedDateFor" :items="dateKeys" label="Dates"></v-select>
             </v-flex>
             <v-flex xs11 sm5 lg2 v-if="isUseForm('period')">
               <v-menu
@@ -63,14 +63,14 @@
           </v-layout>
           <v-layout row wrap>
             <v-flex xs12 sm5 lg2 v-if="isUseForm('range')">
-              <v-select v-model="selectedKey" :items="numericKeys" label="Select"></v-select>
+              <v-select v-model="selectedRangeFor" :items="numericKeys" label="Range"></v-select>
             </v-flex>
             <v-flex
               shrink
               style="width: 80px"
             >
               <v-text-field
-                v-model="price[0]"
+                v-model="range[0]"
                 class="mt-0"
                 hide-details
                 single-line
@@ -80,7 +80,7 @@
 
             <v-flex xs11 sm5 lg5>
               <v-range-slider
-                v-model="price"
+                v-model="range"
                 :max="100"
                 :min="0"
                 :step="1"
@@ -92,7 +92,7 @@
               style="width: 80px"
             >
               <v-text-field
-                v-model="price[1]"
+                v-model="range[1]"
                 class="mt-0"
                 hide-details
                 single-line
@@ -113,11 +113,12 @@ export default {
     endDate: null,
     menu1: false,
     menu2: false,
-    selectedKey: null,
+    selectedKeywordsFor: null,
     selectedDateFor: null,
+    selectedRangeFor: null,
     keywords: null,
     show: false,
-    price: [110, 440]
+    range: [0, 100]
   }),
 
   methods: {
@@ -134,15 +135,8 @@ export default {
     search() {
       console.log('search :', this.selectKeys)
       const payload = {}
-      if (this.isUseForm('keywords')) {
-        if (this.keywords) {
-          if (!this.selectedKey) {
-            this.selectKeys.forEach(key => {
-              console.log('key :', key)
-              payload[key] = this.keywords
-            })
-          } else payload[this.selectedKey] = this.keywords
-        }
+      if (this.isUseForm('keywords') && this.keywords && this.selectedKeywordsFor) {
+            payload.keywords = {kind: this.selectedKeywordsFor, keywords: this.keywords.replace(" ", '').split(',')}
       }
       if (this.isUseForm('period')) {
         const dates = {}
@@ -153,17 +147,21 @@ export default {
           dates.endDate = this.endDate
         }
         if (Object.keys(dates).length > 0) {
-          if (!this.selectedDateFor) {
-            payload.period = { kind: 'created', ...dates }
-          } else {
+          if (this.selectedDateFor) {
             payload.period = { kind: this.selectedDateFor, ...dates }
           }
         }
       }
+      if(this.selectedRangeFor ){
+        payload.range = {kind:this.selectedRangeFor, min: this.range[0], max: this.range[1]}
+      }
       this.$emit('search', payload)
     },
     reset() {
-      this.selectedKey = null
+      this.selectedKeywordsFor = null
+      this.selectedDateFor = null
+      this.selectedRangeFor = null
+      this.range = [0, 100]
       this.keywords = null
       this.startDate = null
       this.endDate = null

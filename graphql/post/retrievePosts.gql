@@ -1,8 +1,8 @@
-query retrievePosts($title: String, $content: String, $period: periodInput) {
+query retrievePosts($keywords: keywordsInput, $period: periodInput, $range: rangeInput) {
   retrievePosts: retrievePosts(
-    title: $title
-    content: $content
+    keywords: $keywords
     period: $period
+    range: $range
   ) {
     _id
     title
