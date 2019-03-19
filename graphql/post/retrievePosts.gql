@@ -1,17 +1,21 @@
-query retrievePosts($keywords: keywordsInput, $period: periodInput, $range: rangeInput) {
+query retrievePosts($keywords: keywordsInput, $period: periodInput, $range: rangeInput, $pagination: paginationInput) {
   retrievePosts: retrievePosts(
     keywords: $keywords
     period: $period
     range: $range
+    pagination: $pagination
   ) {
-    _id
-    title
-    content
-    author {
-      email
-    }
-    like
-    updated
-    created
+      total
+      posts{    
+        _id
+        title
+        content
+        author {
+          email
+        }
+        like
+        updated
+        created
+      }
   }
 }

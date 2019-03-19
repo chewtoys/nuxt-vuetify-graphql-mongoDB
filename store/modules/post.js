@@ -8,11 +8,15 @@ const post = {
   namespaced: true,
   state: {
     gqlTypes: null,
+    total: 0,
     posts: []
   },
   getters: {
     gqlTypes(state) {
       return state.gqlTypes
+    },
+    total(state) {
+      return state.total
     },
     posts(state) {
       return state.posts
@@ -25,8 +29,9 @@ const post = {
     SET_GQL_TYPES(state, gqlTypes) {
       state.gqlTypes = gqlTypes
     },
-    SET_POSTS(state, posts) {
-      state.posts = posts
+    SET_POSTS(state, postsPage) {
+      state.total = postsPage.total
+      state.posts = postsPage.posts
     },
     ADD_POST(state, post) {
       state.posts.push(post)
@@ -58,11 +63,11 @@ const post = {
     async retrievePosts(context, payload) {
       try {
         if (this.app.apolloProvider.defaultClient) {
-          const posts = await this.app.apolloProvider.defaultClient.query({
+          const postsPage = await this.app.apolloProvider.defaultClient.query({
             query: retrievePosts,
             variables: payload
           })
-          context.commit('SET_POSTS', posts.data.retrievePosts)
+          context.commit('SET_POSTS', postsPage.data.retrievePosts)
         }
       } catch (error) {
         console.log(JSON.stringify(error))

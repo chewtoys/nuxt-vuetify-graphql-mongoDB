@@ -4,13 +4,21 @@ const coleectionName = 'posts'
 export const typeDef = `
   extend type Query {
     post(id: String!): Post
-    retrievePosts(keywords: keywordsInput, period: periodInput, range:rangeInput): [Post]
+    retrievePosts(keywords: keywordsInput, period: periodInput, range:rangeInput, pagination:paginationInput): PostPage
   }
   
   extend type Mutation {
     addPost(title:String!, content:String!, slug:String):Post
     updatePost(_id:String!, title:String!, content:String!, slug:String):Post
     deletePost(_id:String!): Boolean
+  }
+
+  input paginationInput {
+    page: Int
+    rowsPerPage: Int
+    sortBy: String
+    descending: Boolean
+    totalItems: Int
   }
 
   input keywordsInput {
@@ -40,6 +48,11 @@ export const typeDef = `
     slug: String
     author: User
   }
+
+  type PostPage {
+    total: Int!
+    posts: [Post]
+  }
 `
 export const resolvers = {
   Query: {
@@ -53,6 +66,10 @@ export const resolvers = {
     },
     retrievePosts: async (root, args, { mongo, user }) => {
       const Posts = mongo.collection(coleectionName)
+
+      let page = 1
+      let rowsPerPage = 5
+      const sortBy = {}
       const keywordArray = []
       const keywordOr = {}
       const datesBtw = {}
@@ -84,13 +101,15 @@ export const resolvers = {
             item[keywords.kind] = { $regex: new RegExp(key) }
             keywordArray.push(item)
           })
-
           keywordOr.$or = keywordArray
           ands.push(keywordOr)
+        } else if (key === 'pagination') {
+          page = args[key].page
+          rowsPerPage = args[key].rowsPerPage
+          sortBy[args[key].sortBy] = args[key].descending ? -1 : 1
         }
       })
-      console.log('keywordArray :', keywordArray)
-      console.log('keywordOr :', keywordOr)
+
       if (ands.length > 1) {
         query = { $and: ands }
       } else if (Object.keys(datesBtw).length > 0) {
@@ -100,9 +119,15 @@ export const resolvers = {
       } else if (keywordArray.length > 0) {
         query = keywordOr
       }
-      return (await Posts.find(query)
-        .sort({ updated: -1 })
+
+      const total = await Posts.find(query).count()
+      const posts = (await Posts.find(query)
+        .sort(sortBy)
+        .skip(page > 0 ? (page - 1) * rowsPerPage : 0)
+        .limit(rowsPerPage)
         .toArray()).map(prepare)
+
+      return { total: total, posts: posts }
     }
   },
   Mutation: {

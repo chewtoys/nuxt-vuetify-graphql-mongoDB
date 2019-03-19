@@ -48,7 +48,8 @@
         </v-card>
       </v-dialog>
     </v-toolbar>
-    <v-data-table v-if="headers" :headers="headers" :items="posts" class="elevation-1">
+    <v-data-table v-if="headers" :headers="headers" :items="posts" class="elevation-1" 
+                :loading="loading" :pagination.sync='pagination' :total-items="total">
       <template slot="items" slot-scope="props">
         <td v-for="key in headerKeys" :key="key">{{ handleItem(props.item, key, true) }}</td>
         <td class="justify-center layout px-0">
@@ -86,6 +87,8 @@ export default {
     return {
       scheme: [],
       dialog: false,
+      loading: false,
+      pagination: {},
       headerKeys: [],
       headers: [],
       editedIndex: -1,
@@ -97,7 +100,8 @@ export default {
         selectKeys: [],
         dateKeys: [],
         numericKeys: []
-      }
+      },
+      searchPayload: null
     }
   },
   computed: {
@@ -105,6 +109,7 @@ export default {
       return this.editedIndex === -1 ? 'Add Item' : 'Edit Item'
     },
     ...mapGetters('post', {
+      total: 'total',
       posts: 'posts',
       gqlTypes: 'gqlTypes'
     })
@@ -116,6 +121,14 @@ export default {
     },
     gqlTypes() {
       this.setHeaders()
+    },
+    pagination: {
+      handler () {
+        this.search(this.searchPayload)
+          .then(data => {
+          })
+      },
+      deep: true
     }
   },
   methods: {
@@ -195,7 +208,7 @@ export default {
       }
       headers.push(action)
       this.headers = headers
-      this.$store.dispatch('post/retrievePosts')
+      this.search(this.searchPayload)
     },
     setEditItem(item) {
       const keys = Object.keys(item).filter(key => !key.includes('__typename'))
@@ -234,9 +247,16 @@ export default {
       else
         return this.$moment.tz(date, 'Asia/Seoul').format('YYYY-MM-DD HH:mm:ss')
     },
-    search(payload) {
+    async search(payload) {
       console.log('search > payload :', payload)
-      this.$store.dispatch('post/retrievePosts', payload)
+      this.loading = true
+      this.searchPayload = Object.assign({}, payload)
+      payload.pagination = this.pagination
+      await this.$store.dispatch('post/retrievePosts', payload)
+      this.loading = false
+    },
+    resetSearchPayload(){
+      this.searchPayload = {}
     },
     sum(key) {
       let total = ''

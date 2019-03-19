@@ -165,6 +165,7 @@ export default {
       this.keywords = null
       this.startDate = null
       this.endDate = null
+      this.$emit('resetSearchPayload')
     },
     isUseForm(key) {
       return this.useSearchForm.includes(key)
