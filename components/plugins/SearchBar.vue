@@ -136,7 +136,7 @@ export default {
       console.log('search :', this.selectKeys)
       const payload = {}
       if (this.isUseForm('keywords') && this.keywords && this.selectedKeywordsFor.length > 0) {
-            payload.keywords = {kind: this.selectedKeywordsFor, keywords: this.keywords.replace(" ", '').split(',')}
+            payload.keywords = {kind: this.selectedKeywordsFor, keywords: this.keywords.replace(/\s/g, '').split(',')}
       }
       if (this.isUseForm('period')) {
         const dates = {}

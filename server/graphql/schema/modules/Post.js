@@ -13,31 +13,6 @@ export const typeDef = `
     deletePost(_id:String!): Boolean
   }
 
-  input paginationInput {
-    page: Int!
-    rowsPerPage: Int!
-    sortBy: String
-    descending: Boolean
-    totalItems: Int
-  }
-
-  input keywordsInput {
-    kind: [String]!
-    keywords: [String]
-  }
-
-  input periodInput {
-    kind: [String]!
-    startDate: String
-    endDate: String
-  }
-
-  input rangeInput {
-    kind: [String]!
-    min: Int!
-    max: Int!
-  }
-
   type Post {
     _id:ID!
     title: String!
