@@ -61,6 +61,45 @@
               </v-menu>
             </v-flex>
           </v-layout>
+          <v-layout row wrap>
+            <v-flex xs12 sm5 lg2 v-if="isUseForm('range')">
+              <v-select v-model="selectedKey" :items="numericKeys" label="Select"></v-select>
+            </v-flex>
+            <v-flex
+              shrink
+              style="width: 80px"
+            >
+              <v-text-field
+                v-model="price[0]"
+                class="mt-0"
+                hide-details
+                single-line
+                type="number"
+              ></v-text-field>
+            </v-flex>
+
+            <v-flex xs11 sm5 lg5>
+              <v-range-slider
+                v-model="price"
+                :max="100"
+                :min="0"
+                :step="1"
+              ></v-range-slider>
+            </v-flex>
+
+            <v-flex
+              shrink
+              style="width: 80px"
+            >
+              <v-text-field
+                v-model="price[1]"
+                class="mt-0"
+                hide-details
+                single-line
+                type="number"
+              ></v-text-field>
+            </v-flex>
+          </v-layout>
         </div>
       </v-slide-y-transition>
     </v-container>
@@ -68,7 +107,7 @@
 </template>
 <script>
 export default {
-  props: ['selectKeys', 'dateKeys', 'useSearchForm'],
+  props: ['selectKeys', 'dateKeys', 'numericKeys', 'useSearchForm'],
   data: () => ({
     startDate: null,
     endDate: null,
@@ -77,7 +116,8 @@ export default {
     selectedKey: null,
     selectedDateFor: null,
     keywords: null,
-    show: false
+    show: false,
+    price: [110, 440]
   }),
 
   methods: {

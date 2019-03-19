@@ -45,7 +45,8 @@ const post = {
         if (this.app.apolloProvider.defaultClient) {
           const gqlTypes = await this.app.apolloProvider.defaultClient.query({
             query: typeQuery,
-            variables: { name: name }
+            variables: { name: name },
+            fetchPolicy: 'no-cache'
           })
           context.commit('SET_GQL_TYPES', gqlTypes.data)
         }

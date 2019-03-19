@@ -4,6 +4,7 @@
       v-if="showSearchBar"
       :selectKeys="searchOption.selectKeys"
       :dateKeys="searchOption.dateKeys"
+      :numericKeys="searchOption.numericKeys"
       :useSearchForm="searchOption.useSearchForm"
       @search="search"
     />
@@ -62,7 +63,7 @@
           </td>
         </tr>
         <tr>
-          <td>total</td>
+          <td :colspan="headers.length">total >> {{ this.sum() }}</td>
         </tr>
       </template>
     </v-data-table>
@@ -70,6 +71,7 @@
 </template>
 
 <script>
+import _ from 'lodash'
 import { mapGetters } from 'vuex'
 import adminPerimeter from '~/kindergarten/perimeters/admin'
 import SearchBar from '@/components/plugins/SearchBar'
@@ -82,19 +84,20 @@ export default {
   },
   data() {
     return {
+      scheme: [],
       dialog: false,
       headerKeys: [],
-      headers: [{ text: 'Name', value: 'name' }],
+      headers: [],
       editedIndex: -1,
       editedItem: { name: '' },
       defaultItem: { name: '' },
       showSearchBar: true,
       searchOption: {
-        useSearchForm: ['keywords', 'period'],
-        selectKeys: ['title', 'content'],
-        dateKeys: ['created', 'updated']
-      },
-      sumKeys: ['like']
+        useSearchForm: ['keywords', 'period', 'range'],
+        selectKeys: [],
+        dateKeys: [],
+        numericKeys: []
+      }
     }
   },
   computed: {
@@ -117,17 +120,9 @@ export default {
   },
   methods: {
     initialize() {
-      //retrieveGqlTypes
-      this.gqlTypes = this.$store.dispatch('post/retrieveGqlTypes', { name: 'Post' })
-
-      // if (!this.posts || this.posts.length === 0) {
-      //   this.$store.dispatch('post/retrievePosts')
-      // } else {
-      //   this.$store.dispatch('post/retrievePosts').then(this.setHeaders())
-      // }
+      this.$store.dispatch('post/retrieveGqlTypes', { name: 'Post' })
     },
     activeDialog() {
-      console.log('activeDialog > this.editedIndex :', this.editedIndex)
       if (this.editedIndex < 0) {
         this.defaultItem.author = this.$store.state.user.user.email
         this.defaultItem.created = this.$moment().format('YYYY-MM-DD HH:mm:ss')
@@ -159,31 +154,48 @@ export default {
       this.close()
     },
     setHeaders() {
-      this.gqlTypes.__type.fields
-      const headers = []
-      if (this.posts && this.posts.length) {
-        const post = this.posts[0]
-        const keys = Object.keys(post).filter(
-          key => !key.includes('__typename')
-        )
-        keys.forEach(key => {
-          const item = {
-            text: key.toUpperCase().replace('_', ''),
-            value: key,
-            align: 'center'
-          }
-          headers.push(item)
-        })
-        this.headerKeys = keys
-        const action = {
-          text: 'ACTION',
-          value: 'action',
-          align: 'right',
-          sortable: false
+      const fieldObjects = this.gqlTypes.__type.fields
+      fieldObjects.forEach( obj => {
+        const key = _.result( obj, 'name')
+        let type = _.result( obj, 'type.name')
+        if(!type){
+          type = _.result( obj, 'type.ofType.name')
         }
-        headers.push(action)
-        this.headers = headers
+        this.scheme.push({key: key, type:type})
+        if(type === 'String') {
+          this.searchOption.selectKeys.push(key)
+          this.useSearchForm.push('keywords')
+        }
+        if(type === 'Date') {
+          this.searchOption.dateKeys.push(key)
+          this.useSearchForm.push('period') 
+        }
+        if(type === 'Int' || type === 'Float') {
+          this.searchOption.numericKeys.push(key)
+          this.useSearchForm.push('range') 
+        }
+        this.useSearchForm = _.uniq(this.useSearchForm)
+      })
+      this.headerKeys = _.chain(this.scheme).map('key').value()
+
+      const headers = []
+      this.headerKeys.forEach(key => {
+        const item = {
+          text: key.toUpperCase().replace('_', ''),
+          value: key,
+          align: 'center'
+        }
+        headers.push(item)
+      })
+      const action = {
+        text: 'ACTION',
+        value: 'action',
+        align: 'right',
+        sortable: false
       }
+      headers.push(action)
+      this.headers = headers
+      this.$store.dispatch('post/retrievePosts')
     },
     setEditItem(item) {
       const keys = Object.keys(item).filter(key => !key.includes('__typename'))
@@ -225,6 +237,16 @@ export default {
     search(payload) {
       console.log('search > payload :', payload)
       this.$store.dispatch('post/retrievePosts', payload)
+    },
+    sum(key) {
+      let total = ''
+      this.searchOption.numericKeys.forEach( key => {
+        total = total + key + ' : ' + _.sumBy(this.posts, key) + ','
+        console.log('total :', total)
+        console.log('this.posts :', this.posts)
+        console.log('key :', key)
+      })
+      return total.replace(/,$/,".")
     }
   },
   created() {
