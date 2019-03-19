@@ -49,7 +49,7 @@
       </v-dialog>
     </v-toolbar>
     <v-data-table v-if="headers" :headers="headers" :items="posts" class="elevation-1" 
-                :loading="loading" :pagination.sync='pagination' :total-items="total">
+                :loading="loading" :pagination.sync='pagination' :total-items="total" :rows-per-page-items='[15,25,50,100,{"text":"All","value":0}]'>
       <template slot="items" slot-scope="props">
         <td v-for="key in headerKeys" :key="key">{{ handleItem(props.item, key, true) }}</td>
         <td class="justify-center layout px-0">
