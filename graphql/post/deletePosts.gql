@@ -1,0 +1,3 @@
+mutation deletePosts($_ids: [String]!) {
+  deletePosts: deletePosts(_ids: $_ids)
+}

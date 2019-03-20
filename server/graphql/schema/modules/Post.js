@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb'
-import { prepare } from '../../../utils'
-const coleectionName = 'posts'
+import { prepare, generateQuery } from '../../../utils'
+const collectionName = 'posts'
 export const typeDef = `
   extend type Query {
     post(id: String!): Post
@@ -11,6 +11,7 @@ export const typeDef = `
     addPost(title:String!, content:String!, slug:String):Post
     updatePost(_id:String!, title:String!, content:String!, slug:String):Post
     deletePost(_id:String!): Boolean
+    deletePosts(_ids:[String]!): Boolean
   }
 
   type Post {
@@ -32,7 +33,7 @@ export const typeDef = `
 export const resolvers = {
   Query: {
     post: async (root, args, { mongo, user }) => {
-      const Posts = mongo.collection(coleectionName)
+      const Posts = mongo.collection(collectionName)
       return prepare(
         await Posts.findOne({
           _id: ObjectId(args.id)
@@ -40,74 +41,9 @@ export const resolvers = {
       )
     },
     retrievePosts: async (root, args, { mongo, user }) => {
-      const Posts = mongo.collection(coleectionName)
+      const Posts = mongo.collection(collectionName)
 
-      let page = 1
-      let rowsPerPage = 5
-      const sortBy = {}
-      const keywordArray = []
-      const keywordOr = {}
-      const datesBtwArray = []
-      const datesBtwOr = {}
-      const rangeBtwArray = []
-      const rangeBtwOr = {}
-      const ands = []
-      let query = {}
-      const keys = Object.keys(args)
-      keys.forEach(key => {
-        if (key === 'period') {
-          const period = args[key]
-          period.kind.forEach(kind => {
-            const item = {}
-            item[kind] = {}
-            if (period.startDate) {
-              item[kind].$gte = new Date(period.startDate)
-            }
-            if (period.endDate) {
-              item[kind].$lte = new Date(period.endDate)
-            }
-            datesBtwArray.push(item)
-          })
-          datesBtwOr.$or = datesBtwArray
-          ands.push(datesBtwOr)
-        } else if (key === 'range') {
-          const range = args[key]
-          range.kind.forEach(kind => {
-            const item = {}
-            item[kind] = {}
-            item[kind].$gte = range.min
-            item[kind].$lte = range.max
-            rangeBtwArray.push(item)
-          })
-          rangeBtwOr.$or = rangeBtwArray
-          ands.push(rangeBtwOr)
-        } else if (key === 'keywords') {
-          const keywords = args[key]
-          keywords.kind.forEach(kind => {
-            keywords.keywords.forEach(key => {
-              const item = {}
-              item[kind] = { $regex: new RegExp(key) }
-              keywordArray.push(item)
-            })
-          })
-          keywordOr.$or = keywordArray
-          ands.push(keywordOr)
-        } else if (key === 'pagination') {
-          page = args[key].page
-          rowsPerPage = args[key].rowsPerPage
-          sortBy[args[key].sortBy] = args[key].descending ? -1 : 1
-        }
-      })
-
-      if (ands.length > 1) {
-        query = { $and: ands }
-      } else if (datesBtwArray.length > 0) {
-        query = datesBtwOr
-      } else if (rangeBtwArray.length > 0) {
-        query = rangeBtwOr
-      } else if (keywordArray.length > 0) {
-        query = keywordOr
-      }
+      const { query, sortBy, page, rowsPerPage } = generateQuery(args)
 
       const total = await Posts.find(query).count()
       const posts = (await Posts.find(query)
@@ -122,7 +58,7 @@ export const resolvers = {
   Mutation: {
     addPost: async (root, args, { mongo, user }) => {
       if (user) {
-        const Posts = mongo.collection(coleectionName)
+        const Posts = mongo.collection(collectionName)
         const post = await Posts.insertOne({
           authorId: user.email,
           title: args.title,
@@ -140,7 +76,7 @@ export const resolvers = {
     },
     updatePost: async (root, args, { mongo, user }) => {
       if (user) {
-        const Posts = mongo.collection(coleectionName)
+        const Posts = mongo.collection(collectionName)
         await Posts.updateOne(
           { _id: ObjectId(args._id) },
           {
@@ -160,8 +96,20 @@ export const resolvers = {
     },
     deletePost: async (root, args, { mongo, user }) => {
       if (user) {
-        const Posts = mongo.collection(coleectionName)
+        const Posts = mongo.collection(collectionName)
         await Posts.deleteOne({ _id: ObjectId(args._id) })
+        return true
+      } else throw new Error('User is not authenticated!')
+    },
+    deletePosts: async (root, args, { mongo, user }) => {
+      if (user) {
+        const Posts = mongo.collection(collectionName)
+        const conditions = []
+        args._ids.forEach(_id => {
+          conditions.push(ObjectId(_id))
+        })
+        console.log('conditions :', conditions)
+        await Posts.deleteMany({ _id: { $in: conditions } })
         return true
       } else throw new Error('User is not authenticated!')
     }

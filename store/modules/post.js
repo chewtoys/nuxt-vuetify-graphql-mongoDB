@@ -3,6 +3,7 @@ import retrievePosts from '~/graphql/post/retrievePosts.gql'
 import addPost from '~/graphql/post/addPost.gql'
 import updatePost from '~/graphql/post/updatePost.gql'
 import deletePost from '~/graphql/post/deletePost.gql'
+import deletePosts from '~/graphql/post/deletePosts.gql'
 
 const post = {
   namespaced: true,
@@ -34,11 +35,15 @@ const post = {
       state.posts = postsPage.posts
     },
     ADD_POST(state, post) {
-      state.posts.push(post)
+      // state.posts.push(post)
+      ++state.total
     },
     DELETE_POST(state, post) {
-      const index = state.posts.findIndex(p => p._id === post._id)
-      state.posts.splice(index, 1)
+      --state.total
+    },
+    DELETE_POSTS(state, _ids) {
+      const len = _ids.length
+      state.total -= len
     },
     UPDATE_POST(state, post) {
       state.posts = [...state.posts.filter(p => p._id !== post._id), post]
@@ -103,6 +108,17 @@ const post = {
           variables: payload
         })
         if (result.data.deletePost) context.commit('DELETE_POST', payload)
+      } catch (error) {
+        console.log(JSON.stringify(error))
+      }
+    },
+    async deletePosts(context, payload) {
+      try {
+        const result = await this.app.apolloProvider.defaultClient.mutate({
+          mutation: deletePosts,
+          variables: payload
+        })
+        if (result.data.deletePosts) context.commit('DELETE_POSTS', payload)
       } catch (error) {
         console.log(JSON.stringify(error))
       }

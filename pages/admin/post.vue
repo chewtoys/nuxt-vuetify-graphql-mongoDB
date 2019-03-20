@@ -10,9 +10,11 @@
     />
     <v-spacer/>
     <v-toolbar flat>
-      <v-toolbar-title>Posts</v-toolbar-title>
+      <v-toolbar-title>Posts
+      </v-toolbar-title>
       <v-divider class="mx-2" inset vertical></v-divider>
       <v-spacer></v-spacer>
+        <v-btn color="primary" dark class="mb-2" @click="deleteItems">Delete Items</v-btn>
       <v-dialog v-model="dialog" max-width="500px">
         <v-btn slot="activator" color="primary" dark class="mb-2">Add Item</v-btn>
         <v-card>
@@ -49,8 +51,17 @@
       </v-dialog>
     </v-toolbar>
     <v-data-table v-if="headers" :headers="headers" :items="posts" class="elevation-1" 
-                :loading="loading" :pagination.sync='pagination' :total-items="total" :rows-per-page-items='[15,25,50,100,{"text":"All","value":0}]'>
+                :loading="loading" :pagination.sync='pagination' :total-items="total" 
+                :rows-per-page-items='[3, 15,25,50,100,{"text":"All","value":0}]'
+                v-model="selectedRows" select-all item-key="_id" >
       <template slot="items" slot-scope="props">
+        <td>
+          <v-checkbox
+            v-model="props.selected"
+            primary
+            hide-details
+          ></v-checkbox>
+        </td>
         <td v-for="key in headerKeys" :key="key">{{ handleItem(props.item, key, true) }}</td>
         <td class="justify-center layout px-0">
           <v-icon small class="mr-2" @click="editItem(props.item)">edit</v-icon>
@@ -91,6 +102,7 @@ export default {
       pagination: {},
       headerKeys: [],
       headers: [],
+      selectedRows: [],
       editedIndex: -1,
       editedItem: { name: '' },
       defaultItem: { name: '' },
@@ -101,7 +113,7 @@ export default {
         dateKeys: [],
         numericKeys: []
       },
-      searchPayload: null
+      searchPayload: {}
     }
   },
   computed: {
@@ -123,9 +135,11 @@ export default {
       this.setHeaders()
     },
     pagination: {
-      handler () {
-        this.search(this.searchPayload)
+      async handler () {
+        console.log('handler > this.pagination :', this.pagination)
+        await this.search(this.searchPayload)
           .then(data => {
+            console.log('after watching search')
           })
       },
       deep: true
@@ -146,10 +160,57 @@ export default {
       this.setEditItem(item)
       this.dialog = true
     },
-    deleteItem(item) {
+    async deleteItem(item) {
       if (confirm('Are you sure you want to delete this item?')) {
-        this.$store.dispatch('post/deletePost', item)
+        await this.$store.dispatch('post/deletePost', item)
+        // 현재 페이지에서 마지막 아이템을 삭제할 경우
+        if (this.posts.length === 1) {
+          // 페이지의 값이 1보다 작지 않게 하기 위해
+          if ((this.pagination.page - 1) < 1) {
+            this.pagination.page = 1 
+            // 페이지 값이 변경되지 않을 때 와치를 작동하기 위해
+            this.pagination.totalItems = this.posts.length - 1
+          } else this.pagination.page = this.pagination.page - 1
+        } else {
+          // 페이지 값이 변경되지 않을 때 와치를 작동하기 위해
+            this.pagination.totalItems = this.posts.length - 1
+        }
       }
+    },
+    async deleteItems(){
+      console.log('deleteItems :', this.selectedRows)
+      const _ids = _.chain(this.selectedRows).map('_id').value()
+      console.log('_ids :', _ids)
+      const delLen = _ids.length
+      await this.$store.dispatch('post/deletePosts', {_ids: _ids})
+      // 현재 페이지에서 모든 아이템을 삭제할 경우
+      if (this.posts.length === delLen) {
+        // 페이지의 값이 1보다 작지 않게 하기 위해
+        if ((this.pagination.page - 1) < 1) {
+          this.pagination.page = 1 
+          // 페이지 값이 변경되지 않을 때 와치를 작동하기 위해
+          this.pagination.totalItems = this.posts.length - 1
+        } else this.pagination.page = this.pagination.page - 1
+      } else {
+        // 페이지 값이 변경되지 않을 때 와치를 작동하기 위해
+        this.pagination.totalItems = this.posts.length - delLen
+      }
+    },
+    async save() {
+      if (this.editedIndex > -1) {
+        await this.$store.dispatch('post/updatePost', this.editedItem)
+      } else {
+        await this.$store.dispatch('post/addPost', this.editedItem)
+        // 현재 페이지에서 아이템을 추가하고
+        if (this.posts.length < this.pagination.rowsPerPage) {
+            // 페이지 값이 변경되지 않을 때 와치를 작동하기 위해
+            this.pagination.totalItems = this.posts.length + 1
+        } else {
+          // 현재 페이지에서 아이템을 추가고 페이지가 넘어갈 경우
+          this.pagination.page += 1
+        }
+      }
+      this.close()
     },
     close() {
       this.dialog = false
@@ -157,14 +218,6 @@ export default {
         this.editedItem = Object.assign({}, this.defaultItem)
         this.editedIndex = -1
       }, 300)
-    },
-    save() {
-      if (this.editedIndex > -1) {
-        this.$store.dispatch('post/updatePost', this.editedItem)
-      } else {
-        this.$store.dispatch('post/addPost', this.editedItem)
-      }
-      this.close()
     },
     setHeaders() {
       const fieldObjects = this.gqlTypes.__type.fields
@@ -249,6 +302,7 @@ export default {
     },
     async search(payload) {
       console.log('search > payload :', payload)
+      console.log('search > this.pagination :', this.pagination)
       this.loading = true
       this.searchPayload = Object.assign({}, payload)
       payload.pagination = this.pagination
@@ -262,9 +316,7 @@ export default {
       let total = ''
       this.searchOption.numericKeys.forEach( key => {
         total = total + key + ' : ' + _.sumBy(this.posts, key) + ','
-        console.log('total :', total)
-        console.log('this.posts :', this.posts)
-        console.log('key :', key)
+        console.log('sum :', total)
       })
       return total.replace(/,$/,".")
     }

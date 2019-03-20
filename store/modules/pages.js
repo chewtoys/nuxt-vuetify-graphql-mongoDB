@@ -19,7 +19,7 @@ const pages = {
                 {
                   label: 'flex1.2',
                   type: 'flex',
-                  comp: 'helloWorld'
+                  comp: 'Sample'
                 }
               ]
             },
