@@ -1,9 +1,11 @@
 import typeQuery from '~/graphql/type/type.gql'
-import retrievePosts from '~/graphql/post/retrievePosts.gql'
-import addPost from '~/graphql/post/addPost.gql'
-import updatePost from '~/graphql/post/updatePost.gql'
-import deletePost from '~/graphql/post/deletePost.gql'
-import deletePosts from '~/graphql/post/deletePosts.gql'
+import {
+  retrievePosts,
+  addPost,
+  updatePost,
+  deletePost,
+  deletePosts
+} from '~/graphql/modules/post.gql'
 
 const post = {
   namespaced: true,
@@ -42,8 +44,7 @@ const post = {
       --state.total
     },
     DELETE_POSTS(state, _ids) {
-      const len = _ids.length
-      state.total -= len
+      state.total -= _ids.length
     },
     UPDATE_POST(state, post) {
       state.posts = [...state.posts.filter(p => p._id !== post._id), post]
@@ -83,7 +84,7 @@ const post = {
       try {
         const post = await this.app.apolloProvider.defaultClient.mutate({
           mutation: addPost,
-          variables: payload
+          variables: { payload }
         })
         context.commit('ADD_POST', post.data.addPost)
       } catch (error) {
@@ -94,7 +95,7 @@ const post = {
       try {
         const post = await this.app.apolloProvider.defaultClient.mutate({
           mutation: updatePost,
-          variables: payload
+          variables: { payload }
         })
         context.commit('UPDATE_POST', post.data.updatePost)
       } catch (error) {

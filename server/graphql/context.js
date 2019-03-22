@@ -1,5 +1,6 @@
 import { ObjectId } from 'mongodb'
 import jwt from 'jsonwebtoken'
+import { prepare } from '../utils'
 
 const getUser = async (authorization, secrets, mongo) => {
   console.log('getUser 1 : authorization : ', authorization)
@@ -24,9 +25,9 @@ const getUser = async (authorization, secrets, mongo) => {
     )
 
     if (ok) {
-      const user = await mongo
-        .collection('users')
-        .findOne({ _id: ObjectId(result._id) })
+      const user = prepare(
+        await mongo.collection('users').findOne({ _id: ObjectId(result._id) })
+      )
       // console.log('getUser > user :', user)
       return user
     } else {

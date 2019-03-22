@@ -6,7 +6,7 @@ const prepare = o => {
 const generateQuery = args => {
   let page = 1
   let rowsPerPage = 5
-  const sortBy = {}
+  let sortBy = {}
   const keywordArray = []
   const keywordOr = {}
   const datesBtwArray = []
@@ -57,7 +57,9 @@ const generateQuery = args => {
     } else if (key === 'pagination') {
       page = args[key].page
       rowsPerPage = args[key].rowsPerPage
-      sortBy[args[key].sortBy] = args[key].descending ? -1 : 1
+      if (args[key].sortBy) {
+        sortBy[args[key].sortBy] = args[key].descending ? -1 : 1
+      } else sortBy = { created: -1 }
     }
   })
 
@@ -74,5 +76,14 @@ const generateQuery = args => {
   return { query: query, page: page, rowsPerPage: rowsPerPage, sortBy: sortBy }
 }
 
+const capitalize = (inputString, first) => {
+  let ret = ''
+  if (first) {
+    ret = inputString.charAt(0).toUpperCase() + inputString.slice(1)
+  } else ret = inputString.toUpperCase()
+  return ret
+}
+
 exports.prepare = prepare
 exports.generateQuery = generateQuery
+exports.capitalize = capitalize

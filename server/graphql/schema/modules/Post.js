@@ -1,122 +1,159 @@
 import { ObjectId } from 'mongodb'
-import { prepare, generateQuery } from '../../../utils'
-const collectionName = 'posts'
+import { prepare, generateQuery, capitalize } from '../../../utils'
+
+const collectionName = 'post'
+const collectionNameFirstLetterCap = capitalize(collectionName, true)
+
 export const typeDef = `
   extend type Query {
-    post(id: String!): Post
-    retrievePosts(keywords: keywordsInput, period: periodInput, range:rangeInput, pagination:paginationInput): PostPage
+    ${collectionName}(id: String!): ${collectionNameFirstLetterCap}
+    retrieve${collectionNameFirstLetterCap}s(keywords: keywordsInput, period: periodInput, range:rangeInput, pagination:paginationInput): WithPage
   }
   
   extend type Mutation {
-    addPost(title:String!, content:String!, slug:String):Post
-    updatePost(_id:String!, title:String!, content:String!, slug:String):Post
-    deletePost(_id:String!): Boolean
-    deletePosts(_ids:[String]!): Boolean
+    add${collectionNameFirstLetterCap}(payload:${collectionName}Input):${collectionNameFirstLetterCap}
+    update${collectionNameFirstLetterCap}(payload:${collectionName}Input):${collectionNameFirstLetterCap}
+    delete${collectionNameFirstLetterCap}(_id:String!): Boolean
+    delete${collectionNameFirstLetterCap}s(_ids:[String]!): Boolean
   }
 
-  type Post {
+  input ${collectionName}Input {
+    _id:String
+    title: String
+    content: String
+    slug: String
+    like: Int
+  }
+
+  type ${collectionNameFirstLetterCap} {
     _id:ID!
     title: String!
     content: String
+    slug: String
+    like: Int
     created: Date
     updated: Date
-    like: Int
-    slug: String
-    author: User
+    owner: User
   }
 
-  type PostPage {
+  type WithPage {
     total: Int!
-    posts: [Post]
+    ${collectionName}s: [${collectionNameFirstLetterCap}]
   }
 `
 export const resolvers = {
   Query: {
-    post: async (root, args, { mongo, user }) => {
-      const Posts = mongo.collection(collectionName)
+    [`${collectionName}`]: async (root, args, { mongo, user }) => {
+      const collection = mongo.collection(collectionName)
       return prepare(
-        await Posts.findOne({
+        await collection.findOne({
           _id: ObjectId(args.id)
         })
       )
     },
-    retrievePosts: async (root, args, { mongo, user }) => {
-      const Posts = mongo.collection(collectionName)
+    [`retrieve${collectionNameFirstLetterCap}s`]: async (
+      root,
+      args,
+      { mongo, user }
+    ) => {
+      const collection = mongo.collection(collectionName)
 
       const { query, sortBy, page, rowsPerPage } = generateQuery(args)
 
-      const total = await Posts.find(query).count()
-      const posts = (await Posts.find(query)
+      const total = await collection.find(query).count()
+      const items = (await collection
+        .find(query)
         .sort(sortBy)
         .skip(page > 0 ? (page - 1) * rowsPerPage : 0)
         .limit(rowsPerPage)
         .toArray()).map(prepare)
 
-      return { total: total, posts: posts }
+      return { total: total, posts: items }
     }
   },
   Mutation: {
-    addPost: async (root, args, { mongo, user }) => {
+    [`add${collectionNameFirstLetterCap}`]: async (
+      root,
+      args,
+      { mongo, user }
+    ) => {
       if (user) {
-        const Posts = mongo.collection(collectionName)
-        const post = await Posts.insertOne({
-          authorId: user.email,
-          title: args.title,
-          content: args.content,
+        const collection = mongo.collection(collectionName)
+        const payload = args.payload
+        const query = {
+          owner: user._id,
           like: 0,
           created: new Date(),
           updated: new Date()
+        }
+        Object.keys(payload).forEach(key => {
+          query[key] = payload[key]
         })
+        const item = await collection.insertOne(query)
         return prepare(
-          await Posts.findOne({
-            _id: post.insertedId
+          await collection.findOne({
+            _id: item.insertedId
           })
         )
       } else throw new Error('User is not authenticated!')
     },
-    updatePost: async (root, args, { mongo, user }) => {
+    [`update${collectionNameFirstLetterCap}`]: async (
+      root,
+      args,
+      { mongo, user }
+    ) => {
       if (user) {
-        const Posts = mongo.collection(collectionName)
-        await Posts.updateOne(
-          { _id: ObjectId(args._id) },
-          {
-            $set: {
-              title: args.title,
-              content: args.content,
-              updated: new Date()
-            }
-          }
+        const collection = mongo.collection(collectionName)
+        const payload = args.payload
+        const query = { updated: new Date() }
+        Object.keys(payload).forEach(key => {
+          if (key !== '_id') query[key] = payload[key]
+        })
+        await collection.updateOne(
+          { _id: ObjectId(args.payload._id) },
+          { $set: query }
         )
         return prepare(
-          await Posts.findOne({
-            _id: ObjectId(args._id)
+          await collection.findOne({
+            _id: ObjectId(args.payload._id)
           })
         )
       } else throw new Error('Failed updatePost!')
     },
-    deletePost: async (root, args, { mongo, user }) => {
+    [`delete${collectionNameFirstLetterCap}`]: async (
+      root,
+      args,
+      { mongo, user }
+    ) => {
       if (user) {
-        const Posts = mongo.collection(collectionName)
-        await Posts.deleteOne({ _id: ObjectId(args._id) })
+        const collection = mongo.collection(collectionName)
+        await collection.deleteOne({ _id: ObjectId(args._id) })
         return true
       } else throw new Error('User is not authenticated!')
     },
-    deletePosts: async (root, args, { mongo, user }) => {
+    [`delete${collectionNameFirstLetterCap}s`]: async (
+      root,
+      args,
+      { mongo, user }
+    ) => {
       if (user) {
-        const Posts = mongo.collection(collectionName)
+        const collection = mongo.collection(collectionName)
         const conditions = []
         args._ids.forEach(_id => {
           conditions.push(ObjectId(_id))
         })
         console.log('conditions :', conditions)
-        await Posts.deleteMany({ _id: { $in: conditions } })
+        await collection.deleteMany({ _id: { $in: conditions } })
         return true
       } else throw new Error('User is not authenticated!')
     }
   },
-  Post: {
-    author: (post, args, { mongo }) => {
-      return mongo.collection('users').findOne({ email: post.authorId })
+  [`${collectionNameFirstLetterCap}`]: {
+    owner: async (root, args, { mongo }) => {
+      const owner = prepare(
+        await mongo.collection('users').findOne({ _id: ObjectId(root.owner) })
+      )
+      return owner
     }
   }
 }

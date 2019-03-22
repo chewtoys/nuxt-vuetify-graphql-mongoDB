@@ -106,7 +106,7 @@ export const resolvers = {
     posts: async (user, args, { mongo }) => {
       const posts = (await mongo
         .collection('posts')
-        .find({ authorId: user.email })
+        .find({ owner: user._id })
         .toArray()).map(prepare)
       return posts
     }

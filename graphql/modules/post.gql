@@ -1,0 +1,59 @@
+query retrievePosts(
+  $keywords: keywordsInput
+  $period: periodInput
+  $range: rangeInput
+  $pagination: paginationInput
+) {
+  retrievePosts: retrievePosts(
+    keywords: $keywords
+    period: $period
+    range: $range
+    pagination: $pagination
+  ) {
+    total
+    posts {
+      _id
+      title
+      content
+      owner {
+        email
+      }
+      slug
+      like
+      updated
+      created
+    }
+  }
+}
+
+mutation addPost($payload: postInput!) {
+  addPost: addPost(payload: $payload) {
+    _id
+    title
+    content
+    owner {
+      email
+    }
+  }
+}
+
+mutation updatePost($payload: postInput!) {
+  updatePost: updatePost(payload: $payload) {
+    _id
+    title
+    content
+    slug
+    like
+    owner {
+      email
+    }
+  }
+}
+
+mutation deletePost($_id: String!) {
+  deletePost: deletePost(_id: $_id)
+}
+
+mutation deletePosts($_ids: [String]!) {
+  deletePosts: deletePosts(_ids: $_ids)
+}
