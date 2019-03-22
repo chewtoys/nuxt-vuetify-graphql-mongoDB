@@ -1,3 +1,5 @@
+import { ObjectId } from 'mongodb'
+
 const prepare = o => {
   o._id = o._id.toString()
   return o
@@ -13,9 +15,13 @@ const generateQuery = args => {
   const datesBtwOr = {}
   const rangeBtwArray = []
   const rangeBtwOr = {}
+  const idArray = []
+  const idOr = {}
   const ands = []
   let query = {}
   const keys = Object.keys(args)
+  console.log('keys :', keys)
+  console.log('args.ids :', args.ids)
   keys.forEach(key => {
     if (key === 'period') {
       const period = args[key]
@@ -54,6 +60,15 @@ const generateQuery = args => {
       })
       keywordOr.$or = keywordArray
       ands.push(keywordOr)
+    } else if (key === 'ids') {
+      const ids = args[key]
+      ids.forEach(key => {
+        const item = {}
+        item._id = ObjectId(key)
+        idArray.push(item)
+      })
+      idOr.$or = idArray
+      ands.push(idOr)
     } else if (key === 'pagination') {
       page = args[key].page
       rowsPerPage = args[key].rowsPerPage
@@ -62,7 +77,7 @@ const generateQuery = args => {
       } else sortBy = { created: -1 }
     }
   })
-
+  console.log(('idArray :', idArray))
   if (ands.length > 1) {
     query = { $and: ands }
   } else if (datesBtwArray.length > 0) {
@@ -71,6 +86,8 @@ const generateQuery = args => {
     query = rangeBtwOr
   } else if (keywordArray.length > 0) {
     query = keywordOr
+  } else if (idArray.length > 0) {
+    query = idOr
   }
 
   return { query: query, page: page, rowsPerPage: rowsPerPage, sortBy: sortBy }

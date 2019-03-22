@@ -9,6 +9,7 @@ const Query = `
   type Mutation {
     _empty: String
   }
+
 `
 
 const resolvers = {}

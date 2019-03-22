@@ -1,10 +1,12 @@
 query retrievePosts(
+  $ids: [String]
   $keywords: keywordsInput
   $period: periodInput
   $range: rangeInput
   $pagination: paginationInput
 ) {
   retrievePosts: retrievePosts(
+    ids: $ids
     keywords: $keywords
     period: $period
     range: $range

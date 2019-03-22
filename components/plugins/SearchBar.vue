@@ -20,7 +20,12 @@
       <v-slide-y-transition>
         <div v-show="show">
           <v-layout row wrap>
-            <v-flex xs12 sm5 lg3 v-if="isUseForm('period')">
+            <v-flex xs12 sm6 lg6 v-if="isUseForm('ids')">
+              <v-text-field label="search ID" prepend-inner-icon="people" v-model="ids"></v-text-field>
+            </v-flex>
+          </v-layout>
+          <v-layout row wrap>
+            <v-flex xs12 sm6 lg3 v-if="isUseForm('period')">
               <v-select v-model="selectedDateFor" :items="dateKeys" label="Dates" multiple></v-select>
             </v-flex>
             <v-flex xs11 sm5 lg2 v-if="isUseForm('period')">
@@ -65,39 +70,16 @@
             <v-flex xs12 sm5 lg3 v-if="isUseForm('range')">
               <v-select v-model="selectedRangeFor" :items="numericKeys" label="Range" multiple></v-select>
             </v-flex>
-            <v-flex
-              shrink
-              style="width: 80px"
-            >
-              <v-text-field
-                v-model="range[0]"
-                class="mt-0"
-                hide-details
-                single-line
-                type="number"
-              ></v-text-field>
+            <v-flex shrink style="width: 80px">
+              <v-text-field v-model="range[0]" class="mt-0" hide-details single-line type="number"></v-text-field>
             </v-flex>
 
             <v-flex xs11 sm5 lg5>
-              <v-range-slider
-                v-model="range"
-                :max="100"
-                :min="0"
-                :step="1"
-              ></v-range-slider>
+              <v-range-slider v-model="range" :max="100" :min="0" :step="1"></v-range-slider>
             </v-flex>
 
-            <v-flex
-              shrink
-              style="width: 80px"
-            >
-              <v-text-field
-                v-model="range[1]"
-                class="mt-0"
-                hide-details
-                single-line
-                type="number"
-              ></v-text-field>
+            <v-flex shrink style="width: 80px">
+              <v-text-field v-model="range[1]" class="mt-0" hide-details single-line type="number"></v-text-field>
             </v-flex>
           </v-layout>
         </div>
@@ -114,9 +96,11 @@ export default {
     menu1: false,
     menu2: false,
     selectedKeywordsFor: [],
+    selectedIDsFor: [],
     selectedDateFor: [],
     selectedRangeFor: [],
-    keywords: null,
+    ids: [],
+    keywords: [],
     show: false,
     range: [0, 100]
   }),
@@ -135,8 +119,15 @@ export default {
     search() {
       console.log('search :', this.selectKeys)
       const payload = {}
-      if (this.isUseForm('keywords') && this.keywords && this.selectedKeywordsFor.length > 0) {
-            payload.keywords = {kind: this.selectedKeywordsFor, keywords: this.keywords.replace(/\s/g, '').split(',')}
+      if (
+        this.isUseForm('keywords') &&
+        this.keywords.length > 0 &&
+        this.selectedKeywordsFor.length > 0
+      ) {
+        payload.keywords = {
+          kind: this.selectedKeywordsFor,
+          keywords: this.keywords.replace(/\s/g, '').split(',')
+        }
       }
       if (this.isUseForm('period')) {
         const dates = {}
@@ -152,8 +143,18 @@ export default {
           }
         }
       }
-      if(this.selectedRangeFor.length > 0){
-        payload.range = {kind:this.selectedRangeFor, min: this.range[0], max: this.range[1]}
+      if (this.isUseForm('range')) {
+        if (this.selectedRangeFor.length > 0) {
+          payload.range = {
+            kind: this.selectedRangeFor,
+            min: this.range[0],
+            max: this.range[1]
+          }
+        }
+      }
+      console.log('this.ids :', this.ids)
+      if (this.isUseForm('ids') && this.ids.length > 0) {
+        payload.ids = this.ids.replace(/\s/g, '').split(',')
       }
       this.$emit('search', payload)
     },

@@ -7,7 +7,7 @@ const collectionNameFirstLetterCap = capitalize(collectionName, true)
 export const typeDef = `
   extend type Query {
     ${collectionName}(id: String!): ${collectionNameFirstLetterCap}
-    retrieve${collectionNameFirstLetterCap}s(keywords: keywordsInput, period: periodInput, range:rangeInput, pagination:paginationInput): WithPage
+    retrieve${collectionNameFirstLetterCap}s(ids:[String], keywords: keywordsInput, period: periodInput, range:rangeInput, pagination:paginationInput): WithPage
   }
   
   extend type Mutation {

@@ -113,7 +113,7 @@ export default {
       defaultItem: {},
       showSearchBar: true,
       searchOption: {
-        useSearchForm: ['keywords', 'period', 'range'],
+        useSearchForm: ['keywords', 'period', 'range', 'ids'],
         selectKeys: [],
         dateKeys: [],
         numericKeys: []
@@ -266,17 +266,21 @@ export default {
           type = _.result(obj, 'type.ofType.name')
         }
         this.scheme.push({ key: key, type: type })
+        console.log('this.scheme :', this.scheme)
+        if (type === 'ID') {
+          this.searchOption.useSearchForm.push('ids')
+        }
         if (type === 'String') {
           this.searchOption.selectKeys.push(key)
-          this.useSearchForm.push('keywords')
+          this.searchOption.useSearchForm.push('keywords')
         }
         if (type === 'Date') {
           this.searchOption.dateKeys.push(key)
-          this.useSearchForm.push('period')
+          this.searchOption.useSearchForm.push('period')
         }
         if (type === 'Int' || type === 'Float') {
           this.searchOption.numericKeys.push(key)
-          this.useSearchForm.push('range')
+          this.searchOption.useSearchForm.push('range')
         }
         this.useSearchForm = _.uniq(this.useSearchForm)
       })
@@ -341,7 +345,7 @@ export default {
         return this.$moment.tz(date, 'Asia/Seoul').format('YYYY-MM-DD HH:mm:ss')
     },
     async search(payload) {
-      // console.log('search > payload :', payload)
+      console.log('search > payload :', payload)
       // console.log('search > this.pagination :', this.pagination)
       this.loading = true
       this.searchPayload = Object.assign({}, payload)
