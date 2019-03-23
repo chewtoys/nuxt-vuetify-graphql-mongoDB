@@ -88,5 +88,19 @@ module.exports = {
         })
       }
     }
+  },
+
+  env: {
+    authoSchemas: [
+      {
+        name: 'post',
+        fields: [
+          { name: 'title', type: 'String!' },
+          { name: 'content', type: 'String' },
+          { name: 'slug', type: 'String' },
+          { name: 'like', type: 'Int' }
+        ]
+      }
+    ]
   }
 }

@@ -1,20 +1,20 @@
-const getSchemes = names => {
+const getSchemas = autoSchemas => {
   const files = requestContext('.', false, /\.js$/)
-  const schemes = { typeDefs: [], resolvers: [] }
+  const schemas = { typeDefs: [], resolvers: [] }
   files.keys().forEach(key => {
     if (key === 'index.js') {
       console.log('This is index.js')
     } else if (key === 'common.js') {
-      names.forEach(name => {
-        schemes.typeDefs.push(files(key).makeScheme(name).typeDef)
-        schemes.resolvers.push(files(key).makeScheme(name).resolvers)
+      autoSchemas.forEach(schema => {
+        schemas.typeDefs.push(files(key).makeSchema(schema).typeDef)
+        schemas.resolvers.push(files(key).makeSchema(schema).resolvers)
       })
     } else {
-      schemes.typeDefs.push(files(key).typeDef)
-      schemes.resolvers.push(files(key).resolvers)
+      schemas.typeDefs.push(files(key).typeDef)
+      schemas.resolvers.push(files(key).resolvers)
     }
   })
-  return schemes
+  return schemas
 }
 
 function requestContext(directory, recursive, regExp) {
@@ -56,8 +56,7 @@ function requestContext(directory, recursive, regExp) {
 }
 
 const modules = names => {
-  console.log('names :', names)
-  return getSchemes(names)
+  return getSchemas(names)
 }
 
 export default modules

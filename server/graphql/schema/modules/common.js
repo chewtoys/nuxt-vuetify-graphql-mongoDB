@@ -1,11 +1,11 @@
 import { capitalize, typeDef as def, resolvers as res } from '../../../utils'
 
-const makeScheme = name => {
-  const capitalizeName = capitalize(name, true)
+const makeSchema = schema => {
+  const capitalizeName = capitalize(schema.name, true)
   return {
-    typeDef: def(name, capitalizeName),
-    resolvers: res(name, capitalizeName)
+    typeDef: def(schema, capitalizeName),
+    resolvers: res(schema.name, capitalizeName)
   }
 }
 
-exports.makeScheme = makeScheme
+exports.makeSchema = makeSchema

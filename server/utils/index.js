@@ -101,7 +101,14 @@ const capitalize = (inputString, first) => {
   return ret
 }
 
-const typeDef = (name, capitalizeName) => {
+const typeDef = (schema, capitalizeName) => {
+  const name = schema.name
+  const fields = schema.fields
+  let fieldsValue = ''
+  fields.forEach(field => {
+    fieldsValue += field.name + ': ' + field.type + '\n'
+  })
+  // console.log('fieldsValue :\n', fieldsValue)
   return `
   extend type Query {
     ${name}(id: String!): ${capitalizeName}
@@ -117,18 +124,12 @@ const typeDef = (name, capitalizeName) => {
 
   input ${name}Input {
     _id:String
-    title: String
-    content: String
-    slug: String
-    like: Int
+    ${fieldsValue}
   }
 
   type ${capitalizeName} implements Searchable {
     _id:ID!
-    title: String!
-    content: String
-    slug: String
-    like: Int
+    ${fieldsValue}
     created: Date
     updated: Date
     owner: User

@@ -19,7 +19,7 @@ app.use(
   bodyParser.json(),
   graphqlHTTP(async function(req, res, params) {
     return {
-      schema: schema,
+      schema: schema(config.env.authoSchemas),
       graphiql: true,
       rootValue: {},
       context: await context(req.headers, { JWT_SECRET: 'tokenis' }, mongo),
@@ -80,6 +80,7 @@ async function start() {
         }
         mongo = client.db(DATABASE_NAME)
         console.log('Connected to `' + DATABASE_NAME + '`!')
+        makeCollections(mongo)
         // Listen the server
         app.listen(port, host)
         consola.ready({
@@ -90,4 +91,22 @@ async function start() {
     )
   }
 }
+
+function makeCollections(mongo) {
+  // mongo.collectionNames('blog', function(err, names) {
+  //   console.log('Exists: ', names.length > 0)
+  //   if (err) console.log('err :', err)
+  // })
+  config.env.authoSchemas.forEach(schema => {
+    mongo.listCollections({ name: schema.name }).next(function(err, collinfo) {
+      if (collinfo) {
+        console.log('Find collection for authSchema:', collinfo.name)
+      } else {
+        console.log('no <' + schema.name + '> collection is there!: ', err)
+        mongo.createCollection(schema.name)
+      }
+    })
+  })
+}
+
 start()
