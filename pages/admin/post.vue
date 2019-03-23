@@ -266,7 +266,6 @@ export default {
           type = _.result(obj, 'type.ofType.name')
         }
         this.scheme.push({ key: key, type: type })
-        console.log('this.scheme :', this.scheme)
         if (type === 'ID') {
           this.searchOption.useSearchForm.push('ids')
         }
@@ -345,7 +344,7 @@ export default {
         return this.$moment.tz(date, 'Asia/Seoul').format('YYYY-MM-DD HH:mm:ss')
     },
     async search(payload) {
-      console.log('search > payload :', payload)
+      // console.log('search > payload :', payload)
       // console.log('search > this.pagination :', this.pagination)
       this.loading = true
       this.searchPayload = Object.assign({}, payload)

@@ -1,29 +1,21 @@
-// const glob = require('glob')
-const modules = { typeDefs: [], resolvers: [] }
-// export default async function modulesd() {
-//   await glob('server/graphql/schema/modules/*.js', null, function(er, files) {
-//     // files is an array of filenames.
-//     // If the `nonull` option is set, and nothing
-//     // was found, then files is ["**/*.js"]
-//     // er is an error object or null.
-//     console.log('files :', files)
-//     files.forEach(file => {
-//       const module = require('./' +
-//         file.replace('server/graphql/schema/modules/', ''))
-//       console.log('module :', module)
-//       modules.typeDefs.push(module.typeDef)
-//       modules.resolvers.push(module.resolvers)
-//     })
-//   })()
-//   return modules
-// }
-
-const files = requestContext('.', false, /\.js$/)
-files.keys().forEach(key => {
-  if (key === 'index.js') return
-  modules.typeDefs.push(files(key).typeDef)
-  modules.resolvers.push(files(key).resolvers)
-})
+const getSchemes = names => {
+  const files = requestContext('.', false, /\.js$/)
+  const schemes = { typeDefs: [], resolvers: [] }
+  files.keys().forEach(key => {
+    if (key === 'index.js') {
+      console.log('This is index.js')
+    } else if (key === 'common.js') {
+      names.forEach(name => {
+        schemes.typeDefs.push(files(key).makeScheme(name).typeDef)
+        schemes.resolvers.push(files(key).makeScheme(name).resolvers)
+      })
+    } else {
+      schemes.typeDefs.push(files(key).typeDef)
+      schemes.resolvers.push(files(key).resolvers)
+    }
+  })
+  return schemes
+}
 
 function requestContext(directory, recursive, regExp) {
   const dir = require('node-dir')
@@ -61,6 +53,11 @@ function requestContext(directory, recursive, regExp) {
   }
 
   return context
+}
+
+const modules = names => {
+  console.log('names :', names)
+  return getSchemes(names)
 }
 
 export default modules

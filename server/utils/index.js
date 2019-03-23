@@ -101,6 +101,147 @@ const capitalize = (inputString, first) => {
   return ret
 }
 
+const typeDef = (name, capitalizeName) => {
+  return `
+  extend type Query {
+    ${name}(id: String!): ${capitalizeName}
+    retrieve${capitalizeName}s(ids:[String], keywords: keywordsInput, period: periodInput, range:rangeInput, pagination:paginationInput): WithPage
+  }
+  
+  extend type Mutation {
+    add${capitalizeName}(payload:${name}Input):${capitalizeName}
+    update${capitalizeName}(payload:${name}Input):${capitalizeName}
+    delete${capitalizeName}(_id:String!): Boolean
+    delete${capitalizeName}s(_ids:[String]!): Boolean
+  }
+
+  input ${name}Input {
+    _id:String
+    title: String
+    content: String
+    slug: String
+    like: Int
+  }
+
+  type ${capitalizeName} implements Searchable {
+    _id:ID!
+    title: String!
+    content: String
+    slug: String
+    like: Int
+    created: Date
+    updated: Date
+    owner: User
+  }
+
+  type WithPage {
+    total: Int!
+    ${name}s: [${capitalizeName}]
+  }
+`
+}
+const resolvers = (name, capitalizeName) => {
+  return {
+    Query: {
+      [`${name}`]: async (root, args, { mongo, user }) => {
+        const collection = mongo.collection(name)
+        return prepare(
+          await collection.findOne({
+            _id: ObjectId(args.id)
+          })
+        )
+      },
+      [`retrieve${capitalizeName}s`]: async (root, args, { mongo, user }) => {
+        const collection = mongo.collection(name)
+
+        const { query, sortBy, page, rowsPerPage } = generateQuery(args)
+
+        const total = await collection.find(query).count()
+        const items = (await collection
+          .find(query)
+          .sort(sortBy)
+          .skip(page > 0 ? (page - 1) * rowsPerPage : 0)
+          .limit(rowsPerPage)
+          .toArray()).map(prepare)
+
+        return { total: total, posts: items }
+      }
+    },
+    Mutation: {
+      [`add${capitalizeName}`]: async (root, args, { mongo, user }) => {
+        if (user) {
+          const collection = mongo.collection(name)
+          const payload = args.payload
+          const query = {
+            owner: user._id,
+            like: 0,
+            created: new Date(),
+            updated: new Date()
+          }
+          Object.keys(payload).forEach(key => {
+            query[key] = payload[key]
+          })
+          const item = await collection.insertOne(query)
+          return prepare(
+            await collection.findOne({
+              _id: item.insertedId
+            })
+          )
+        } else throw new Error('User is not authenticated!')
+      },
+      [`update${capitalizeName}`]: async (root, args, { mongo, user }) => {
+        if (user) {
+          const collection = mongo.collection(name)
+          const payload = args.payload
+          const query = { updated: new Date() }
+          Object.keys(payload).forEach(key => {
+            if (key !== '_id') query[key] = payload[key]
+          })
+          await collection.updateOne(
+            { _id: ObjectId(args.payload._id) },
+            { $set: query }
+          )
+          return prepare(
+            await collection.findOne({
+              _id: ObjectId(args.payload._id)
+            })
+          )
+        } else throw new Error('Failed updatePost!')
+      },
+      [`delete${capitalizeName}`]: async (root, args, { mongo, user }) => {
+        if (user) {
+          const collection = mongo.collection(name)
+          await collection.deleteOne({ _id: ObjectId(args._id) })
+          return true
+        } else throw new Error('User is not authenticated!')
+      },
+      [`delete${capitalizeName}s`]: async (root, args, { mongo, user }) => {
+        if (user) {
+          const collection = mongo.collection(name)
+          const conditions = []
+          args._ids.forEach(_id => {
+            conditions.push(ObjectId(_id))
+          })
+          console.log('conditions :', conditions)
+          await collection.deleteMany({ _id: { $in: conditions } })
+          return true
+        } else throw new Error('User is not authenticated!')
+      }
+    },
+    [`${capitalizeName}`]: {
+      owner: async (root, args, { mongo }) => {
+        const owner = prepare(
+          await mongo.collection('users').findOne({ _id: ObjectId(root.owner) })
+        )
+        return owner
+      }
+    }
+  }
+}
+
 exports.prepare = prepare
 exports.generateQuery = generateQuery
 exports.capitalize = capitalize
+
+exports.typeDef = typeDef
+exports.resolvers = resolvers
