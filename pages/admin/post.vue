@@ -53,7 +53,7 @@
     <v-data-table
       v-if="headers"
       :headers="headers"
-      :items="posts"
+      :items="items"
       class="elevation-1"
       :loading="loading"
       :pagination.sync="pagination"
@@ -89,9 +89,14 @@
 
 <script>
 import _ from 'lodash'
+import { objToKindAndValue, pick, capitalize } from '~/utils'
+import registerStoreModule from '~/store/common/'
 import { mapGetters } from 'vuex'
 import adminPerimeter from '~/kindergarten/perimeters/admin'
 import SearchBar from '@/components/plugins/SearchBar'
+
+const moduleName = 'post'
+
 export default {
   name: 'admin-post',
   layout: 'admin',
@@ -118,16 +123,21 @@ export default {
         dateKeys: [],
         numericKeys: []
       },
-      searchPayload: {}
+      pickFields: {
+        editable: ['_id', 'title', 'content', 'slug', 'like']
+      },
+      searchPayload: {},
+      timezone: 'Asia/Seoul',
+      timeformat: 'YYYY-MM-DD HH:mm:ss'
     }
   },
   computed: {
     addTitle() {
       return this.editedIndex === -1 ? 'Add Item' : 'Edit Item'
     },
-    ...mapGetters('post', {
+    ...mapGetters(moduleName, {
       total: 'total',
-      posts: 'posts',
+      items: 'items',
       gqlTypes: 'gqlTypes'
     })
   },
@@ -143,7 +153,7 @@ export default {
       async handler() {
         // console.log('handler > this.pagination :', this.pagination)
         await this.search(this.searchPayload).then(data => {
-          console.log('after watching search')
+          console.log('after search in watch')
         })
       },
       deep: true
@@ -151,16 +161,18 @@ export default {
   },
   methods: {
     initialize() {
-      this.$store.dispatch('post/retrieveGqlTypes', { name: 'Post' })
+      this.$store.dispatch(moduleName + '/retrieveGqlTypes', {
+        name: capitalize(moduleName, true)
+      })
     },
     activeDialog() {
       if (this.editedIndex < 0) {
         this.defaultItem.owner = this.$store.state.user.user.email
-        this.defaultItem.created = this.$moment().format('YYYY-MM-DD HH:mm:ss')
+        this.defaultItem.created = this.$moment().format(this.timeformat)
       }
     },
     editItem(item) {
-      this.editedIndex = this.posts.indexOf(item)
+      this.editedIndex = this.items.indexOf(item)
       this.setEditItem(item)
       this.dialog = true
     },
@@ -168,7 +180,7 @@ export default {
       if (confirm('Are you sure you want to delete this item?')) {
         const oldTotal = this.total
         const delLen = 1
-        await this.$store.dispatch('post/deletePost', item)
+        await this.$store.dispatch(moduleName + '/deleteItem', item)
         // 현재 페이지가 1이면 계속 페이지 1
         if (this.pagination.page === 1) {
           this.pagination.page = 1
@@ -192,7 +204,9 @@ export default {
 
       const oldTotal = this.total
       const delLen = _ids.length
-      await this.$store.dispatch('post/deletePosts', { _ids: _ids })
+      await this.$store.dispatch(moduleName + '/deleteItems', {
+        _ids: _ids
+      })
 
       // 현재 페이지가 1이면 계속 페이지 1
       if (this.pagination.page === 1) {
@@ -210,45 +224,28 @@ export default {
       }
     },
     async save() {
-      const picks = ['_id', 'title', 'content', 'slug']
       if (this.editedIndex > -1) {
-        await this.$store.dispatch(
-          'post/updatePost',
-          this.pick(this.editedItem, picks)
+        let newItem = pick(
+          this.editedItem,
+          this.pickFields.editable,
+          this.scheme
         )
+        newItem = objToKindAndValue(newItem)
+        await this.$store.dispatch(moduleName + '/updateItem', newItem)
       } else {
-        // 추가하기 전
-        let page = Math.floor(
-          this.total / parseInt(this.pagination.rowsPerPage) + 1
+        let newItem = pick(
+          this.editedItem,
+          this.pickFields.editable,
+          this.scheme
         )
-        page = page < 1 ? 1 : page
-        const pageMod = this.total % parseInt(this.pagination.rowsPerPage)
-        console.log('page :', page)
-        console.log('pageMod :', pageMod)
-        await this.$store.dispatch(
-          'post/addPost',
-          this.pick(this.editedItem, picks)
-        )
+        newItem = objToKindAndValue(newItem)
+        await this.$store.dispatch(moduleName + '/addItem', newItem)
         this.$refs.searchBar.reset()
         this.searchPayload = {}
         this.pagination.totalItems += 1
         this.pagination.page = 1
-        // if (pageMod === 0) {
-        //   // 현재 페이지에서 아이템을 추가고 페이지가 넘어갈 경우
-        //   this.pagination.page = page
-        // } else {
-        //   // 페이지 값이 변경되지 않을 때 와치를 작동하기 위해
-        //   console.log('totalItems :', this.pagination.totalItems)
-        //   this.pagination.totalItems += 1
-        //   this.pagination.page = page
-        // }
       }
       this.close()
-    },
-    pick(obj, keys) {
-      return keys
-        .map(k => (k in obj ? { [k]: obj[k] } : {}))
-        .reduce((res, o) => Object.assign(res, o), {})
     },
     close() {
       this.dialog = false
@@ -259,6 +256,7 @@ export default {
     },
     setHeaders() {
       const fieldObjects = this.gqlTypes.__type.fields
+      console.log(' fieldObjects :', fieldObjects)
       fieldObjects.forEach(obj => {
         const key = _.result(obj, 'name')
         let type = _.result(obj, 'type.name')
@@ -337,19 +335,14 @@ export default {
       }
     },
     handleDate(date, fromnow) {
-      if (fromnow) return this.$moment.tz(date, 'Asia/Seoul').fromNow()
-      // const days = this.$moment().diff(date, 'days')
-      // if (days < 7) return this.$moment.tz(date, 'Asia/Seoul').fromNow()
-      else
-        return this.$moment.tz(date, 'Asia/Seoul').format('YYYY-MM-DD HH:mm:ss')
+      if (fromnow) return this.$moment.tz(date, this.timezone).fromNow()
+      else return this.$moment.tz(date, this.timezone).format(this.timeformat)
     },
     async search(payload) {
-      // console.log('search > payload :', payload)
-      // console.log('search > this.pagination :', this.pagination)
       this.loading = true
       this.searchPayload = Object.assign({}, payload)
       payload.pagination = this.pagination
-      await this.$store.dispatch('post/retrievePosts', payload)
+      await this.$store.dispatch(moduleName + '/search', payload)
       this.loading = false
     },
     resetSearchPayload() {
@@ -359,7 +352,7 @@ export default {
       let total = 'Current Page Total >> '
       this.searchOption.numericKeys.forEach(key => {
         total =
-          total + key.toUpperCase() + ' : ' + _.sumBy(this.posts, key) + ','
+          total + key.toUpperCase() + ' : ' + _.sumBy(this.items, key) + ','
         // console.log('sum :', total)
       })
       return total.replace(/,$/, '.')
@@ -367,6 +360,9 @@ export default {
   },
   created() {
     this.initialize()
+  },
+  beforeCreate() {
+    this.$store.registerModule(moduleName, registerStoreModule(moduleName))
   }
 }
 </script>

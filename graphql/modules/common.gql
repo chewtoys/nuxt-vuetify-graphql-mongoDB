@@ -1,0 +1,82 @@
+query search(
+  $module: String!
+  $ids: [String]
+  $keywords: keywordsInput
+  $period: periodInput
+  $range: rangeInput
+  $pagination: paginationInput
+) {
+  search: search(
+    module: $module
+    ids: $ids
+    keywords: $keywords
+    period: $period
+    range: $range
+    pagination: $pagination
+  ) {
+    total
+    module
+    items {
+      _id
+      updated
+      created
+      owner {
+        email
+      }
+      ... on Post {
+        title
+        content
+        slug
+        like
+      }
+    }
+  }
+}
+
+mutation addItem($module: String!, $payload: [updateInput]!) {
+  addItem: addItem(module: $module, payload: $payload) {
+    module
+    item {
+      _id
+      updated
+      created
+      owner {
+        email
+      }
+      ... on Post {
+        title
+        content
+        slug
+        like
+      }
+    }
+  }
+}
+
+mutation updateItem($module: String!, $payload: [updateInput]!) {
+  updateItem: updateItem(module: $module, payload: $payload) {
+    module
+    item {
+      _id
+      updated
+      created
+      owner {
+        email
+      }
+      ... on Post {
+        title
+        content
+        slug
+        like
+      }
+    }
+  }
+}
+
+mutation deleteItem($module: String!, $_id: String!) {
+  deleteItem: deleteItem(module: $module, _id: $_id)
+}
+
+mutation deleteItems($module: String!, $_ids: [String]!) {
+  deleteItems: deleteItems(module: $module, _ids: $_ids)
+}

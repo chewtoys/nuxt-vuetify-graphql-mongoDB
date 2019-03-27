@@ -3,6 +3,7 @@ const { Kind } = require('graphql/language')
 
 export const typeDef = `
   scalar Date
+  scalar Any
 
 `
 export const resolvers = {
@@ -20,6 +21,19 @@ export const resolvers = {
         return parseInt(ast.value, 10) // ast value is always in string format
       }
       return null
+    }
+  }),
+  Any: new GraphQLScalarType({
+    name: 'Any',
+    description: 'Literally anything',
+    serialize(value) {
+      return value
+    },
+    parseValue(value) {
+      return value
+    },
+    parseLiteral(ast) {
+      return ast.value
     }
   })
 }

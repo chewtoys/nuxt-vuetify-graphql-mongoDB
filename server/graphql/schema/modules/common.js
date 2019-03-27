@@ -1,10 +1,11 @@
-import { capitalize, typeDef as def, resolvers as res } from '../../../utils'
+import { typeDef, resolvers } from '../../../query'
+import { capitalize } from '../../../../utils'
 
 const makeSchema = schema => {
   const capitalizeName = capitalize(schema.name, true)
   return {
-    typeDef: def(schema, capitalizeName),
-    resolvers: res(schema.name, capitalizeName)
+    typeDef: typeDef(schema, capitalizeName),
+    resolvers: resolvers(schema.name, capitalizeName)
   }
 }
 

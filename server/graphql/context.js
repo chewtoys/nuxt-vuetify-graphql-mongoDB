@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongodb'
 import jwt from 'jsonwebtoken'
-import { prepare } from '../utils'
+import { prepare } from '../query'
 
 const getUser = async (authorization, secrets, mongo) => {
   console.log('getUser 1 : authorization : ', authorization)

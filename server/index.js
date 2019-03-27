@@ -3,7 +3,6 @@ import schema from './graphql/schema'
 import { context } from './graphql/context'
 const dotenv = require('dotenv')
 const express = require('express')
-// const { graphqlExpress, graphiqlExpress, graphqlConnect } = require('graphql-server-express')
 const graphqlHTTP = require('express-graphql')
 const bodyParser = require('body-parser')
 const consola = require('consola')
