@@ -1,14 +1,15 @@
 import typeQuery from '~/graphql/type/type.gql'
-import {
-  search,
-  addItem,
-  updateItem,
-  deleteItem,
-  deleteItems
-} from '~/graphql/modules/common.gql'
+// import { search } from '~/graphql/modules/common.gql'
+import { generateGql } from '../../server/graphql/commonGql'
 
-const storeModule = name => {
-  console.log('storeModule > name :', name)
+const storeModule = autoSchema => {
+  const name = autoSchema.name
+  const moduleFields = autoSchema.fields
+  // console.log('storeModule > name :', name)
+  // console.log('storeModule > moduleFields :', moduleFields)
+  const typeDef = generateGql(name, moduleFields)
+  // console.log('lll :', search)
+  // console.log('storeModule > typeDef', typeDef)
   return {
     namespaced: true,
     state() {
@@ -80,7 +81,7 @@ const storeModule = name => {
         try {
           if (this.app.apolloProvider.defaultClient) {
             const result = await this.app.apolloProvider.defaultClient.query({
-              query: search,
+              query: typeDef.search,
               variables: payload
             })
             context.commit('SET_ITEMS', result.data.search)
@@ -95,7 +96,7 @@ const storeModule = name => {
         payload = { module: name, payload: payload }
         try {
           const result = await this.app.apolloProvider.defaultClient.mutate({
-            mutation: addItem,
+            mutation: typeDef.addItem,
             variables: payload
           })
           context.commit('ADD_ITEM', result.data.addItem)
@@ -109,7 +110,7 @@ const storeModule = name => {
         payload = { module: name, payload: payload }
         try {
           const result = await this.app.apolloProvider.defaultClient.mutate({
-            mutation: updateItem,
+            mutation: typeDef.updateItem,
             variables: payload
           })
           context.commit('UPDATE_ITEM', result.data.updateItem)
@@ -123,7 +124,7 @@ const storeModule = name => {
         payload = { module: name, _id: payload._id }
         try {
           const result = await this.app.apolloProvider.defaultClient.mutate({
-            mutation: deleteItem,
+            mutation: typeDef.deleteItem,
             variables: payload
           })
           if (result.data.deleteItem) context.commit('DELETE_ITEM', payload)
@@ -137,7 +138,7 @@ const storeModule = name => {
         payload = { module: name, _ids: payload._ids }
         try {
           const result = await this.app.apolloProvider.defaultClient.mutate({
-            mutation: deleteItems,
+            mutation: typeDef.deleteItems,
             variables: payload
           })
           if (result.data.deleteItems) context.commit('DELETE_ITEMS', payload)

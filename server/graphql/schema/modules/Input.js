@@ -25,7 +25,6 @@ export const typeDef = `
     max: Int!
   }
 
-
   input usersInput {
     kind: [String]!
     users: [String]!

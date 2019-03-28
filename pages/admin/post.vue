@@ -370,13 +370,28 @@ export default {
       return total.replace(/,$/, '.')
     }
   },
+  fetch(ctx) {
+    let schemas = null
+    const autoSchemas = ctx.env.autoSchemas
+    autoSchemas.every(schema => {
+      if (schema.name === moduleName) {
+        ctx.store.commit('SET_AUTO_SCHEMA', schema)
+        return false
+      }
+      return true
+    })
+    return schemas
+  },
   created() {
     this.initialize()
   },
   beforeCreate() {
     const store = this.$store
+    // console.log('store.getters :', store.getters)
+    const autoSchema = store.getters.getAutoSchema(moduleName)
+    // console.log('beforeCreate > this Module autoSchema :', autoSchema)
     if (!(store && store.state && store.getters[moduleName + '/gqlTypes'])) {
-      store.registerModule(moduleName, registerStoreModule(moduleName), {
+      store.registerModule(moduleName, registerStoreModule(autoSchema), {
         preserveState: false
       })
     }

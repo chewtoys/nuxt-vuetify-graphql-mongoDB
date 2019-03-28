@@ -46,7 +46,6 @@ export const resolvers = {
       const collection = mongo.collection(args.module)
 
       const { query, sortBy, page, rowsPerPage } = generateQuery(args)
-      console.log('query :', JSON.stringify(query))
       const total = await collection.find(query).count()
       const items = (await collection
         .aggregate([
@@ -73,12 +72,6 @@ export const resolvers = {
         .skip(page > 0 ? (page - 1) * rowsPerPage : 0)
         .limit(rowsPerPage)
         .toArray()).map(prepare)
-
-      // items.map(async item => {
-      //   item.user = await collection.find(query)
-      // })
-
-      console.log('aggregation items :', items)
 
       return { total: total, module: args.module, items: items }
     }
@@ -142,7 +135,6 @@ export const resolvers = {
         args._ids.forEach(_id => {
           conditions.push(ObjectId(_id))
         })
-        console.log('conditions :', conditions)
         await collection.deleteMany({ _id: { $in: conditions } })
         return true
       } else throw new Error('User is not authenticated!')
@@ -150,7 +142,6 @@ export const resolvers = {
   },
   Searchable: {
     __resolveType(obj, ctx, info) {
-      console.log(info.variableValues.module)
       return capitalize(info.variableValues.module, true)
     }
   }

@@ -91,7 +91,7 @@ module.exports = {
   },
 
   env: {
-    authoSchemas: [
+    autoSchemas: [
       {
         name: 'post',
         fields: [

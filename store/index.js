@@ -6,12 +6,25 @@ import checkAuth from '~/middleware/check-auth'
 import modules from './modules'
 
 export const state = () => ({
-  viewer: null
+  viewer: null,
+  autoSchemas: []
 })
 
-export const getters = {}
+export const getters = {
+  getAutoSchema: state => moduleName => {
+    return state.autoSchemas.find(s => s.name === moduleName)
+  }
+}
 
-export const mutations = {}
+export const mutations = {
+  SET_AUTO_SCHEMA: (state, payload) => {
+    console.log('SET_AUTO_SCHEMA', payload)
+    state.autoSchemas = [
+      ...state.autoSchemas.filter(s => s.name !== payload.name),
+      payload
+    ]
+  }
+}
 
 const actions = {
   nuxtServerInit(store, context) {

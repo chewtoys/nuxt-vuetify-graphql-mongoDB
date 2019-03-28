@@ -18,7 +18,7 @@ app.use(
   bodyParser.json(),
   graphqlHTTP(async function(req, res, params) {
     return {
-      schema: schema(config.env.authoSchemas),
+      schema: schema(config.env.autoSchemas),
       graphiql: true,
       rootValue: {},
       context: await context(req.headers, { JWT_SECRET: 'tokenis' }, mongo),
@@ -96,7 +96,7 @@ function makeCollections(mongo) {
   //   console.log('Exists: ', names.length > 0)
   //   if (err) console.log('err :', err)
   // })
-  config.env.authoSchemas.forEach(schema => {
+  config.env.autoSchemas.forEach(schema => {
     mongo.listCollections({ name: schema.name }).next(function(err, collinfo) {
       if (collinfo) {
         console.log('Find collection for authSchema:', collinfo.name)
