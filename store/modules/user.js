@@ -64,9 +64,9 @@ const user = {
         context.commit('SET_ACCESS_TOKEN', result.data.signin.accessToken)
         context.commit('SET_USER', result.data.signin.user)
         Cookies.set('accessToken', result.data.signin.accessToken, {
-          expires: 1
+          expires: 10
         })
-        Cookies.set('user', result.data.signin.user, { expires: 1 })
+        Cookies.set('user', result.data.signin.user, { expires: 10 })
       } catch (error) {
         console.log(JSON.stringify(error))
         return null

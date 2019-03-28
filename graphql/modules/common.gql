@@ -4,6 +4,7 @@ query search(
   $keywords: keywordsInput
   $period: periodInput
   $range: rangeInput
+  $users: usersInput
   $pagination: paginationInput
 ) {
   search: search(
@@ -12,6 +13,7 @@ query search(
     keywords: $keywords
     period: $period
     range: $range
+    users: $users
     pagination: $pagination
   ) {
     total

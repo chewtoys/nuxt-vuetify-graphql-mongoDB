@@ -12,6 +12,7 @@
         :append-icon="showPassword ? 'visibility_off' : 'visibility'"
         @click:append="showPassword = !showPassword"
         :type="showPassword ? 'text' : 'password'"
+        @keyup.enter="signin"
       />
       <v-card-actions>
         <v-btn flat>

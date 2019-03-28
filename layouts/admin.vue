@@ -7,6 +7,7 @@
       fixed
       app
       id="test"
+      :width="200"
     >
       <v-list>
         <v-list-tile v-for="(item, i) in items" :key="i" :to="item.to" router exact>

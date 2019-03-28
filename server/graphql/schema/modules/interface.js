@@ -24,7 +24,7 @@ export const typeDef = `
   }
 
   extend type Query {
-    search(module:String!, ids:[String], keywords: keywordsInput, period: periodInput, range:rangeInput, pagination:paginationInput): Page
+    search(module:String!, ids:[String], keywords: keywordsInput, period: periodInput, range:rangeInput, users: usersInput, pagination:paginationInput): Page
   }
 
   type Page {
@@ -46,14 +46,39 @@ export const resolvers = {
       const collection = mongo.collection(args.module)
 
       const { query, sortBy, page, rowsPerPage } = generateQuery(args)
-
+      console.log('query :', JSON.stringify(query))
       const total = await collection.find(query).count()
       const items = (await collection
-        .find(query)
+        .aggregate([
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'ownerId',
+              foreignField: '_id',
+              as: 'user'
+            }
+          },
+          {
+            $addFields: {
+              owner: { $arrayElemAt: ['$user', 0] }
+            }
+          },
+          { $project: { user: 0 } },
+          {
+            $match: query
+          }
+        ])
+        // .find(query)
         .sort(sortBy)
         .skip(page > 0 ? (page - 1) * rowsPerPage : 0)
         .limit(rowsPerPage)
         .toArray()).map(prepare)
+
+      // items.map(async item => {
+      //   item.user = await collection.find(query)
+      // })
+
+      console.log('aggregation items :', items)
 
       return { total: total, module: args.module, items: items }
     }
@@ -64,7 +89,7 @@ export const resolvers = {
         const collection = mongo.collection(args.module)
         const payload = args.payload
         const query = {
-          owner: user._id,
+          ownerId: ObjectId(user._id),
           like: 0,
           created: new Date(),
           updated: new Date()

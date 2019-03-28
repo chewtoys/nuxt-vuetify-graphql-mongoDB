@@ -11,6 +11,8 @@ const generateQuery = args => {
   let sortBy = {}
   const keywordArray = []
   const keywordOr = {}
+  const userArray = []
+  const userOr = {}
   const datesBtwArray = []
   const datesBtwOr = {}
   const rangeBtwArray = []
@@ -58,6 +60,18 @@ const generateQuery = args => {
       })
       keywordOr.$or = keywordArray
       ands.push(keywordOr)
+    } else if (key === 'users') {
+      const users = args[key]
+      users.kind.forEach(kind => {
+        users.users.forEach(key => {
+          const item = {}
+          item[`${kind}.email`] = { $regex: new RegExp(key) }
+          userArray.push(item)
+        })
+      })
+      console.log('userArray :', userArray)
+      userOr.$or = userArray
+      ands.push(userOr)
     } else if (key === 'ids') {
       const ids = args[key]
       ids.forEach(key => {
@@ -83,6 +97,8 @@ const generateQuery = args => {
     query = rangeBtwOr
   } else if (keywordArray.length > 0) {
     query = keywordOr
+  } else if (userArray.length > 0) {
+    query = userOr
   } else if (idArray.length > 0) {
     query = idOr
   }
@@ -114,7 +130,9 @@ const resolvers = (name, capitalizeName) => {
     [`${capitalizeName}`]: {
       owner: async (root, args, { mongo }) => {
         const owner = prepare(
-          await mongo.collection('users').findOne({ _id: ObjectId(root.owner) })
+          await mongo
+            .collection('users')
+            .findOne({ _id: ObjectId(root.ownerId) })
         )
         return owner
       }

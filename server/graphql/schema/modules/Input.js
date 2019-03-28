@@ -10,7 +10,7 @@ export const typeDef = `
 
   input keywordsInput {
     kind: [String]!
-    keywords: [String]
+    keywords: [String]!
   }
 
   input periodInput {
@@ -23,6 +23,12 @@ export const typeDef = `
     kind: [String]!
     min: Int!
     max: Int!
+  }
+
+
+  input usersInput {
+    kind: [String]!
+    users: [String]!
   }
 
 `

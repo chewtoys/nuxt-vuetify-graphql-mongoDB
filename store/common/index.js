@@ -11,13 +11,15 @@ const storeModule = name => {
   console.log('storeModule > name :', name)
   return {
     namespaced: true,
-    state: {
-      gqlTypes: null,
-      total: 0,
-      items: []
+    state() {
+      return {
+        gqlTypes: null,
+        total: 0,
+        items: []
+      }
     },
     getters: {
-      gqlTypes(state) {
+      gqlTypes: state => {
         return state.gqlTypes
       },
       total(state) {
@@ -48,10 +50,11 @@ const storeModule = name => {
       DELETE_ITEMS(state, _ids) {
         // state.total -= _ids.length
       },
-      UPDATE_ITEM(state, updated) {
+      UPDATE_ITEM(state, payload) {
+        // console.log('UPDATE_ITEM :', payload)
         // state.items = [
-        //   ...state.items.filter(p => p._id !== post._id),
-        //   updated.item
+        //   ...state.items.filter(p => p._id !== payload.item._id),
+        //   payload.item
         // ]
       }
     },
@@ -72,16 +75,15 @@ const storeModule = name => {
         }
       },
       async search(context, payload) {
+        console.log('store > search :', payload)
         payload.module = name
         try {
           if (this.app.apolloProvider.defaultClient) {
-            const postsPage = await this.app.apolloProvider.defaultClient.query(
-              {
-                query: search,
-                variables: payload
-              }
-            )
-            context.commit('SET_ITEMS', postsPage.data.search)
+            const result = await this.app.apolloProvider.defaultClient.query({
+              query: search,
+              variables: payload
+            })
+            context.commit('SET_ITEMS', result.data.search)
           }
         } catch (error) {
           console.log(JSON.stringify(error))
@@ -92,11 +94,11 @@ const storeModule = name => {
         console.log('add Item :', payload)
         payload = { module: name, payload: payload }
         try {
-          const post = await this.app.apolloProvider.defaultClient.mutate({
+          const result = await this.app.apolloProvider.defaultClient.mutate({
             mutation: addItem,
             variables: payload
           })
-          context.commit('ADD_ITEM', post.data.addItem)
+          context.commit('ADD_ITEM', result.data.addItem)
         } catch (error) {
           console.log(JSON.stringify(error))
         }
@@ -106,11 +108,11 @@ const storeModule = name => {
 
         payload = { module: name, payload: payload }
         try {
-          const post = await this.app.apolloProvider.defaultClient.mutate({
+          const result = await this.app.apolloProvider.defaultClient.mutate({
             mutation: updateItem,
             variables: payload
           })
-          context.commit('UPDATE_ITEM', post.data.updateItem)
+          context.commit('UPDATE_ITEM', result.data.updateItem)
         } catch (error) {
           console.log(JSON.stringify(error))
         }

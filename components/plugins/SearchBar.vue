@@ -21,7 +21,15 @@
         <div v-show="show">
           <v-layout row wrap>
             <v-flex xs12 sm6 lg6 v-if="isUseForm('ids')">
-              <v-text-field label="search ID" prepend-inner-icon="people" v-model="ids"></v-text-field>
+              <v-text-field label="search ID" prepend-inner-icon="vpn_key" v-model="ids"></v-text-field>
+            </v-flex>
+          </v-layout>
+          <v-layout row wrap>
+            <v-flex xs12 sm5 lg3 v-if="isUseForm('users')">
+              <v-select v-model="selectdUsersFor" :items="selectUserKeys" label="Users" multiple></v-select>
+            </v-flex>
+            <v-flex xs12 sm6 lg3 v-if="isUseForm('users')">
+              <v-text-field label="search emails" prepend-inner-icon="search" v-model="users"></v-text-field>
             </v-flex>
           </v-layout>
           <v-layout row wrap>
@@ -89,7 +97,13 @@
 </template>
 <script>
 export default {
-  props: ['selectKeys', 'dateKeys', 'numericKeys', 'useSearchForm'],
+  props: [
+    'selectKeys',
+    'dateKeys',
+    'numericKeys',
+    'selectUserKeys',
+    'useSearchForm'
+  ],
   data: () => ({
     startDate: null,
     endDate: null,
@@ -99,7 +113,9 @@ export default {
     selectedIDsFor: [],
     selectedDateFor: [],
     selectedRangeFor: [],
+    selectdUsersFor: [],
     ids: [],
+    users: [],
     keywords: [],
     show: false,
     range: [0, 100]
@@ -152,20 +168,31 @@ export default {
           }
         }
       }
-      console.log('this.ids :', this.ids)
+      if (this.isUseForm('users')) {
+        if (this.selectdUsersFor.length > 0) {
+          payload.users = {
+            kind: this.selectdUsersFor,
+            users: this.users.replace(/\s/g, '').split(',')
+          }
+        }
+      }
+
       if (this.isUseForm('ids') && this.ids.length > 0) {
         payload.ids = this.ids.replace(/\s/g, '').split(',')
       }
+      console.log('SearchBar > search :', payload)
       this.$emit('search', payload)
     },
     reset() {
       this.selectedKeywordsFor = []
       this.selectedDateFor = []
       this.selectedRangeFor = []
+      this.selectdUsersFor = []
       this.range = [0, 100]
       this.keywords = null
       this.startDate = null
       this.endDate = null
+      this.users = null
       this.$emit('resetSearchPayload')
     },
     isUseForm(key) {

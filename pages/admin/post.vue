@@ -5,6 +5,7 @@
       :selectKeys="searchOption.selectKeys"
       :dateKeys="searchOption.dateKeys"
       :numericKeys="searchOption.numericKeys"
+      :selectUserKeys="searchOption.selectUserKeys"
       :useSearchForm="searchOption.useSearchForm"
       @search="search"
       ref="searchBar"
@@ -36,7 +37,7 @@
                     v-else
                     v-model="editedItem[key]"
                     :label="key.toUpperCase()"
-                    :disabled="['id', 'owner', 'user', 'created', 'updated'].some( s => key.includes(s)) ? true : false"
+                    :disabled="pickEditableFields.disable.some( s => key.includes(s)) ? true : false"
                   ></v-text-field>
                 </v-flex>
               </v-layout>
@@ -98,7 +99,7 @@ import SearchBar from '@/components/plugins/SearchBar'
 const moduleName = 'post'
 
 export default {
-  name: 'admin-post',
+  name: 'admin-' + moduleName,
   layout: 'admin',
   routePerimeter: adminPerimeter,
   components: {
@@ -118,13 +119,15 @@ export default {
       defaultItem: {},
       showSearchBar: true,
       searchOption: {
-        useSearchForm: ['keywords', 'period', 'range', 'ids'],
+        useSearchForm: [],
         selectKeys: [],
         dateKeys: [],
-        numericKeys: []
+        numericKeys: [],
+        selectUserKeys: []
       },
-      pickFields: {
-        editable: ['_id', 'title', 'content', 'slug', 'like']
+      pickEditableFields: {
+        editable: ['_id', 'title', 'content', 'slug', 'like'],
+        disable: ['id', 'owner', 'user', 'created', 'updated']
       },
       searchPayload: {},
       timezone: 'Asia/Seoul',
@@ -184,12 +187,12 @@ export default {
         // 현재 페이지가 1이면 계속 페이지 1
         if (this.pagination.page === 1) {
           this.pagination.page = 1
-          this.pagination.totalItems -= 1
+          this.pagination.totalItems -= delLen
         } else {
           const rest = oldTotal - ((this.pagination.page - 1) * 3 + delLen)
           if (rest > 0) {
             // 이전 페이지들의 아이템수와  삭제할 아이템의 수를 제외한 나머지 아이템수가 0보다 크면 현재 페이지 유지
-            this.pagination.totalItems -= 1
+            this.pagination.totalItems -= delLen
           } else {
             // 아니면 이전 페이지
             this.pagination.page = this.pagination.page - 1
@@ -211,12 +214,12 @@ export default {
       // 현재 페이지가 1이면 계속 페이지 1
       if (this.pagination.page === 1) {
         this.pagination.page = 1
-        this.pagination.totalItems -= 1
+        this.pagination.totalItems -= delLen
       } else {
         const rest = oldTotal - ((this.pagination.page - 1) * 3 + delLen)
         if (rest > 0) {
           // 이전 페이지들의 아이템수와  삭제할 아이템의 수를 제외한 나머지 아이템수가 0보다 크면 현재 페이지 유지
-          this.pagination.totalItems -= 1
+          this.pagination.totalItems -= delLen
         } else {
           // 아니면 이전 페이지
           this.pagination.page = this.pagination.page - 1
@@ -227,15 +230,16 @@ export default {
       if (this.editedIndex > -1) {
         let newItem = pick(
           this.editedItem,
-          this.pickFields.editable,
+          this.pickEditableFields.editable,
           this.scheme
         )
         newItem = objToKindAndValue(newItem)
         await this.$store.dispatch(moduleName + '/updateItem', newItem)
+        this.pagination.totalItems += 1
       } else {
         let newItem = pick(
           this.editedItem,
-          this.pickFields.editable,
+          this.pickEditableFields.editable,
           this.scheme
         )
         newItem = objToKindAndValue(newItem)
@@ -255,32 +259,40 @@ export default {
       }, 300)
     },
     setHeaders() {
-      const fieldObjects = this.gqlTypes.__type.fields
-      console.log(' fieldObjects :', fieldObjects)
-      fieldObjects.forEach(obj => {
-        const key = _.result(obj, 'name')
+      this.gqlTypes.__type.fields.forEach(obj => {
         let type = _.result(obj, 'type.name')
-        if (!type) {
-          type = _.result(obj, 'type.ofType.name')
-        }
+        if (!type) type = _.result(obj, 'type.ofType.name')
+
+        const key = _.result(obj, 'name')
         this.scheme.push({ key: key, type: type })
-        if (type === 'ID') {
-          this.searchOption.useSearchForm.push('ids')
+        switch (type) {
+          case 'ID':
+            this.searchOption.useSearchForm.push('ids')
+            break
+          case 'String':
+            this.searchOption.selectKeys.push(key)
+            this.searchOption.useSearchForm.push('keywords')
+            break
+          case 'Date':
+            this.searchOption.dateKeys.push(key)
+            this.searchOption.useSearchForm.push('period')
+            break
+          case 'Int':
+          case 'Flot':
+            this.searchOption.numericKeys.push(key)
+            this.searchOption.useSearchForm.push('range')
+            break
+          case 'User':
+            this.searchOption.selectUserKeys.push(key)
+            this.searchOption.useSearchForm.push('users')
+            break
+          default:
         }
-        if (type === 'String') {
-          this.searchOption.selectKeys.push(key)
-          this.searchOption.useSearchForm.push('keywords')
-        }
-        if (type === 'Date') {
-          this.searchOption.dateKeys.push(key)
-          this.searchOption.useSearchForm.push('period')
-        }
-        if (type === 'Int' || type === 'Float') {
-          this.searchOption.numericKeys.push(key)
-          this.searchOption.useSearchForm.push('range')
-        }
-        this.useSearchForm = _.uniq(this.useSearchForm)
       })
+      console.log('this.scheme :', this.scheme)
+
+      this.searchOption.useSearchForm = _.uniq(this.searchOption.useSearchForm)
+
       this.headerKeys = _.chain(this.scheme)
         .map('key')
         .value()
@@ -362,7 +374,15 @@ export default {
     this.initialize()
   },
   beforeCreate() {
-    this.$store.registerModule(moduleName, registerStoreModule(moduleName))
+    const store = this.$store
+    if (!(store && store.state && store.getters[moduleName + '/gqlTypes'])) {
+      store.registerModule(moduleName, registerStoreModule(moduleName), {
+        preserveState: false
+      })
+    }
+  },
+  destory() {
+    this.$store.unregisterModule(moduleName)
   }
 }
 </script>
