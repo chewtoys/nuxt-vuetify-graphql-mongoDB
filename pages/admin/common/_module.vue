@@ -1,56 +1,59 @@
 <template>
   <div>
-    <SearchBar
-      v-if="showSearchBar"
-      :selectKeys="searchOption.selectKeys"
-      :dateKeys="searchOption.dateKeys"
-      :numericKeys="searchOption.numericKeys"
-      :selectUserKeys="searchOption.selectUserKeys"
-      :useSearchForm="searchOption.useSearchForm"
-      @search="search"
-      ref="searchBar"
-    />
-    <v-spacer/>
-    <v-toolbar flat>
-      <v-toolbar-title>{{module}}</v-toolbar-title>
-      <v-divider class="mx-2" inset vertical></v-divider>
-      <v-spacer></v-spacer>
-      <v-btn color="primary" dark class="mb-2" @click="deleteItems">Delete Items</v-btn>
-      <v-dialog v-model="dialog" max-width="500px">
-        <v-btn slot="activator" color="primary" dark class="mb-2">Add Item</v-btn>
-        <v-card>
-          <v-card-title>
-            <span class="headline">{{ addTitle }}</span>
-          </v-card-title>
-          <v-card-text>
-            <v-container grid-list-md>
-              <v-layout wrap>
-                <v-flex xs12 sm12 md12 v-for="key in headerKeys" :key="key">
-                  <v-textarea
-                    v-if="key==='content'"
-                    v-model="editedItem[key]"
-                    :label="key.toUpperCase()"
-                    box
-                    auto-grow
-                  ></v-textarea>
-                  <v-text-field
-                    v-else
-                    v-model="editedItem[key]"
-                    :label="key.toUpperCase()"
-                    :disabled="pickEditableFields.disable.some( s => key.includes(s)) ? true : false"
-                  ></v-text-field>
-                </v-flex>
-              </v-layout>
-            </v-container>
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn color="blue darken-1" flat @click="close">Cancel</v-btn>
-            <v-btn color="blue darken-1" flat @click="save">Save</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-    </v-toolbar>
+    <v-layout row wrap column>
+      <SearchBar
+        v-if="showSearchBar"
+        :selectKeys="searchOption.selectKeys"
+        :dateKeys="searchOption.dateKeys"
+        :numericKeys="searchOption.numericKeys"
+        :selectUserKeys="searchOption.selectUserKeys"
+        :useSearchForm="searchOption.useSearchForm"
+        @search="search"
+        ref="searchBar"
+      />
+    </v-layout>
+    <v-layout row wrap>
+      <v-toolbar flat>
+        <v-toolbar-title>{{module}}</v-toolbar-title>
+        <v-divider class="mx-2" inset vertical></v-divider>
+        <v-spacer></v-spacer>
+        <v-btn color="primary" dark class="mb-2" @click="deleteItems">Delete Items</v-btn>
+        <v-dialog v-model="dialog" max-width="500px">
+          <v-btn slot="activator" color="primary" dark class="mb-2">Add Item</v-btn>
+          <v-card>
+            <v-card-title>
+              <span class="headline">{{ addTitle }}</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container grid-list-md>
+                <v-layout wrap>
+                  <v-flex xs12 sm12 md12 v-for="key in headerKeys" :key="key">
+                    <v-textarea
+                      v-if="key==='content'"
+                      v-model="editedItem[key]"
+                      :label="key.toUpperCase()"
+                      box
+                      auto-grow
+                    ></v-textarea>
+                    <v-text-field
+                      v-else
+                      v-model="editedItem[key]"
+                      :label="key.toUpperCase()"
+                      :disabled="pickEditableFields.disable.some( s => key.includes(s)) ? true : false"
+                    ></v-text-field>
+                  </v-flex>
+                </v-layout>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" flat @click="close">Cancel</v-btn>
+              <v-btn color="blue darken-1" flat @click="save">Save</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-toolbar>
+    </v-layout>
     <v-data-table
       v-if="headers"
       :headers="headers"
@@ -91,15 +94,15 @@
 <script>
 import _ from 'lodash'
 import { objToKindAndValue, pick, capitalize } from '~/utils'
-//import registerStoreModule from '~/store/common/'
-import { mapGetters } from 'vuex'
+// import registerStoreModule from '~/store/common/'
+// import { mapGetters } from 'vuex'
 import adminPerimeter from '~/kindergarten/perimeters/admin'
 import SearchBar from '@/components/plugins/SearchBar'
 
 let moduleName = 'none'
 
 export default {
-  name: 'admin-' + moduleName,
+  name: 'admin-commom',
   layout: 'admin',
   routePerimeter: adminPerimeter,
   components: {
@@ -139,11 +142,20 @@ export default {
     addTitle() {
       return this.editedIndex === -1 ? 'Add Item' : 'Edit Item'
     },
-    ...mapGetters('post', {
-      total: 'total',
-      items: 'items',
-      gqlTypes: 'gqlTypes'
-    })
+    // ...mapGetters('post', {
+    //   total: 'total',
+    //   items: 'items',
+    //   gqlTypes: 'gqlTypes'
+    // }),
+    total() {
+      return this.$store.getters[`${moduleName}/total`]
+    },
+    items() {
+      return this.$store.getters[`${moduleName}/items`]
+    },
+    gqlTypes() {
+      return this.$store.getters[`${moduleName}/gqlTypes`]
+    }
   },
   watch: {
     dialog(val) {
@@ -398,11 +410,10 @@ export default {
     // console.log('store.state :', store.state)
     // this.total = this.$store.getters['post/total']
     // this.items = this.$store.getters['post/items']
-
+    this.module = moduleName
     this.initialize()
   },
   beforeCreate() {
-    console.log('this.$store.getters :', this.$store.getters)
     moduleName = this.$store.getters['getAutoModule']
     this.module = moduleName
     // const store = this.$store
@@ -419,9 +430,6 @@ export default {
   },
   destory() {
     // this.$store.unregisterModule(moduleName)
-  },
-  beforeRouter() {
-    console.log('beforeRouter')
   }
 }
 </script>
