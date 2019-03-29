@@ -8,8 +8,6 @@ const storeModule = autoSchema => {
   // console.log('storeModule > name :', name)
   // console.log('storeModule > moduleFields :', moduleFields)
   const typeDef = generateGql(name, moduleFields)
-  // console.log('lll :', search)
-  // console.log('storeModule > typeDef', typeDef)
   return {
     namespaced: true,
     state() {
@@ -76,7 +74,7 @@ const storeModule = autoSchema => {
         }
       },
       async search(context, payload) {
-        console.log('store > search :', payload)
+        console.log('common store > search :', payload)
         payload.module = name
         try {
           if (this.app.apolloProvider.defaultClient) {
@@ -92,7 +90,7 @@ const storeModule = autoSchema => {
         }
       },
       async addItem(context, payload) {
-        console.log('add Item :', payload)
+        console.log('common store > add Item :', payload)
         payload = { module: name, payload: payload }
         try {
           const result = await this.app.apolloProvider.defaultClient.mutate({
@@ -105,7 +103,7 @@ const storeModule = autoSchema => {
         }
       },
       async updateItem(context, payload) {
-        console.log('updateItem payload :', payload)
+        console.log('common store > updateItem payload :', payload)
 
         payload = { module: name, payload: payload }
         try {
@@ -119,7 +117,7 @@ const storeModule = autoSchema => {
         }
       },
       async deleteItem(context, payload) {
-        console.log('deleteItem payload :', payload)
+        console.log('common store > deleteItem payload :', payload)
 
         payload = { module: name, _id: payload._id }
         try {
@@ -133,7 +131,7 @@ const storeModule = autoSchema => {
         }
       },
       async deleteItems(context, payload) {
-        console.log('deleteItems payload :', payload)
+        console.log('common store > deleteItems payload :', payload)
 
         payload = { module: name, _ids: payload._ids }
         try {

@@ -7,22 +7,28 @@ import modules from './modules'
 
 export const state = () => ({
   viewer: null,
-  autoSchemas: []
+  autoSchemas: [],
+  autoModule: ''
 })
 
 export const getters = {
   getAutoSchema: state => moduleName => {
     return state.autoSchemas.find(s => s.name === moduleName)
+  },
+  getAutoModule: state => {
+    return state.autoModule
   }
 }
 
 export const mutations = {
   SET_AUTO_SCHEMA: (state, payload) => {
-    console.log('SET_AUTO_SCHEMA', payload)
     state.autoSchemas = [
       ...state.autoSchemas.filter(s => s.name !== payload.name),
       payload
     ]
+  },
+  SET_AUTO_MODULE: (state, payload) => {
+    state.autoModule = payload
   }
 }
 
@@ -33,9 +39,9 @@ const actions = {
     checkAuth(context)
   }
 }
-
+const store = new Vuex.Store({ state, mutations, getters, actions, modules })
 const createStore = () => {
-  return new Vuex.Store({ state, mutations, getters, actions, modules })
+  return store
   // modules: {
   //   pages,
   //   user,

@@ -133,7 +133,7 @@ export default {
       return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
     },
     search() {
-      console.log('search :', this.selectKeys)
+      // console.log('search > this.selectKeys :', this.selectKeys)
       const payload = {}
       if (
         this.isUseForm('keywords') &&
@@ -180,7 +180,7 @@ export default {
       if (this.isUseForm('ids') && this.ids.length > 0) {
         payload.ids = this.ids.replace(/\s/g, '').split(',')
       }
-      console.log('SearchBar > search :', payload)
+      // console.log('SearchBar > search :', payload)
       this.$emit('search', payload)
     },
     reset() {
@@ -189,10 +189,10 @@ export default {
       this.selectedRangeFor = []
       this.selectdUsersFor = []
       this.range = [0, 100]
-      this.keywords = null
+      this.keywords = []
       this.startDate = null
       this.endDate = null
-      this.users = null
+      this.users = []
       this.$emit('resetSearchPayload')
     },
     isUseForm(key) {

@@ -55,7 +55,7 @@ module.exports = {
   ],
 
   router: {
-    middleware: ['check-auth', 'vue-kindergarten']
+    middleware: ['check-auth', 'vue-kindergarten', 'loadStore']
   },
 
   vendor: ['apollo-link-context'],

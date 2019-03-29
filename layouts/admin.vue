@@ -71,7 +71,7 @@ export default {
         {
           icon: 'toc',
           title: 'Post',
-          to: '/admin/post'
+          to: '/admin/common/post'
         }
       ],
       miniVariant: false,
