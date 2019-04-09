@@ -1,14 +1,11 @@
 import { ObjectId } from 'mongodb'
 import { prepare, generateQuery } from '../../../query'
-import { capitalize } from '../../../../utils'
+import { capitalize, searchableFieldsString } from '../../../../utils'
 
 export const typeDef = `
   
   interface Searchable{
-    _id: ID!
-    created: Date
-    updated: Date
-    owner: User
+    ${searchableFieldsString()}
   }
 
   extend type Mutation {
@@ -83,12 +80,13 @@ export const resolvers = {
         const payload = args.payload
         const query = {
           ownerId: ObjectId(user._id),
-          like: 0,
           created: new Date(),
           updated: new Date()
         }
         payload.forEach(obj => {
-          query[obj.kind] = obj.value
+          const exists = new RegExp('Id$').test(obj.kind)
+          if (exists) query[obj.kind] = ObjectId(obj.value)
+          else query[obj.kind] = obj.value
         })
         const inserted = await collection.insertOne(query)
         const item = prepare(
@@ -109,9 +107,13 @@ export const resolvers = {
         // })
         let _id = null
         payload.forEach(obj => {
+          const exists = new RegExp('Id$').test(obj.kind)
+
           if (obj.kind === '_id') _id = obj.value
+          else if (exists) query[obj.kind] = ObjectId(obj.value)
           else query[obj.kind] = obj.value
         })
+        console.log('updateItem > query:', query)
         await collection.updateOne({ _id: ObjectId(_id) }, { $set: query })
         const item = prepare(
           await collection.findOne({

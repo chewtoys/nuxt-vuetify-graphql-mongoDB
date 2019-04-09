@@ -1,4 +1,6 @@
 const getSchemas = autoSchemas => {
+  // console.log('getSchemas :', autoSchemas)
+
   const files = requestContext('.', false, /\.js$/)
   const schemas = { typeDefs: [], resolvers: [] }
   files.keys().forEach(key => {

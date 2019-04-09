@@ -1,7 +1,8 @@
 import { ObjectId } from 'mongodb'
+import { hasNormalScalar } from '../../utils'
 
 const prepare = o => {
-  o._id = o._id.toString()
+  if (o && o._id) o._id = o._id.toString()
   return o
 }
 
@@ -125,19 +126,54 @@ const typeDef = (schema, capitalizeName) => {
 
 `
 }
-const resolvers = (name, capitalizeName) => {
-  return {
+const resolvers = (schema, capitalizeName) => {
+  // if schema type(type:Thing!) is not contained in String, Int, Float, Date, Boolean
+  // generate resolver for its name('thing') using by schema additionForAdd(root.thingId) and its name collection('thing')
+  /* 
+    thing: async (root, args, {mongo}) => {
+      const thing = prepare(
+        await mongo
+          .collection('thing')
+          .findOne({_id: ObjectId(root.thingId)})
+        )
+      return thing
+    )}
+  */
+  const resolverItems = {
     [`${capitalizeName}`]: {
       owner: async (root, args, { mongo }) => {
         const owner = prepare(
-          await mongo
-            .collection('users')
-            .findOne({ _id: ObjectId(root.ownerId) })
+          await mongo.collection('users').findOne({
+            _id: ObjectId(root.ownerId)
+          })
         )
         return owner
       }
     }
   }
+
+  schema.fields.forEach(field => {
+    if (!hasNormalScalar(field.type)) {
+      const resolverItem = async (root, args, { mongo }) => {
+        const collectionName = field.type.toLowerCase().replace('!', '')
+        const queryFieldName = field.name + 'Id'
+        // console.log('resolverItem :', collectionName, queryFieldName)
+        const item = prepare(
+          await mongo
+            .collection(collectionName)
+            .findOne({ _id: ObjectId(root[queryFieldName]) })
+        )
+        // if (collectionName === 'category3') {
+        //   console.log('root[queryFieldName] : ', root[queryFieldName])
+        //   console.log('item :', item)
+        // }
+        return item
+      }
+      resolverItems[capitalizeName][field.name] = resolverItem
+    }
+  })
+  // console.log('resolverItems', resolverItems)
+  return resolverItems
 }
 
 export { prepare }

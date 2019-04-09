@@ -14,7 +14,7 @@ const Query = `
 
 const resolvers = {}
 
-const makeSchemaWith = autoSchemas => {
+const makeSchemas = autoSchemas => {
   const schemas = modules(autoSchemas)
   return makeExecutableSchema({
     typeDefs: [Query, ...schemas.typeDefs],
@@ -25,4 +25,4 @@ const makeSchemaWith = autoSchemas => {
   })
 }
 
-export default makeSchemaWith
+export default makeSchemas

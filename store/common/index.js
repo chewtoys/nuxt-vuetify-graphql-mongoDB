@@ -2,12 +2,12 @@ import typeQuery from '~/graphql/type/type.gql'
 // import { search } from '~/graphql/modules/common.gql'
 import { generateGql } from '../../server/graphql/commonGql'
 
-const storeModule = autoSchema => {
+const storeModule = (autoSchema, autoSchemas) => {
   const name = autoSchema.name
   const moduleFields = autoSchema.fields
   // console.log('storeModule > name :', name)
   // console.log('storeModule > moduleFields :', moduleFields)
-  const typeDef = generateGql(name, moduleFields)
+  const typeDef = generateGql(name, moduleFields, autoSchemas)
   return {
     namespaced: true,
     state() {

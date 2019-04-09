@@ -1,5 +1,6 @@
 import { MongoClient } from 'mongodb'
-import schema from './graphql/schema'
+import schemas from '../autoSchemas.js'
+import makeSchemas from './graphql/schema'
 import { context } from './graphql/context'
 const dotenv = require('dotenv')
 const express = require('express')
@@ -8,6 +9,7 @@ const bodyParser = require('body-parser')
 const consola = require('consola')
 const { Nuxt, Builder } = require('nuxt')
 const config = require('../nuxt.config.js')
+const autoSchemas = schemas()
 const app = express()
 let mongo = null
 
@@ -18,7 +20,7 @@ app.use(
   bodyParser.json(),
   graphqlHTTP(async function(req, res, params) {
     return {
-      schema: schema(config.env.autoSchemas),
+      schema: makeSchemas(autoSchemas),
       graphiql: true,
       rootValue: {},
       context: await context(req.headers, { JWT_SECRET: 'tokenis' }, mongo),
@@ -96,7 +98,7 @@ function makeCollections(mongo) {
   //   console.log('Exists: ', names.length > 0)
   //   if (err) console.log('err :', err)
   // })
-  config.env.autoSchemas.forEach(schema => {
+  autoSchemas.forEach(schema => {
     mongo.listCollections({ name: schema.name }).next(function(err, collinfo) {
       if (collinfo) {
         console.log('Find collection for authSchema:', collinfo.name)

@@ -10,7 +10,7 @@
       :width="200"
     >
       <v-list>
-        <v-list-tile v-for="(item, i) in items" :key="i" :to="item.to" router exact>
+        <v-list-tile v-for="(item, i) in menus" :key="i" :to="item.to" router exact>
           <v-list-tile-action>
             <v-icon>{{ item.icon }}</v-icon>
           </v-list-tile-action>
@@ -46,6 +46,7 @@
 
 <script>
 // import adminPerimeter from '~/kindergarten/perimeters/admin'
+//const config = require('~/nuxt.config.js')
 export default {
   data() {
     return {
@@ -78,6 +79,20 @@ export default {
       right: true,
       rightDrawer: false,
       title: 'Admin'
+    }
+  },
+  computed: {
+    menus() {
+      // const schemas = this.$store.getters['getAutoSchemas']
+      // console.log('admin layout > schemas:', schemas)
+      // schemas.forEach(schema => {
+      //   const item = {}
+      //   item.icon = 'toc'
+      //   item.title = schema.name
+      //   item.to = `/admin/common/${schema.name}`
+      //   this.items.push(item)
+      // })
+      return this.$store.getters['getAdminMenu']
     }
   }
 }

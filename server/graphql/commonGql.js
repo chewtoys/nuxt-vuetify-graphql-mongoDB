@@ -1,14 +1,50 @@
-import { capitalize } from '../../utils'
+import { capitalize, hasNormalScalar, getRefSchema } from '../../utils'
 
 const gql = require('graphql-tag')
 
-const generateGql = (moduleName, moduleFields) => {
+const makeFields = (
+  moduleName,
+  moduleType,
+  autoSchemas,
+  fieldsValue,
+  depth
+) => {
+  const schema = getRefSchema(
+    depth === 1 ? moduleName : moduleType,
+    autoSchemas
+  )
+  // console.log('schema :', schema)
+  const doubleTabs = '\t\t'
+  const tabs = '\t'.repeat(depth)
+  const fields = [...schema.fields]
+  // if (depth === 1)
+  fields.push({ name: '_id', type: 'ID' })
+  fields.forEach(field => {
+    if (hasNormalScalar(field.type))
+      fieldsValue += doubleTabs + tabs + field.name + '\n'
+    else {
+      fieldsValue += '' + doubleTabs + tabs + field.name + '{' + '\n'
+      fieldsValue = makeFields(
+        field.name,
+        field.type.toLowerCase().replace('!', ''),
+        autoSchemas,
+        fieldsValue,
+        ++depth
+      )
+      fieldsValue += doubleTabs + tabs + '}' + '\n'
+    }
+  })
+  // console.log('fields value > ', moduleName, fieldsValue)
+  return fieldsValue
+}
+
+const generateGql = (moduleName, moduleFields, autoSchemas) => {
+  // console.log('moduleName, moduleFields :', moduleName, moduleFields)
   const name = capitalize(moduleName, true)
   let fieldsValue = ''
-  moduleFields.forEach(field => {
-    fieldsValue += field.name + '\n'
-  })
-  const typeDef = gql`
+  const depth = 1
+  fieldsValue = makeFields(moduleName, '', autoSchemas, fieldsValue, depth)
+  const typeString = `
 
   query search(
     $module: String!
@@ -87,6 +123,8 @@ const generateGql = (moduleName, moduleFields) => {
   }
 
 `
+  console.log('typeString[' + moduleName + '] : \n', typeString)
+  const typeDef = gql(typeString)
 
   const gl = {
     search: { kind: 'Document', definitions: [typeDef.definitions[0]] },

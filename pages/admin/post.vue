@@ -94,7 +94,7 @@ import { objToKindAndValue, pick, capitalize } from '~/utils'
 import registerStoreModule from '~/store/common/'
 import { mapGetters } from 'vuex'
 import adminPerimeter from '~/kindergarten/perimeters/admin'
-import SearchBar from '@/components/plugins/SearchBar'
+import SearchBar from '@/components/common/SearchBar'
 
 const moduleName = 'post'
 

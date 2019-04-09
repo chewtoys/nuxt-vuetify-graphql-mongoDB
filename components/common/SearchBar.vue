@@ -3,10 +3,10 @@
     <v-container grid-list-md outline>
       <v-layout row wrap>
         <v-flex xs12 sm5 lg3 v-if="isUseForm('keywords')">
-          <v-select v-model="selectedKeywordsFor" :items="selectKeys" label="Keywords" multiple></v-select>
+          <v-select v-model="selectedKeywordsFor" :items="selectKeys" label="Search" multiple></v-select>
         </v-flex>
         <v-flex xs12 sm6 lg3 v-if="isUseForm('keywords')">
-          <v-text-field label="search keywords" prepend-inner-icon="search" v-model="keywords"></v-text-field>
+          <v-text-field label="Keywords" prepend-inner-icon="search" v-model="keywords"></v-text-field>
         </v-flex>
         <v-spacer/>
         <v-flex>
