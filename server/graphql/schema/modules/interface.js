@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb'
-import { prepare, generateQuery } from '../../../query'
+import { prepare } from '../../../query'
 import { capitalize, searchableFieldsString } from '../../../../utils'
 
 export const typeDef = `
@@ -20,10 +20,7 @@ export const typeDef = `
     value: Any
   }
 
-  extend type Query {
-    search(module:String!, ids:[String], keywords: keywordsInput, period: periodInput, range:rangeInput, users: usersInput, pagination:paginationInput): Page
-  }
-
+  
   type Page {
     total: Int
     module: String
@@ -38,41 +35,6 @@ export const typeDef = `
 `
 
 export const resolvers = {
-  Query: {
-    search: async (root, args, { mongo, user }) => {
-      const collection = mongo.collection(args.module)
-
-      const { query, sortBy, page, rowsPerPage } = generateQuery(args)
-      const total = await collection.find(query).count()
-      const items = (await collection
-        .aggregate([
-          {
-            $lookup: {
-              from: 'users',
-              localField: 'ownerId',
-              foreignField: '_id',
-              as: 'user'
-            }
-          },
-          {
-            $addFields: {
-              owner: { $arrayElemAt: ['$user', 0] }
-            }
-          },
-          { $project: { user: 0 } },
-          {
-            $match: query
-          }
-        ])
-        // .find(query)
-        .sort(sortBy)
-        .skip(page > 0 ? (page - 1) * rowsPerPage : 0)
-        .limit(rowsPerPage)
-        .toArray()).map(prepare)
-
-      return { total: total, module: args.module, items: items }
-    }
-  },
   Mutation: {
     addItem: async (root, args, { mongo, user }) => {
       if (user) {

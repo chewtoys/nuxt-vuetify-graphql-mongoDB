@@ -42,11 +42,13 @@
                     ></v-textarea>
                     <div v-else-if="!isNormalScalr(key) && key !== 'owner'">
                       <v-text-field
+                        v-if="pickEditableFields.editable.some( s => key.includes(s)) ? true : false"
                         v-model="editedItem[key]"
                         :label="key.toUpperCase()"
                         :disabled="true"
                       ></v-text-field>
                       <ReferencePopup
+                        v-if="pickEditableFields.editable.some( s => key.includes(s)) ? true : false"
                         :refKey="key"
                         :refType="getOnlyLowerStringType(key)"
                         :refObject="originEditedItem[key]"
@@ -226,6 +228,8 @@ export default {
         this.editedItem = Object.assign({}, this.defaultItem)
         this.originEditedItem = Object.assign({}, this.defaultItem)
         this.editedIndex = -1
+        console.log('close > this.editedItem :', this.editedItem)
+        console.log('close > this.originEditedItem :', this.originEditedItem)
       }, 300)
     },
     setHeaders() {
@@ -482,13 +486,23 @@ export default {
     const autoSchemaFieldKeys = _.chain(autoSchema.fields)
       .map('name')
       .value()
+    const lookupFieldKeys = _.chain(autoSchema.lookups)
+      .map('$lookup')
+      .value()
+    console.log('lookupFieldKeys :', lookupFieldKeys)
+    const lookupKeys = []
+    lookupFieldKeys.forEach(lookup => {
+      if (lookup.pick) lookupKeys.push(lookup.from)
+    })
+    console.log('lookupKeys :', lookupKeys)
     autoSchemaFieldKeys.map(key => {
       if (!this.isNormalScalr(key)) return key + 'Id'
     })
     // _id & schema's fields
     this.pickEditableFields.editable = [
       ...autoSchemaFieldKeys,
-      ...this.pickEditableFields.editable
+      ...this.pickEditableFields.editable,
+      ...lookupKeys
     ]
     console.log(
       'this.pickEditableFields.editable :',

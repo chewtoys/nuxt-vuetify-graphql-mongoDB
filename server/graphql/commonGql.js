@@ -13,25 +13,48 @@ const makeFields = (
     depth === 1 ? moduleName : moduleType,
     autoSchemas
   )
-  // console.log('schema :', schema)
+
+  // console.log('moduleName :', moduleName, depth)
   const doubleTabs = '\t\t'
   const tabs = '\t'.repeat(depth)
-  const fields = [...schema.fields]
+  const lookups = []
+  if (schema.lookups) {
+    schema.lookups.forEach(lookup => {
+      lookups.push({
+        name: lookup.$lookup.as,
+        type: capitalize(lookup.$lookup.from, true)
+      })
+    })
+  }
+  // console.log('lookups :', lookups)
+  const fields = schema.lookups
+    ? [...schema.fields, ...lookups]
+    : [...schema.fields]
+  // console.log('fields :', fields)
   // if (depth === 1)
   fields.push({ name: '_id', type: 'ID' })
   fields.forEach(field => {
-    if (hasNormalScalar(field.type))
-      fieldsValue += doubleTabs + tabs + field.name + '\n'
-    else {
-      fieldsValue += '' + doubleTabs + tabs + field.name + '{' + '\n'
-      fieldsValue = makeFields(
-        field.name,
-        field.type.toLowerCase().replace('!', ''),
-        autoSchemas,
-        fieldsValue,
-        ++depth
-      )
-      fieldsValue += doubleTabs + tabs + '}' + '\n'
+    // console.log('field :', field)
+    if (depth === 1) {
+      if (hasNormalScalar(field.type))
+        fieldsValue += doubleTabs + tabs + field.name + '\n'
+      else {
+        fieldsValue += '' + doubleTabs + tabs + field.name + '{' + '\n'
+        fieldsValue = makeFields(
+          field.name,
+          field.type.toLowerCase().replace('!', ''),
+          autoSchemas,
+          fieldsValue,
+          depth + 1
+        )
+        fieldsValue += doubleTabs + tabs + '}' + '\n'
+      }
+    } else if (depth > 1) {
+      if (hasNormalScalar(field.type)) {
+        fieldsValue += doubleTabs + tabs + field.name + '\n'
+      } else {
+        fieldsValue += ''
+      }
     }
   })
   // console.log('fields value > ', moduleName, fieldsValue)
@@ -55,7 +78,7 @@ const generateGql = (moduleName, moduleFields, autoSchemas) => {
     $users: usersInput
     $pagination: paginationInput
   ) {
-    search: search(
+    search: search${name}(
       module: $module
       ids: $ids
       keywords: $keywords
@@ -127,7 +150,10 @@ const generateGql = (moduleName, moduleFields, autoSchemas) => {
   const typeDef = gql(typeString)
 
   const gl = {
-    search: { kind: 'Document', definitions: [typeDef.definitions[0]] },
+    [`search`]: {
+      kind: 'Document',
+      definitions: [typeDef.definitions[0]]
+    },
     addItem: { kind: 'Document', definitions: [typeDef.definitions[1]] },
     updateItem: { kind: 'Document', definitions: [typeDef.definitions[2]] },
     deleteItem: { kind: 'Document', definitions: [typeDef.definitions[3]] },

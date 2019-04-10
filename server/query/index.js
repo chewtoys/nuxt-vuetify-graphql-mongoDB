@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongodb'
-import { hasNormalScalar } from '../../utils'
+import { hasNormalScalar, capitalize } from '../../utils'
 
 const prepare = o => {
   if (o && o._id) o._id = o._id.toString()
@@ -70,7 +70,7 @@ const generateQuery = args => {
           userArray.push(item)
         })
       })
-      console.log('userArray :', userArray)
+      // console.log('userArray :', userArray)
       userOr.$or = userArray
       ands.push(userOr)
     } else if (key === 'ids') {
@@ -113,6 +113,13 @@ const typeDef = (schema, capitalizeName) => {
   fields.forEach(field => {
     fieldsValue += field.name + ': ' + field.type + '\n'
   })
+
+  if (schema.lookups) {
+    schema.lookups.forEach(lookup => {
+      fieldsValue +=
+        lookup.$lookup.as + ': ' + capitalize(lookup.$lookup.from, true) + '\n'
+    })
+  }
   // console.log('fieldsValue :\n', fieldsValue)
   return `
 
@@ -123,6 +130,12 @@ const typeDef = (schema, capitalizeName) => {
     updated: Date
     owner: User
   }
+
+
+  extend type Query {
+    search${capitalizeName}(module:String!, ids:[String], keywords: keywordsInput, period: periodInput, range:rangeInput, users: usersInput, pagination:paginationInput): Page
+  }
+
 
 `
 }
@@ -138,8 +151,117 @@ const resolvers = (schema, capitalizeName) => {
         )
       return thing
     )}
+
+    [
+            {
+              $match: query
+            },
+            {
+              $lookup: {
+                from: 'users',
+                localField: 'ownerId',
+                foreignField: '_id',
+                as: 'user'
+              }
+            },
+            {
+              $lookup: {
+                from: 'category3',
+                localField: 'categoryId',
+                foreignField: '_id',
+                as: 'category3'
+              }
+            },
+            {
+              $lookup: {
+                from: 'category2',
+                localField: 'categoryiii.ascendantId',
+                foreignField: '_id',
+                as: 'category2'
+              }
+            },
+            {
+              $lookup: {
+                from: 'category1',
+                localField: 'categoryii.ascendantId',
+                foreignField: '_id',
+                as: 'category1'
+              }
+            },
+            {
+              $addFields: {
+                owner: { $arrayElemAt: ['$user', 0] },
+                category3: { $arrayElemAt: ['$category3', 0] },
+                category2: { $arrayElemAt: ['$category2', 0] },
+                category1: { $arrayElemAt: ['$category1', 0] }
+              }
+            },
+            { $project: { user: 0 } }
+          ]
   */
+
   const resolverItems = {
+    Query: {
+      [`search${capitalizeName}`]: async (root, args, { mongo, user }) => {
+        const collection = mongo.collection(args.module)
+
+        const { query, sortBy, page, rowsPerPage } = generateQuery(args)
+
+        const match = { $match: query }
+        const ownerLookup = [
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'ownerId',
+              foreignField: '_id',
+              as: 'user'
+            }
+          }
+        ]
+        if (schema.lookups) {
+          schema.lookups.map(lookup => {
+            delete lookup.$lookup.pick
+          })
+        }
+        const aggrItems = schema.lookups
+          ? [...ownerLookup, ...schema.lookups]
+          : [...ownerLookup]
+
+        const addFields = {
+          $addFields: {
+            owner: { $arrayElemAt: ['$user', 0] }
+          }
+        }
+        if (schema.lookups) {
+          schema.lookups.forEach(lookup => {
+            addFields.$addFields[lookup.$lookup.as] = {
+              $arrayElemAt: ['$' + lookup.$lookup.as, 0]
+            }
+          })
+        }
+        aggrItems.push(addFields)
+
+        const project = { $project: { user: 0 } }
+        aggrItems.push(project)
+
+        aggrItems.push(match)
+
+        console.log('aggregation aggrItems :', aggrItems)
+
+        const total = await collection.find(query).count()
+        const retItems = (await collection
+          // Reference 검색만 제외하고 검색
+          // reference lookup 하고 unwind
+          .aggregate(aggrItems)
+          // .find(query)
+          .sort(sortBy)
+          .skip(page > 0 ? (page - 1) * rowsPerPage : 0)
+          .limit(rowsPerPage)
+          .toArray()).map(prepare)
+        console.log('aggregation retItems :', retItems)
+        return { total: total, module: args.module, items: retItems }
+      }
+    },
     [`${capitalizeName}`]: {
       owner: async (root, args, { mongo }) => {
         const owner = prepare(
@@ -152,26 +274,26 @@ const resolvers = (schema, capitalizeName) => {
     }
   }
 
-  schema.fields.forEach(field => {
-    if (!hasNormalScalar(field.type)) {
-      const resolverItem = async (root, args, { mongo }) => {
-        const collectionName = field.type.toLowerCase().replace('!', '')
-        const queryFieldName = field.name + 'Id'
-        // console.log('resolverItem :', collectionName, queryFieldName)
-        const item = prepare(
-          await mongo
-            .collection(collectionName)
-            .findOne({ _id: ObjectId(root[queryFieldName]) })
-        )
-        // if (collectionName === 'category3') {
-        //   console.log('root[queryFieldName] : ', root[queryFieldName])
-        //   console.log('item :', item)
-        // }
-        return item
-      }
-      resolverItems[capitalizeName][field.name] = resolverItem
-    }
-  })
+  // schema.fields.forEach(field => {
+  //   if (!hasNormalScalar(field.type)) {
+  //     const resolverItem = async (root, args, { mongo }) => {
+  //       const collectionName = field.type.toLowerCase().replace('!', '')
+  //       const queryFieldName = field.name + 'Id'
+  //       // console.log('resolverItem :', collectionName, queryFieldName)
+  //       const item = prepare(
+  //         await mongo.collection(collectionName).findOne({
+  //           _id: ObjectId(root[queryFieldName])
+  //         })
+  //       )
+  //       // if (collectionName === 'category3') {
+  //       //   console.log('root[queryFieldName] : ', root[queryFieldName])
+  //       //   console.log('item :', item)
+  //       // }
+  //       return item
+  //     }
+  //     resolverItems[capitalizeName][field.name] = resolverItem
+  //   }
+  // })
   // console.log('resolverItems', resolverItems)
   return resolverItems
 }

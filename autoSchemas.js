@@ -25,24 +25,50 @@ const schemas = () => {
     {
       name: 'product',
       fields: [
-        { name: 'name', type: 'String!' },
-        { name: 'inventory', type: 'Inventory!' },
-        { name: 'price', type: 'Int!' },
-        { name: 'category', type: 'Category3!' },
+        { name: 'name', type: 'String!' }, // { name: 'inventory', type: 'Inventory!' },
+        { name: 'price', type: 'Int!' }, // { name: 'category', type: 'Category3!' },
         { name: 'currency', type: 'String!' }
       ],
       type: 'cat',
       frontType: 'product',
-      canActions: ['add', 'delete']
-    }, //   name: 'specification', // { name: 'supplier', type: 'String' } // if it is not specified, admin can have action ui of all cases of add, delete // { name: 'manufacture', type: 'String' }, // { name: 'brand', type: 'String' }, // { name: 'category', type: 'Category' }, // { name: 'specification', type: 'specification' }, // { // create/all/type // product, profile
-    //   fields: [
-    //     { name: 'name', type: 'String!' },
-    //     { name: 'type', type: 'String!' } // text, image
-    //   ],
-    //   type: 'cat'
-    // },
-    // {
-    //   name: 'generalSpecs',
+      canActions: ['add', 'delete'],
+      lookups: [
+        {
+          $lookup: {
+            from: 'inventory',
+            localField: 'inventoryId',
+            foreignField: '_id',
+            as: 'inventory',
+            pick: 'true'
+          }
+        },
+        {
+          $lookup: {
+            from: 'category3',
+            localField: 'category3Id',
+            foreignField: '_id',
+            as: 'category3',
+            pick: 'true'
+          }
+        },
+        {
+          $lookup: {
+            from: 'category2',
+            localField: 'category3.ascendantId',
+            foreignField: '_id',
+            as: 'category2'
+          }
+        },
+        {
+          $lookup: {
+            from: 'category1',
+            localField: 'category2.ascendantId',
+            foreignField: '_id',
+            as: 'category1'
+          }
+        }
+      ]
+    }, //   name: 'generalSpecs', // { // }, //   type: 'cat' //   ], //     { name: 'type', type: 'String!' } // text, image //     { name: 'name', type: 'String!' }, //   fields: [ //   name: 'specification', // { name: 'supplier', type: 'String' } // if it is not specified, admin can have action ui of all cases of add, delete // { name: 'manufacture', type: 'String' }, // { name: 'brand', type: 'String' }, // { name: 'category', type: 'Category' }, // { name: 'specification', type: 'specification' }, // { // create/all/type // product, profile
     //   fields: [
     //     { name: 'imgUrl', type: 'String' },
     //     { name: 'weight', type: 'String' },
