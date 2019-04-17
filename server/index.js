@@ -102,6 +102,10 @@ function makeCollections(mongo) {
     mongo.listCollections({ name: schema.name }).next(function(err, collinfo) {
       if (collinfo) {
         console.log('Find collection for authSchema:', collinfo.name)
+        if (schema.initCollection) {
+          console.log('Remove all documents for collection :', collinfo.name)
+          mongo.collection(collinfo.name).deleteMany({})
+        }
       } else {
         console.log('no <' + schema.name + '> collection is there!: ', err)
         mongo.createCollection(schema.name)

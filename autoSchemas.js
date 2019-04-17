@@ -8,7 +8,13 @@ const schemas = () => {
         { name: 'slug', type: 'String' },
         { name: 'like', type: 'Int' }
       ],
-      type: 'cat',
+      generate: {
+        admin: true,
+        store: true,
+        gql: true,
+        typedef: true,
+        resolver: true
+      },
       frontType: 'article',
       initCollection: true
     },
@@ -20,19 +26,20 @@ const schemas = () => {
         { name: 'amount', type: 'Int!' }
       ],
       type: 'cat',
-      additionWhenAdd: ['specificationId']
+      initCollection: true
     },
     {
       name: 'product',
       fields: [
-        { name: 'name', type: 'String!' }, // { name: 'inventory', type: 'Inventory!' },
-        { name: 'price', type: 'Int!' }, // { name: 'category', type: 'Category3!' },
+        { name: 'name', type: 'String!' },
+        { name: 'price', type: 'Int!' },
         { name: 'currency', type: 'String!' }
       ],
       type: 'cat',
       frontType: 'product',
-      canActions: ['add', 'delete'],
+      initCollection: true,
       lookups: [
+        // lookups 에 있는 필드는 fields에서 제거 // 프론트 화면 타입 // collection 데이터 모두 삭제 // name은 필수
         {
           $lookup: {
             from: 'inventory',
@@ -68,10 +75,7 @@ const schemas = () => {
           }
         }
       ]
-    }, //   name: 'generalSpecs', // { // }, //   type: 'cat' //   ], //     { name: 'type', type: 'String!' } // text, image //     { name: 'name', type: 'String!' }, //   fields: [ //   name: 'specification', // { name: 'supplier', type: 'String' } // if it is not specified, admin can have action ui of all cases of add, delete // { name: 'manufacture', type: 'String' }, // { name: 'brand', type: 'String' }, // { name: 'category', type: 'Category' }, // { name: 'specification', type: 'specification' }, // { // create/all/type // product, profile
-    //   fields: [
-    //     { name: 'imgUrl', type: 'String' },
-    //     { name: 'weight', type: 'String' },
+    }, //     { name: 'weight', type: 'String' }, //     { name: 'imgUrl', type: 'String' }, //   fields: [ // add/updateItem에서 사용여부 //   name: 'generalSpecs', // { // }, //   type: 'cat' //   ], //     { name: 'type', type: 'String!' } // text, image //     { name: 'name', type: 'String!' }, //   fields: [ //   name: 'specification', // { name: 'supplier', type: 'String' } // if it is not specified, admin can have action ui of all cases of add, delete // { name: 'manufacture', type: 'String' }, // { name: 'brand', type: 'String' }, // { name: 'category', type: 'Category' }, // { name: 'specification', type: 'specification' }, // { // create/all/type // product, profile
     //     { name: 'height', type: 'String' },
     //     { name: 'size', type: 'String' },
     //     { name: 'sizeUnit', type: 'String' },
@@ -98,7 +102,8 @@ const schemas = () => {
         { name: 'name', type: 'String!' },
         { name: 'description', type: 'String' }
       ],
-      type: 'cat'
+      type: 'cat',
+      initCollection: true
     },
     {
       name: 'category2',
@@ -107,7 +112,8 @@ const schemas = () => {
         { name: 'description', type: 'String' },
         { name: 'ascendant', type: 'Category1' }
       ],
-      type: 'cat'
+      type: 'cat',
+      initCollection: true
     },
     {
       name: 'category3',
@@ -116,7 +122,8 @@ const schemas = () => {
         { name: 'description', type: 'String' },
         { name: 'ascendant', type: 'Category2' }
       ],
-      type: 'cat'
+      type: 'cat',
+      initCollection: true
     }
   ]
 }

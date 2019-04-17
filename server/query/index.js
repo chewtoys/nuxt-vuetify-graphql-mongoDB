@@ -207,7 +207,6 @@ const resolvers = (schema, capitalizeName) => {
 
         const { query, sortBy, page, rowsPerPage } = generateQuery(args)
 
-        const match = { $match: query }
         const ownerLookup = [
           {
             $lookup: {
@@ -244,6 +243,7 @@ const resolvers = (schema, capitalizeName) => {
         const project = { $project: { user: 0 } }
         aggrItems.push(project)
 
+        const match = { $match: query }
         aggrItems.push(match)
 
         console.log('aggregation aggrItems :', aggrItems)
@@ -274,26 +274,22 @@ const resolvers = (schema, capitalizeName) => {
     }
   }
 
-  // schema.fields.forEach(field => {
-  //   if (!hasNormalScalar(field.type)) {
-  //     const resolverItem = async (root, args, { mongo }) => {
-  //       const collectionName = field.type.toLowerCase().replace('!', '')
-  //       const queryFieldName = field.name + 'Id'
-  //       // console.log('resolverItem :', collectionName, queryFieldName)
-  //       const item = prepare(
-  //         await mongo.collection(collectionName).findOne({
-  //           _id: ObjectId(root[queryFieldName])
-  //         })
-  //       )
-  //       // if (collectionName === 'category3') {
-  //       //   console.log('root[queryFieldName] : ', root[queryFieldName])
-  //       //   console.log('item :', item)
-  //       // }
-  //       return item
-  //     }
-  //     resolverItems[capitalizeName][field.name] = resolverItem
-  //   }
-  // })
+  schema.fields.forEach(field => {
+    if (!hasNormalScalar(field.type)) {
+      const resolverItem = async (root, args, { mongo }) => {
+        const collectionName = field.type.toLowerCase().replace('!', '')
+        const queryFieldName = field.name + 'Id'
+        // console.log('resolverItem :', collectionName, queryFieldName)
+        const item = prepare(
+          await mongo.collection(collectionName).findOne({
+            _id: ObjectId(root[queryFieldName])
+          })
+        )
+        return item
+      }
+      resolverItems[capitalizeName][field.name] = resolverItem
+    }
+  })
   // console.log('resolverItems', resolverItems)
   return resolverItems
 }
