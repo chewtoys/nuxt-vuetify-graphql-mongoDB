@@ -20,7 +20,7 @@ export default ctx => {
     console.log('headers', headers)
     const token = process.server
       ? parse(ctx.req.headers.cookie || '').accessToken
-      : window.__NUXT__.state.user.accessToken
+      : window.__NUXT__.state.sign.accessToken
     return {
       headers: {
         ...headers,

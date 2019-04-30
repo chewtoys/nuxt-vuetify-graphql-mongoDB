@@ -91,11 +91,11 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('user', ['isAuthenticated', 'loggedInUser'])
+    ...mapGetters('sign', ['isAuthenticated', 'loggedInUser'])
   },
   methods: {
     logout() {
-      this.$store.dispatch('user/logout')
+      this.$store.dispatch('sign/logout')
     }
   }
 }

@@ -1,4 +1,5 @@
-import { MongoClient } from 'mongodb'
+import { MongoClient, ObjectId } from 'mongodb'
+import bcrypt from 'bcrypt'
 import schemas from '../autoSchemas.js'
 import makeSchemas from './graphql/schema'
 import { context } from './graphql/context'
@@ -103,14 +104,48 @@ function makeCollections(mongo) {
       if (collinfo) {
         console.log('Find collection for authSchema:', collinfo.name)
         if (schema.initCollection) {
-          console.log('Remove all documents for collection :', collinfo.name)
+          console.log(
+            'Remove all documents on collection with initCollection flag :',
+            collinfo.name
+          )
           mongo.collection(collinfo.name).deleteMany({})
         }
       } else {
         console.log('no <' + schema.name + '> collection is there!: ', err)
-        mongo.createCollection(schema.name)
+        // mongo.createCollection(schema.name)
+        if (schema.name === 'user') {
+          console.log('isUserCollectionMade :')
+          createAdmin()
+        }
       }
     })
+  })
+}
+
+async function createAdmin() {
+  console.log('createAdmin')
+  const User = await mongo.collection('user')
+  const ret = await User.insertOne({
+    name: 'admin',
+    admin: true,
+    created: new Date(),
+    updated: new Date()
+  })
+
+  createAuthForAdmin(ret.insertedId)
+}
+
+async function createAuthForAdmin(userId) {
+  console.log('createAuthForAdmin')
+  const auth = await mongo.collection('auth')
+  const hash = await bcrypt.hash('12345678', 10)
+  await auth.insertOne({
+    email: 'admin@gmail.com',
+    password: hash,
+    ownerId: ObjectId(userId),
+    verified: true,
+    verificationCode: '',
+    verificationExpireDate: new Date()
   })
 }
 

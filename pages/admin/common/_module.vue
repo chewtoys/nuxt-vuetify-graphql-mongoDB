@@ -217,10 +217,12 @@ export default {
       return isEmpty(obj)
     },
     activeDialog() {
+      console.log('activeDialog :', this.editedIndex)
       if (this.editedIndex < 0) {
-        this.defaultItem.owner = this.$store.state.user.user.email
+        this.defaultItem.owner = this.$store.state.sign.user.name
         this.defaultItem.created = this.$moment().format(this.timeformat)
       }
+      console.log('defaultItem :', this.defaultItem)
     },
     close() {
       this.dialog = false
@@ -385,7 +387,7 @@ export default {
     handleItem(item, key, isDataTable) {
       const type = this.moduleSchema.find(schema => schema.key === key).type
       const isNormalType = hasNormalScalar(type)
-      // console.log('handleItem : ', key, type)
+      console.log('handleItem : ', key, type)
       if (type === 'User') {
         return this.handleUser(item[key])
       } else if (type === 'String')
@@ -398,7 +400,8 @@ export default {
       return isDataTable ? obj.name : obj._id
     },
     handleUser(user) {
-      return user.email
+      console.log('handleUser > user:', user)
+      return user.name
     },
     handleTruncate(content, isDataTable) {
       const num = 14

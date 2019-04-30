@@ -4,7 +4,7 @@ import users from '~/graphql/query/users.gql'
 import signin from '~/graphql/mutation/signin.gql'
 import signup from '~/graphql/mutation/signup.gql'
 
-const user = {
+const sign = {
   namespaced: true,
   state: {
     accessToken: null,
@@ -125,4 +125,4 @@ const user = {
   }
 }
 
-export default user
+export default sign

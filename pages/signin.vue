@@ -50,7 +50,7 @@ export default {
     async signin() {
       if (this.validate()) {
         try {
-          await this.$store.dispatch('user/signin', {
+          await this.$store.dispatch('sign/signin', {
             email: this.email,
             password: this.password
           })

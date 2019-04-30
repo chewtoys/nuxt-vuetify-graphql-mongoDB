@@ -32,7 +32,7 @@ export default createPerimeter({
   },
 
   isAdmin() {
-    return this.child && this.child.role === 'admin'
+    return this.child && this.child.admin === true
   },
 
   isModerator() {

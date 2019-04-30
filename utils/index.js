@@ -96,8 +96,7 @@ const searchableFields = () => {
   return [
     { key: '_id', type: 'ID!' },
     { key: 'created', type: 'Date' },
-    { key: 'updated', type: 'Date' },
-    { key: 'owner', type: 'User' }
+    { key: 'updated', type: 'Date' }
   ]
 }
 

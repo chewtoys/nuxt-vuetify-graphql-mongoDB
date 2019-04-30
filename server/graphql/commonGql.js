@@ -14,7 +14,7 @@ const makeFields = (
     autoSchemas
   )
 
-  // console.log('moduleName :', moduleName, depth)
+  console.log('moduleName :', moduleName, moduleType, depth)
   const doubleTabs = '\t\t'
   const tabs = '\t'.repeat(depth)
   const lookups = []
@@ -27,6 +27,7 @@ const makeFields = (
     })
   }
   // console.log('lookups :', lookups)
+  console.log('schema.fields :', schema.fields)
   const fields = schema.lookups
     ? [...schema.fields, ...lookups]
     : [...schema.fields]
@@ -42,7 +43,11 @@ const makeFields = (
         fieldsValue += '' + doubleTabs + tabs + field.name + '{' + '\n'
         fieldsValue = makeFields(
           field.name,
-          field.type.toLowerCase().replace('!', ''),
+          field.type
+            .toLowerCase()
+            .replace('!', '')
+            .replace('[', '')
+            .replace(']', ''),
           autoSchemas,
           fieldsValue,
           depth + 1
@@ -93,9 +98,7 @@ const generateGql = (moduleName, moduleFields, autoSchemas) => {
         _id
         updated
         created
-        owner {
-          email
-        }
+      
         ... on ${name} {
           ${fieldsValue}
         }
@@ -110,9 +113,7 @@ const generateGql = (moduleName, moduleFields, autoSchemas) => {
         _id
         updated
         created
-        owner {
-          email
-        }
+        
         ... on ${name} {
           ${fieldsValue}
         }
@@ -127,9 +128,7 @@ const generateGql = (moduleName, moduleFields, autoSchemas) => {
         _id
         updated
         created
-        owner {
-          email
-        }
+       
         ... on ${name} {
           ${fieldsValue}
         }

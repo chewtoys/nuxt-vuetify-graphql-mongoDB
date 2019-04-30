@@ -128,7 +128,6 @@ const typeDef = (schema, capitalizeName) => {
     ${fieldsValue}
     created: Date
     updated: Date
-    owner: User
   }
 
 
@@ -200,97 +199,117 @@ const resolvers = (schema, capitalizeName) => {
           ]
   */
 
-  const resolverItems = {
-    Query: {
-      [`search${capitalizeName}`]: async (root, args, { mongo, user }) => {
-        const collection = mongo.collection(args.module)
+  let resolverItems = {}
+  resolverItems = {}
+  resolverItems.Query = {
+    [`search${capitalizeName}`]: async (root, args, { mongo, user }) => {
+      const collection = mongo.collection(args.module)
 
-        const { query, sortBy, page, rowsPerPage } = generateQuery(args)
+      const { query, sortBy, page, rowsPerPage } = generateQuery(args)
 
-        const ownerLookup = [
-          {
-            $lookup: {
-              from: 'users',
-              localField: 'ownerId',
-              foreignField: '_id',
-              as: 'user'
-            }
-          }
-        ]
-        if (schema.lookups) {
-          schema.lookups.map(lookup => {
-            delete lookup.$lookup.pick
-          })
-        }
-        const aggrItems = schema.lookups
-          ? [...ownerLookup, ...schema.lookups]
-          : [...ownerLookup]
-
-        const addFields = {
-          $addFields: {
-            owner: { $arrayElemAt: ['$user', 0] }
+      const ownerLookup = [
+        {
+          $lookup: {
+            from: 'user',
+            localField: 'ownerId',
+            foreignField: '_id',
+            as: 'user'
           }
         }
-        if (schema.lookups) {
-          schema.lookups.forEach(lookup => {
-            addFields.$addFields[lookup.$lookup.as] = {
-              $arrayElemAt: ['$' + lookup.$lookup.as, 0]
-            }
-          })
+      ]
+      if (schema.lookups) {
+        schema.lookups.map(lookup => {
+          delete lookup.$lookup.pick
+        })
+      }
+      const aggrItems = schema.lookups
+        ? [...ownerLookup, ...schema.lookups]
+        : [...ownerLookup]
+
+      const addFields = {
+        $addFields: {
+          owner: { $arrayElemAt: ['$user', 0] }
         }
-        aggrItems.push(addFields)
-
-        const project = { $project: { user: 0 } }
-        aggrItems.push(project)
-
-        const match = { $match: query }
-        aggrItems.push(match)
-
-        console.log('aggregation aggrItems :', aggrItems)
-
-        const total = await collection.find(query).count()
-        const retItems = (await collection
-          // Reference 검색만 제외하고 검색
-          // reference lookup 하고 unwind
-          .aggregate(aggrItems)
-          // .find(query)
-          .sort(sortBy)
-          .skip(page > 0 ? (page - 1) * rowsPerPage : 0)
-          .limit(rowsPerPage)
-          .toArray()).map(prepare)
-        console.log('aggregation retItems :', retItems)
-        return { total: total, module: args.module, items: retItems }
       }
-    },
-    [`${capitalizeName}`]: {
-      owner: async (root, args, { mongo }) => {
-        const owner = prepare(
-          await mongo.collection('users').findOne({
-            _id: ObjectId(root.ownerId)
-          })
-        )
-        return owner
+      if (schema.lookups) {
+        schema.lookups.forEach(lookup => {
+          addFields.$addFields[lookup.$lookup.as] = {
+            $arrayElemAt: ['$' + lookup.$lookup.as, 0]
+          }
+        })
       }
+      aggrItems.push(addFields)
+
+      const project = { $project: { user: 0 } }
+      aggrItems.push(project)
+
+      const match = { $match: query }
+      aggrItems.push(match)
+
+      console.log('aggregation aggrItems :', aggrItems)
+
+      const total = await collection.find(query).count()
+      const retItems = (await collection
+        // Reference 검색만 제외하고 검색
+        // reference lookup 하고 unwind
+        .aggregate(aggrItems)
+        // .find(query)
+        .sort(sortBy)
+        .skip(page > 0 ? (page - 1) * rowsPerPage : 0)
+        .limit(rowsPerPage)
+        .toArray()).map(prepare)
+      console.log('aggregation retItems :', retItems)
+      return { total: total, module: args.module, items: retItems }
     }
   }
+
+  // if (capitalizeName !== 'User') {
+  //   resolverItems[`${capitalizeName}`] = {
+  //     owner: async (root, args, { mongo }) => {
+  //       const owner = prepare(
+  //         await mongo.collection('user').findOne({
+  //           _id: ObjectId(root.ownerId)
+  //         })
+  //       )
+  //       return owner
+  //     }
+  //   }
+  // }
 
   schema.fields.forEach(field => {
     if (!hasNormalScalar(field.type)) {
       const resolverItem = async (root, args, { mongo }) => {
-        const collectionName = field.type.toLowerCase().replace('!', '')
+        const collectionName = field.type
+          .toLowerCase()
+          .replace('!', '')
+          .replace('[', '')
+          .replace(']', '')
         const queryFieldName = field.name + 'Id'
-        // console.log('resolverItem :', collectionName, queryFieldName)
-        const item = prepare(
-          await mongo.collection(collectionName).findOne({
-            _id: ObjectId(root[queryFieldName])
-          })
-        )
+        console.log('resolverItem :', collectionName, queryFieldName)
+        let item = null
+        if (field.type.includes('[')) {
+          item = (await mongo
+            .collection(collectionName)
+            .find({
+              _id: ObjectId(root[queryFieldName])
+            })
+            .toArray()).map(prepare)
+        } else {
+          item = prepare(
+            await mongo.collection(collectionName).findOne({
+              _id: ObjectId(root[queryFieldName])
+            })
+          )
+        }
         return item
       }
+
+      if (resolverItems[capitalizeName] === undefined)
+        resolverItems[capitalizeName] = {}
       resolverItems[capitalizeName][field.name] = resolverItem
     }
   })
-  // console.log('resolverItems', resolverItems)
+  console.log('resolverItems', resolverItems)
   return resolverItems
 }
 

@@ -1,23 +1,49 @@
 const schemas = () => {
   return [
     {
-      name: 'post',
+      name: 'group',
       fields: [
-        { name: 'title', type: 'String!' },
-        { name: 'content', type: 'String' },
-        { name: 'slug', type: 'String' },
-        { name: 'like', type: 'Int' }
-      ],
-      generate: {
-        admin: true,
-        store: true,
-        gql: true,
-        typedef: true,
-        resolver: true
-      },
-      frontType: 'article',
-      initCollection: true
+        { name: 'name', type: 'String' },
+        { name: 'description', type: 'String' }
+      ]
     },
+    {
+      name: 'user',
+      fields: [
+        { name: 'name', type: 'String' },
+        { name: 'admin', type: 'Boolean!' },
+        { name: 'groups', type: '[Group]' }
+      ]
+    },
+    {
+      name: 'auth',
+      fields: [
+        { name: 'email', type: 'String!' },
+        { name: 'password', type: 'String!' },
+        { name: 'owner', type: 'User' },
+        { name: 'verified', type: 'Boolean!' },
+        { name: 'verificationCode', type: 'String!' },
+        { name: 'verificationExpireDate', type: 'Date!' }
+      ]
+    },
+    // {
+    //   name: 'post',
+    //   fields: [
+    //     { name: 'title', type: 'String!' },
+    //     { name: 'content', type: 'String' },
+    //     { name: 'slug', type: 'String' },
+    //     { name: 'like', type: 'Int' }
+    //   ],
+    //   generate: {
+    //     admin: true,
+    //     store: true,
+    //     gql: true,
+    //     typedef: true,
+    //     resolver: true
+    //   },
+    //   frontType: 'article',
+    //   initCollection: false
+    // },
     {
       name: 'inventory',
       fields: [
@@ -26,7 +52,7 @@ const schemas = () => {
         { name: 'amount', type: 'Int!' }
       ],
       type: 'cat',
-      initCollection: true
+      initCollection: false
     },
     {
       name: 'product',
@@ -37,7 +63,7 @@ const schemas = () => {
       ],
       type: 'cat',
       frontType: 'product',
-      initCollection: true,
+      initCollection: false,
       lookups: [
         // lookups 에 있는 필드는 fields에서 제거 // 프론트 화면 타입 // collection 데이터 모두 삭제 // name은 필수
         {
@@ -100,10 +126,11 @@ const schemas = () => {
       name: 'category1',
       fields: [
         { name: 'name', type: 'String!' },
-        { name: 'description', type: 'String' }
+        { name: 'description', type: 'String' },
+        { name: 'owner', type: 'User' }
       ],
       type: 'cat',
-      initCollection: true
+      initCollection: false
     },
     {
       name: 'category2',
@@ -113,7 +140,7 @@ const schemas = () => {
         { name: 'ascendant', type: 'Category1' }
       ],
       type: 'cat',
-      initCollection: true
+      initCollection: false
     },
     {
       name: 'category3',
@@ -123,7 +150,7 @@ const schemas = () => {
         { name: 'ascendant', type: 'Category2' }
       ],
       type: 'cat',
-      initCollection: true
+      initCollection: false
     }
   ]
 }

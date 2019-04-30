@@ -1,28 +1,13 @@
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 import { ObjectId } from 'mongodb'
-import { prepare } from '../../../query'
 
 export const typeDef = `
-  extend type Query {
-    user(email: String!): User!
-    users:[User]!
-  }
 
   extend type Mutation {
     signin(email:String!, password:String!):AuthPayload!
     signup(email:String!, password:String!, name:String!):AuthPayload!
-    updateUser(email:String!, name:String, role:String): User!
   }
-
-  type User {
-    role: String!
-    name: String!
-    email: String!
-    created: Date
-    loggedIn: Date
-    posts: [Post] # the list of Posts by this author
-  } 
   
   type AuthPayload {
     accessToken: String!
@@ -30,29 +15,20 @@ export const typeDef = `
   }
 `
 export const resolvers = {
-  Query: {
-    user: async (root, args, { mongo }) => {
-      const Users = mongo.collection('users')
-      const existingUser = await Users.findOne({ email: args.email })
-      return existingUser
-    },
-    users: async (root, args, { mongo }) => {
-      const Users = mongo.collection('users')
-      const users = await Users.find({})
-        .sort({ loggedIn: -1 })
-        .toArray()
-      return users
-    }
-  },
   Mutation: {
     signin: async (root, { email, password }, { mongo, secrets }) => {
-      const Users = mongo.collection('users')
-      const user = await Users.findOne({ email })
-      if (!user) {
-        throw new Error('Email not found')
-      }
-      const Auths = mongo.collection('auths')
+      // const Users = mongo.collection('user')
+      // const user = await Users.findOne({ email })
+      // if (!user) {
+      //   throw new Error('Email not found')
+      // }
+      const Auths = mongo.collection('auth')
       const auth = await Auths.findOne({ email })
+      if (!auth) {
+        throw new Error('Email was not found!')
+      }
+      const Users = mongo.collection('user')
+      const user = await Users.findOne({ _id: auth.ownerId })
 
       const validPassword = await bcrypt.compare(password, auth.password)
       if (!validPassword) {
@@ -70,7 +46,7 @@ export const resolvers = {
       return authPayload
     },
     signup: async (root, { email, password, name }, { mongo, secrets }) => {
-      const Users = mongo.collection('users')
+      const Users = mongo.collection('user')
       const existingUser = await Users.findOne({ email })
       if (existingUser) {
         throw new Error('Email already used')
@@ -82,7 +58,7 @@ export const resolvers = {
         created: new Date(),
         loggedIn: new Date()
       })
-      const Auths = mongo.collection('auths')
+      const Auths = mongo.collection('auth')
       const hash = await bcrypt.hash(password, 10)
       await Auths.insertOne({ email, password: hash })
       const user = await Users.findOne({ email })
@@ -90,25 +66,6 @@ export const resolvers = {
       const authPayload = { accessToken }
       authPayload.user = user
       return authPayload
-    },
-    updateUser: async (root, args, { mongo, user }) => {
-      if (user) {
-        const Users = mongo.collection('users')
-        const payload = Object.assign({}, args)
-        delete payload.email
-        console.log('payload:', payload)
-        await Users.updateOne({ email: args.email }, { $set: payload })
-        return prepare(await Users.findOne({ email: args.email }))
-      } else throw new Error('User is not authenticated!')
-    }
-  },
-  User: {
-    posts: async (user, args, { mongo }) => {
-      const posts = (await mongo
-        .collection('posts')
-        .find({ owner: user._id })
-        .toArray()).map(prepare)
-      return posts
     }
   }
 }

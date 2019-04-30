@@ -3,8 +3,7 @@ mutation signin($email: String!, $password: String!) {
     accessToken
     user {
       name
-      email
-      role
+      admin
     }
   }
 }
